@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace APIproyectoEquinoterapia.Models;
+
+public partial class Caballo
+{
+    public string Placa { get; set; } = null!;
+
+    public string Nombre { get; set; } = null!;
+
+    public string? Estado { get; set; }
+
+    public DateOnly? FechaHerraje { get; set; }
+
+    public string? Padecimiento { get; set; }
+
+    public DateTime? FechaRegistro { get; set; }
+
+    public virtual ICollection<Sesion> Sesions { get; set; } = new List<Sesion>();
+}
