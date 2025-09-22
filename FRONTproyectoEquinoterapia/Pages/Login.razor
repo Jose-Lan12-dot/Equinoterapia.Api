@@ -1,0 +1,65 @@
+﻿@page "/"
+@layout LoginLayout
+@using Equinoterapia2.Models
+@using Equinoterapia2.Services
+@inject LoginService loginService
+@inject NavigationManager navigationManager
+
+<div class="login-card">
+    <h3>Bienvenido 👋</h3>
+
+    <!-- Formulario con validación -->
+    <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <RadzenTextBox @bind-Value="loginModel.Usuario"
+                       Placeholder="Usuario"
+                       Style="width:100%"
+                       Icon="account_circle" />
+
+        <RadzenTextBox @bind-Value="loginModel.Contrasena"
+                       Placeholder="Contraseña"
+                       Type="Password"
+                       Style="width:100%"
+                       Icon="lock" />
+
+        <RadzenButton Text="Ingresar"
+                      ButtonType="ButtonType.Submit"
+                      Style="margin-top:15px; width:100%" />
+    </EditForm>
+
+    <!-- Mensaje de error -->
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p style="color:red; margin-top:10px">@errorMessage</p>
+    }
+</div>
+
+@code {
+    private LoginModel loginModel = new LoginModel();
+    private string errorMessage;
+
+    private async Task HandleLogin()
+    {
+        errorMessage = string.Empty;
+
+        try
+        {
+            bool exito = await loginService.LoginAsync(loginModel);
+
+            if (exito)
+            {
+                navigationManager.NavigateTo("/home");
+            }
+            else
+            {
+                errorMessage = "Usuario o contraseña incorrectos";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al conectarse con la API: {ex.Message}";
+        }
+    }
+}
