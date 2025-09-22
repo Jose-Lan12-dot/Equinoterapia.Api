@@ -1,0 +1,65 @@
+﻿@page "/pacientes"
+
+@using System.Net.Http.Json
+@inject HttpClient Http
+
+<h3>Lista de Pacientes</h3>
+
+<RadzenDataGrid Data="@pacientes" TItem="Paciente" ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" AllowSorting="true">
+    <Columns>
+        <RadzenDataGridColumn TItem="Paciente" Property="Id" Title="ID" />
+        <RadzenDataGridColumn TItem="Paciente" Property="Nombre" Title="Nombre" />
+        <RadzenDataGridColumn TItem="Paciente" Property="FaltasAcumuladas" Title="FaltasAcumuladas" />
+        <RadzenDataGridColumn TItem="Paciente" Property="Estado" Title="Estado" />
+        <RadzenDataGridColumn TItem="Paciente" Title="Operaciones">
+            <Template Context="p">
+                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => EliminarPaciente(p))" />
+                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Click="@(() => EditarPaciente(p))" Style="margin-left:5px" />
+                <RadzenButton Icon="visibility" ButtonStyle="ButtonStyle.Info" Size="ButtonSize.Small" Click="@(() => VerPaciente(p))" Style="margin-left:5px" />
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    List<Paciente> pacientes = new List<Paciente>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Llamada de la API
+       // pacientes = await Http.GetFromJsonAsync<List<Paciente>>("https://tubackend.com/api/pacientes");
+
+        //  simulacion de datos:
+        if (pacientes == null || !pacientes.Any())
+        {
+            pacientes = new List<Paciente>
+            {
+                new Paciente { Id = 1, Nombre = "Juan Pérez", FaltasAcumuladas = 1, Estado = "Activo" },
+                new Paciente { Id = 2, Nombre = "María López", FaltasAcumuladas = 2, Estado = "En Tratamiento" }
+            };
+        }
+    }
+
+    void EliminarPaciente(Paciente p)
+    {
+        pacientes.Remove(p);
+    }
+
+    void EditarPaciente(Paciente p)
+    {
+        Console.WriteLine($"Editar {p.Nombre}");
+    }
+
+    void VerPaciente(Paciente p)
+    {
+        Console.WriteLine($"Ver {p.Nombre}");
+    }
+
+    public class Paciente
+    {
+        public int Id { get; set; }
+        public required string Nombre { get; set; }
+        public int FaltasAcumuladas { get; set; }
+        public required string Estado { get; set; }
+    }
+}
