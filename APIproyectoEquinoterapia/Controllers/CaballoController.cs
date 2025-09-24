@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using APIproyectoEquinoterapia.DTOs;
+using APIproyectoEquinoterapia.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using APIproyectoEquinoterapia.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Threading.Tasks;
 
 namespace APIproyectoEquinoterapia.Controllers
 {
@@ -21,101 +23,128 @@ namespace APIproyectoEquinoterapia.Controllers
         }
 
         // GET: api/Caballo
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Caballo>>> GetCaballos()
+        [HttpGet("obtenerCaballos")]
+        public async Task<ActionResult<IEnumerable<CaballoDTO>>> GetCaballos()
         {
-            return await _context.Caballos.ToListAsync();
+            var caballos = await _context.Caballos
+                .Select(c => new CaballoDTO
+                {
+                    Placa = c.Placa,
+                    Nombre = c.Nombre,
+                    Estado = c.Estado,
+                    FechaHerraje = c.FechaHerraje,
+                    Padecimiento = c.Padecimiento,
+                })
+                .ToListAsync();
+
+            if (caballos == null || caballos.Count == 0)
+                return NotFound("No hay ningun elemento.");
+
+            return caballos;
         }
 
-        // GET: api/Caballo/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Caballo>> GetCaballo(string id)
+        //GET: api/Caballo/5
+        [HttpGet("obtenerCaballo/{placa}")]
+        public async Task<ActionResult<CaballoDTO>> GetCaballo(string placa)
         {
-            var caballo = await _context.Caballos.FindAsync(id);
+            var caballo = await _context.Caballos
+                .Where(c => c.Placa == placa)
+                .Select(c => new CaballoDTO
+                {
+                    Placa = c.Placa,
+                    Nombre = c.Nombre,
+                    Estado = c.Estado,
+                    FechaHerraje = c.FechaHerraje,
+                    Padecimiento = c.Padecimiento,
+                })
+                .FirstOrDefaultAsync();
 
             if (caballo == null)
             {
-                return NotFound();
+                return NotFound("Caballo no encontrado");
             }
 
             return caballo;
         }
 
-        // PUT: api/Caballo/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCaballo(string id, Caballo caballo)
+        //// PUT: api/Caballo/5
+        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("actualizarCaballo/{placa}")]
+        public async Task<IActionResult> PutCaballo(string placa, CaballoDTO caballoDTO)
         {
-            if (id != caballo.Placa)
+            if (placa != caballoDTO.Placa)
             {
                 return BadRequest();
             }
 
-            _context.Entry(caballo).State = EntityState.Modified;
+            var caballo = await _context.Caballos.FindAsync(placa);
+            if (caballo == null)
+                return NotFound("Caballo no encontrado");
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CaballoExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            // Actualiza los campos
+            caballo.Nombre = caballoDTO.Nombre;
+            caballo.Estado = caballoDTO.Estado;
+            caballo.FechaHerraje = caballoDTO.FechaHerraje;
+            caballo.Padecimiento = caballoDTO.Padecimiento;
 
-            return NoContent();
+            await _context.SaveChangesAsync();
+            return Ok("Caballo actualizado correctamente");
         }
 
-        // POST: api/Caballo
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Caballo>> PostCaballo(Caballo caballo)
+        //POST: api/Caballo
+        //To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("agregarCaballo")]
+        public async Task<ActionResult<CaballoDTO>> PostCaballo(CaballoDTO caballoDTO)
         {
-            _context.Caballos.Add(caballo);
-            try
+
+
+            if (_context.Caballos.Any(c => c.Placa == caballoDTO.Placa))
             {
-                await _context.SaveChangesAsync();
+                return Conflict("Caballo no encontrado");
             }
-            catch (DbUpdateException)
-            {
-                if (CaballoExists(caballo.Placa))
+            else {
+                var caballo = new Caballo
                 {
-                    return Conflict();
+                    Placa = caballoDTO.Placa,
+                    Nombre = caballoDTO.Nombre,
+                    Estado = caballoDTO.Estado,
+                    FechaHerraje = caballoDTO.FechaHerraje,
+                    Padecimiento = caballoDTO.Padecimiento
+                };
+                _context.Caballos.Add(caballo);
+
+                try
+                {
+                    await _context.SaveChangesAsync();
                 }
-                else
+                catch (DbUpdateException)
                 {
+
                     throw;
                 }
             }
 
-            return CreatedAtAction("GetCaballo", new { id = caballo.Placa }, caballo);
+ 
+
+
+
+            return Ok();
         }
 
         // DELETE: api/Caballo/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCaballo(string id)
+        [HttpDelete("eliminarCaballo{placa}")]
+        public async Task<IActionResult> DeleteCaballo(string placa)
         {
-            var caballo = await _context.Caballos.FindAsync(id);
+            var caballo = await _context.Caballos.FindAsync(placa);
             if (caballo == null)
             {
-                return NotFound();
+                return NotFound("Caballo no encontrado");
             }
 
             _context.Caballos.Remove(caballo);
             await _context.SaveChangesAsync();
 
-            return NoContent();
-        }
-
-        private bool CaballoExists(string id)
-        {
-            return _context.Caballos.Any(e => e.Placa == id);
+            return Ok("Eliminado");
         }
     }
 }

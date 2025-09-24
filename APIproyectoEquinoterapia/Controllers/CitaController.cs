@@ -21,28 +21,34 @@ namespace APIproyectoEquinoterapia.Controllers
         }
 
         // GET: api/Cita
-        [HttpGet]
+        [HttpGet("obtenerCitas")]
         public async Task<ActionResult<IEnumerable<Cita>>> GetCita()
         {
-            return await _context.Cita.ToListAsync();
+            var cita = await _context.Cita.ToListAsync();
+            if (cita == null || cita.Count == 0)
+            {
+                return NotFound("No se encontraron citas.");
+            }
+
+            return cita;
         }
 
         // GET: api/Cita/5
-        [HttpGet("{id}")]
+        [HttpGet("obtenerCita{id}")]
         public async Task<ActionResult<Cita>> GetCita(int id)
         {
             var cita = await _context.Cita.FindAsync(id);
 
             if (cita == null)
             {
-                return NotFound();
+                return NotFound("Cita no encontrada");
             }
 
             return cita;
         }
 
         // PUT: api/Cita/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // protect 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCita(int id, Cita cita)
         {

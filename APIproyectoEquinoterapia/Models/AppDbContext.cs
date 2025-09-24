@@ -59,7 +59,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Padecimiento)
                 .HasMaxLength(255)
                 .IsUnicode(false)
-                .HasColumnName("padecimiento");
+                .HasColumnName("padecimientos");
         });
 
         modelBuilder.Entity<Cita>(entity =>
