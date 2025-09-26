@@ -100,7 +100,7 @@ namespace APIproyectoEquinoterapia.Controllers
 
             if (_context.caballo.Any(c => c.Placa == caballoDTO.Placa))
             {
-                return  NotFound("Caballo no encontrado");
+                return  NotFound("Caballo ya existe");
             }
             else {
                 var caballo = new Caballo

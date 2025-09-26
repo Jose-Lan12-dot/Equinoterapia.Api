@@ -15,7 +15,6 @@ public partial class Paciente
 
     public string? TelefonoTutor { get; set; }
 
-    public int? Faltas { get; set; }
 
     public byte[]? DiagnosticoMedico { get; set; }
 

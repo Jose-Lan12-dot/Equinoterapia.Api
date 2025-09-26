@@ -33,7 +33,6 @@ namespace APIproyectoEquinoterapia.Controllers
                     FechaNacimiento = p.FechaNacimiento,
                     Tutor = p.Tutor,
                     TelefonoTutor = p.TelefonoTutor,
-                    Faltas = p.Faltas,
                     FechaRegistro = p.FechaRegistro
                 })
                 .ToListAsync();
@@ -57,7 +56,6 @@ namespace APIproyectoEquinoterapia.Controllers
                     FechaNacimiento = p.FechaNacimiento,
                     Tutor = p.Tutor,
                     TelefonoTutor = p.TelefonoTutor,
-                    Faltas = p.Faltas,
                     FechaRegistro = p.FechaRegistro
                 })
                 .FirstOrDefaultAsync();
@@ -87,7 +85,6 @@ namespace APIproyectoEquinoterapia.Controllers
             paciente.FechaNacimiento = pacienteDTO.FechaNacimiento;
             paciente.Tutor = pacienteDTO.Tutor;
             paciente.TelefonoTutor = pacienteDTO.TelefonoTutor;
-            paciente.Faltas = pacienteDTO.Faltas;
             paciente.FechaRegistro = pacienteDTO.FechaRegistro;
 
             await _context.SaveChangesAsync();
@@ -104,7 +101,6 @@ namespace APIproyectoEquinoterapia.Controllers
                 FechaNacimiento = pacienteDTO.FechaNacimiento,
                 Tutor = pacienteDTO.Tutor,
                 TelefonoTutor = pacienteDTO.TelefonoTutor,
-                Faltas = pacienteDTO.Faltas,
                 FechaRegistro = pacienteDTO.FechaRegistro
             };
 
