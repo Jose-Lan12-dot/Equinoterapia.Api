@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Plugins;
+using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 
 namespace APIproyectoEquinoterapia.Models;
 
@@ -15,17 +16,19 @@ public partial class AppDbContext : DbContext
     {
     }
 
-    public virtual DbSet<Caballo> Caballos { get; set; }
+    public virtual DbSet<Caballo> caballo { get; set; }
 
-    public virtual DbSet<Cita> Cita { get; set; }
+    public virtual DbSet<Cita> cita { get; set; }
 
-    public virtual DbSet<Instructor> Instructors { get; set; }
+    public virtual DbSet<Instructor> instructor { get; set; }
 
-    public virtual DbSet<Paciente> Pacientes { get; set; }
+    public virtual DbSet<Paciente> paciente { get; set; }
 
-    public virtual DbSet<Sesion> Sesions { get; set; }
+    public virtual DbSet<Sesion> sesion { get; set; }
 
-    public virtual DbSet<Usuario> Usuarios { get; set; }
+    public virtual DbSet<Usuario> usuario { get; set; }
+
+    public DbSet<LoginRespuesta> loginrespuesta { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -92,7 +95,9 @@ public partial class AppDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("nombre");
             entity.Property(e => e.Telefono)
-                .HasColumnType("numeric(10, 0)")
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .IsFixedLength()
                 .HasColumnName("telefono");
         });
 
@@ -178,7 +183,14 @@ public partial class AppDbContext : DbContext
         });
 
         OnModelCreatingPartial(modelBuilder);
+
+
+        modelBuilder.Entity<LoginRespuesta>().HasNoKey(); // No tiene clave primaria
     }
+
+
+        
+
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

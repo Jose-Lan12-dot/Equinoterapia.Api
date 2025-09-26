@@ -9,7 +9,7 @@ public partial class Instructor
 
     public string Nombre { get; set; } = null!;
 
-    public decimal? Telefono { get; set; }
+    public string? Telefono { get; set; }
 
     public virtual ICollection<Sesion> Sesions { get; set; } = new List<Sesion>();
 }

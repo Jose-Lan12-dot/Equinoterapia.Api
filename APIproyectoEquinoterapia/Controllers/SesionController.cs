@@ -1,11 +1,10 @@
-﻿using System;
+﻿using APIproyectoEquinoterapia.DTOs;
+using APIproyectoEquinoterapia.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using APIproyectoEquinoterapia.Models;
 
 namespace APIproyectoEquinoterapia.Controllers
 {
@@ -21,87 +20,108 @@ namespace APIproyectoEquinoterapia.Controllers
         }
 
         // GET: api/Sesion
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Sesion>>> GetSesions()
+        [HttpGet("obtenerSesiones")]
+        public async Task<ActionResult<IEnumerable<SesionDTO>>> GetSesiones()
         {
-            return await _context.Sesions.ToListAsync();
+            var sesiones = await _context.sesion
+                .Select(s => new SesionDTO
+                {
+                    SesionId = s.SesionId,
+                    InstructorId = s.InstructorId,
+                    Placa = s.Placa,
+                    Fecha = s.Fecha,
+                    Hora = s.Hora
+                })
+                .ToListAsync();
+
+            if (sesiones == null || sesiones.Count == 0)
+                return NotFound("No hay sesiones registradas.");
+
+            return sesiones;
         }
 
         // GET: api/Sesion/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Sesion>> GetSesion(int id)
+        [HttpGet("obtenerSesion/{id}")]
+        public async Task<ActionResult<SesionDTO>> GetSesion(int id)
         {
-            var sesion = await _context.Sesions.FindAsync(id);
+            var sesion = await _context.sesion
+                .Where(s => s.SesionId == id)
+                .Select(s => new SesionDTO
+                {
+                    SesionId = s.SesionId,
+                    InstructorId = s.InstructorId,
+                    Placa = s.Placa,
+                    Fecha = s.Fecha,
+                    Hora = s.Hora
+                })
+                .FirstOrDefaultAsync();
 
             if (sesion == null)
-            {
-                return NotFound();
-            }
+                return NotFound("Sesión no encontrada.");
 
             return sesion;
         }
 
-        // PUT: api/Sesion/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutSesion(int id, Sesion sesion)
-        {
-            if (id != sesion.SesionId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(sesion).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SesionExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
         // POST: api/Sesion
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Sesion>> PostSesion(Sesion sesion)
+        [HttpPost("agregarSesion")]
+        public async Task<ActionResult<SesionDTO>> PostSesion(SesionDTO sesionDTO)
         {
-            _context.Sesions.Add(sesion);
+
+            if (!_context.instructor.Any(c => c.InstructorId == sesionDTO.InstructorId) || 
+                !_context.caballo.Any(c => c.Placa == sesionDTO.Placa)) {
+                return NotFound("Caballo o instrucctor no existe");
+            }
+            
+            // No uses sesionDTO.SesionId aquí, la base de datos lo genera
+            var sesion = new Sesion
+            {
+                InstructorId = sesionDTO.InstructorId,
+                Placa = sesionDTO.Placa,
+                Fecha = sesionDTO.Fecha,
+                Hora = sesionDTO.Hora
+            };
+
+            _context.sesion.Add(sesion);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetSesion", new { id = sesion.SesionId }, sesion);
+            // Ahora sí, asigna el SesionId generado a tu DTO para devolverlo al frontend
+            sesionDTO.SesionId = sesion.SesionId;
+
+            return Ok("Agregado Exitosamnete");
+        }
+
+        // PUT: api/Sesion/5
+        [HttpPut("actualizarSesion/{id}")]
+        public async Task<IActionResult> PutSesion(int id, SesionDTO sesionDTO)
+        {
+            if (id != sesionDTO.SesionId)
+                return BadRequest("El ID de la sesión no coincide.");
+
+            var sesion = await _context.sesion.FindAsync(id);
+            if (sesion == null)
+                return NotFound("Sesión no encontrada.");
+
+            sesion.InstructorId = sesionDTO.InstructorId;
+            sesion.Placa = sesionDTO.Placa;
+            sesion.Fecha = sesionDTO.Fecha;
+            sesion.Hora = sesionDTO.Hora;
+
+            await _context.SaveChangesAsync();
+            return Ok("Sesión actualizada correctamente.");
         }
 
         // DELETE: api/Sesion/5
-        [HttpDelete("{id}")]
+        [HttpDelete("eliminarSesion/{id}")]
         public async Task<IActionResult> DeleteSesion(int id)
         {
-            var sesion = await _context.Sesions.FindAsync(id);
+            var sesion = await _context.sesion.FindAsync(id);
             if (sesion == null)
-            {
-                return NotFound();
-            }
+                return NotFound("Sesión no encontrada.");
 
-            _context.Sesions.Remove(sesion);
+            _context.sesion.Remove(sesion);
             await _context.SaveChangesAsync();
 
-            return NoContent();
-        }
-
-        private bool SesionExists(int id)
-        {
-            return _context.Sesions.Any(e => e.SesionId == id);
+            return Ok("Sesión eliminada correctamente.");
         }
     }
 }

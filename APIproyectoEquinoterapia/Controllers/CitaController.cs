@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APIproyectoEquinoterapia.Models;
+using APIproyectoEquinoterapia.DTOs;
 
 namespace APIproyectoEquinoterapia.Controllers
 {
@@ -22,22 +23,38 @@ namespace APIproyectoEquinoterapia.Controllers
 
         // GET: api/Cita
         [HttpGet("obtenerCitas")]
-        public async Task<ActionResult<IEnumerable<Cita>>> GetCita()
+        public async Task<ActionResult<IEnumerable<CitaDTO>>> GetCita()
         {
-            var cita = await _context.Cita.ToListAsync();
-            if (cita == null || cita.Count == 0)
+            var citas = await _context.cita
+                .Select(c => new CitaDTO
+                {
+                    SesionId = c.SesionId,
+                    PacienteId = c.PacienteId,
+                    Asistio = c.Asistio
+                })
+                .ToListAsync();
+
+            if (citas == null || citas.Count == 0)
             {
                 return NotFound("No se encontraron citas.");
             }
 
-            return cita;
+            return citas;
         }
 
         // GET: api/Cita/5
         [HttpGet("obtenerCita{id}")]
-        public async Task<ActionResult<Cita>> GetCita(int id)
+        public async Task<ActionResult<CitaDTO>> GetCita(int id)
         {
-            var cita = await _context.Cita.FindAsync(id);
+            var cita = await _context.cita
+                .Where(c => c.CitaId == id)
+                .Select(c => new CitaDTO
+                {
+                    SesionId = c.SesionId,
+                    PacienteId = c.PacienteId,
+                    Asistio = c.Asistio
+                })
+                .FirstOrDefaultAsync();
 
             if (cita == null)
             {
@@ -48,66 +65,63 @@ namespace APIproyectoEquinoterapia.Controllers
         }
 
         // PUT: api/Cita/5
-        // protect 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCita(int id, Cita cita)
+        public async Task<IActionResult> PutCita(int id, CitaDTO citaDTO)
         {
-            if (id != cita.CitaId)
-            {
-                return BadRequest();
-            }
+            var cita = await _context.cita.FindAsync(id);
+            if (cita == null)
+                return NotFound();
 
-            _context.Entry(cita).State = EntityState.Modified;
+            cita.SesionId = citaDTO.SesionId;
+            cita.PacienteId = citaDTO.PacienteId;
+            cita.Asistio = citaDTO.Asistio;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CitaExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            await _context.SaveChangesAsync();
+            return Ok("Cita actualizada correctamente.");
         }
 
         // POST: api/Cita
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Cita>> PostCita(Cita cita)
+        public async Task<ActionResult<CitaDTO>> PostCita(CitaDTO citaDTO)
         {
-            _context.Cita.Add(cita);
+
+            if (!_context.sesion.Any(c => c.SesionId == citaDTO.SesionId) ||
+                !_context.paciente.Any(c => c.PacienteId == citaDTO.PacienteId))
+            {
+                return NotFound("Sesion o Paciente no existe");
+            }
+            var cita = new Cita
+            {
+                SesionId = citaDTO.SesionId,
+                PacienteId = citaDTO.PacienteId,
+                Asistio = citaDTO.Asistio
+            };
+
+            _context.cita.Add(cita);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCita", new { id = cita.CitaId }, cita);
+            citaDTO.SesionId = cita.SesionId;
+            citaDTO.PacienteId = cita.PacienteId;
+            citaDTO.Asistio = cita.Asistio;
+
+            return CreatedAtAction("GetCita", new { id = cita.CitaId }, citaDTO);
         }
 
         // DELETE: api/Cita/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCita(int id)
         {
-            var cita = await _context.Cita.FindAsync(id);
+            var cita = await _context.cita.FindAsync(id);
             if (cita == null)
             {
                 return NotFound();
             }
 
-            _context.Cita.Remove(cita);
+            _context.cita.Remove(cita);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Cita eliminada correctamente.");
         }
 
-        private bool CitaExists(int id)
-        {
-            return _context.Cita.Any(e => e.CitaId == id);
-        }
     }
 }

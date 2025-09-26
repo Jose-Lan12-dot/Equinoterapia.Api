@@ -26,7 +26,7 @@ namespace APIproyectoEquinoterapia.Controllers
         [HttpGet("obtenerCaballos")]
         public async Task<ActionResult<IEnumerable<CaballoDTO>>> GetCaballos()
         {
-            var caballos = await _context.Caballos
+            var caballos = await _context.caballo
                 .Select(c => new CaballoDTO
                 {
                     Placa = c.Placa,
@@ -47,7 +47,7 @@ namespace APIproyectoEquinoterapia.Controllers
         [HttpGet("obtenerCaballo/{placa}")]
         public async Task<ActionResult<CaballoDTO>> GetCaballo(string placa)
         {
-            var caballo = await _context.Caballos
+            var caballo = await _context.caballo
                 .Where(c => c.Placa == placa)
                 .Select(c => new CaballoDTO
                 {
@@ -77,7 +77,7 @@ namespace APIproyectoEquinoterapia.Controllers
                 return BadRequest();
             }
 
-            var caballo = await _context.Caballos.FindAsync(placa);
+            var caballo = await _context.caballo.FindAsync(placa);
             if (caballo == null)
                 return NotFound("Caballo no encontrado");
 
@@ -98,9 +98,9 @@ namespace APIproyectoEquinoterapia.Controllers
         {
 
 
-            if (_context.Caballos.Any(c => c.Placa == caballoDTO.Placa))
+            if (_context.caballo.Any(c => c.Placa == caballoDTO.Placa))
             {
-                return Conflict("Caballo no encontrado");
+                return  NotFound("Caballo no encontrado");
             }
             else {
                 var caballo = new Caballo
@@ -111,7 +111,7 @@ namespace APIproyectoEquinoterapia.Controllers
                     FechaHerraje = caballoDTO.FechaHerraje,
                     Padecimiento = caballoDTO.Padecimiento
                 };
-                _context.Caballos.Add(caballo);
+                _context.caballo.Add(caballo);
 
                 try
                 {
@@ -135,13 +135,13 @@ namespace APIproyectoEquinoterapia.Controllers
         [HttpDelete("eliminarCaballo{placa}")]
         public async Task<IActionResult> DeleteCaballo(string placa)
         {
-            var caballo = await _context.Caballos.FindAsync(placa);
+            var caballo = await _context.caballo.FindAsync(placa);
             if (caballo == null)
             {
                 return NotFound("Caballo no encontrado");
             }
 
-            _context.Caballos.Remove(caballo);
+            _context.caballo.Remove(caballo);
             await _context.SaveChangesAsync();
 
             return Ok("Eliminado");

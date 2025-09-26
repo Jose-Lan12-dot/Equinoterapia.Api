@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APIproyectoEquinoterapia.Models;
+using APIproyectoEquinoterapia.DTOs;
 
 namespace APIproyectoEquinoterapia.Controllers
 {
@@ -22,86 +23,118 @@ namespace APIproyectoEquinoterapia.Controllers
 
         // GET: api/Paciente
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Paciente>>> GetPacientes()
+        public async Task<ActionResult<IEnumerable<PacienteDTO>>> GetPacientes()
         {
-            return await _context.Pacientes.ToListAsync();
+            var pacientes = await _context.paciente
+                .Select(p => new PacienteDTO
+                {
+                    PacienteId = p.PacienteId,
+                    Nombre = p.Nombre,
+                    FechaNacimiento = p.FechaNacimiento,
+                    Tutor = p.Tutor,
+                    TelefonoTutor = p.TelefonoTutor,
+                    Faltas = p.Faltas,
+                    FechaRegistro = p.FechaRegistro
+                })
+                .ToListAsync();
+
+            if (pacientes == null || pacientes.Count == 0)
+                return NotFound("No hay pacientes registrados.");
+
+            return pacientes;
         }
 
         // GET: api/Paciente/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Paciente>> GetPaciente(int id)
+        public async Task<ActionResult<PacienteDTO>> GetPaciente(int id)
         {
-            var paciente = await _context.Pacientes.FindAsync(id);
+            var paciente = await _context.paciente
+                .Where(p => p.PacienteId == id)
+                .Select(p => new PacienteDTO
+                {
+                    PacienteId = p.PacienteId,
+                    Nombre = p.Nombre,
+                    FechaNacimiento = p.FechaNacimiento,
+                    Tutor = p.Tutor,
+                    TelefonoTutor = p.TelefonoTutor,
+                    Faltas = p.Faltas,
+                    FechaRegistro = p.FechaRegistro
+                })
+                .FirstOrDefaultAsync();
 
             if (paciente == null)
             {
-                return NotFound();
+                return NotFound("Paciente no encontrado.");
             }
 
             return paciente;
         }
 
         // PUT: api/Paciente/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPaciente(int id, Paciente paciente)
+        public async Task<IActionResult> PutPaciente(int id, PacienteDTO pacienteDTO)
         {
-            if (id != paciente.PacienteId)
+            if (id != pacienteDTO.PacienteId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(paciente).State = EntityState.Modified;
+            var paciente = await _context.paciente.FindAsync(id);
+            if (paciente == null)
+                return NotFound("Paciente no encontrado.");
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PacienteExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            paciente.Nombre = pacienteDTO.Nombre;
+            paciente.FechaNacimiento = pacienteDTO.FechaNacimiento;
+            paciente.Tutor = pacienteDTO.Tutor;
+            paciente.TelefonoTutor = pacienteDTO.TelefonoTutor;
+            paciente.Faltas = pacienteDTO.Faltas;
+            paciente.FechaRegistro = pacienteDTO.FechaRegistro;
 
-            return NoContent();
+            await _context.SaveChangesAsync();
+            return Ok("Paciente actualizado correctamente.");
         }
 
         // POST: api/Paciente
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Paciente>> PostPaciente(Paciente paciente)
+        public async Task<ActionResult<PacienteDTO>> PostPaciente(PacienteDTO pacienteDTO)
         {
-            _context.Pacientes.Add(paciente);
+            var paciente = new Paciente
+            {
+                Nombre = pacienteDTO.Nombre,
+                FechaNacimiento = pacienteDTO.FechaNacimiento,
+                Tutor = pacienteDTO.Tutor,
+                TelefonoTutor = pacienteDTO.TelefonoTutor,
+                Faltas = pacienteDTO.Faltas,
+                FechaRegistro = pacienteDTO.FechaRegistro
+            };
+
+            _context.paciente.Add(paciente);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPaciente", new { id = paciente.PacienteId }, paciente);
+            pacienteDTO.PacienteId = paciente.PacienteId;
+
+            return CreatedAtAction(nameof(GetPaciente), new { id = paciente.PacienteId }, pacienteDTO);
         }
 
         // DELETE: api/Paciente/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePaciente(int id)
         {
-            var paciente = await _context.Pacientes.FindAsync(id);
+            var paciente = await _context.paciente.FindAsync(id);
             if (paciente == null)
             {
-                return NotFound();
+                return NotFound("Paciente no encontrado.");
             }
 
-            _context.Pacientes.Remove(paciente);
+            _context.paciente.Remove(paciente);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Paciente eliminado correctamente.");
         }
 
         private bool PacienteExists(int id)
         {
-            return _context.Pacientes.Any(e => e.PacienteId == id);
+            return _context.paciente.Any(e => e.PacienteId == id);
         }
     }
 }
