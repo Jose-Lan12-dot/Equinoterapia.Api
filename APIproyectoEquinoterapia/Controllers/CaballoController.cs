@@ -10,19 +10,19 @@ namespace APIproyectoEquinoterapia.Controllers
     [ApiController]
     public class CaballoController : ControllerBase
     {
-        private readonly caballoService _caballoService;
+        private readonly CaballoService _caballoService;
 
 
-        public CaballoController(AppDbContext context, caballoService caballoservice)
+        public CaballoController(CaballoService caballoservice)
         {
             _caballoService = caballoservice;
         }
 
-        // GET: api/Caballo
-        [HttpGet("obtenerCaballos")]
+        
+        [HttpGet("obtener")]
         public async Task<ActionResult<IEnumerable<CaballoDTO>>> GetCaballos()
         {
-            var caballos = await _caballoService.ObtenerCaballosAsync();
+            var caballos = await _caballoService.GetCaballosAsync();
 
             if (caballos == null || !caballos.Any())
                 
@@ -31,11 +31,11 @@ namespace APIproyectoEquinoterapia.Controllers
             return Ok(caballos);
         }
 
-        //GET: api/Caballo/5
-        [HttpGet("obtenerCaballo/{placa}")]
+        
+        [HttpGet("obtener/{placa}")]
         public async Task<ActionResult<CaballoDTO>> GetCaballo(string placa)
         {
-            var caballo = await _caballoService.ObtenerCaballoAsync(placa);
+            var caballo = await _caballoService.GetCaballoAsync(placa);
 
             if (caballo == null)
             {
@@ -45,8 +45,8 @@ namespace APIproyectoEquinoterapia.Controllers
             return caballo;
         }
 
-        //// PUT: api/Caballo/5
-        [HttpPut("actualizarCaballo/{placa}")]
+        
+        [HttpPut("actualizar/{placa}")]
         public async Task<IActionResult> PutCaballo(string placa, CaballoDTO caballoDTO)
         {
            
@@ -55,7 +55,7 @@ namespace APIproyectoEquinoterapia.Controllers
                 return BadRequest();
             }
 
-            var respuesta = await _caballoService.ActualizarCaballoAsync(placa, caballoDTO);
+            var respuesta = await _caballoService.PutCaballoAsync(placa, caballoDTO);
 
             if (respuesta) 
             {
@@ -64,12 +64,12 @@ namespace APIproyectoEquinoterapia.Controllers
             return Ok("Caballo actualizado correctamente");
         }
 
-        //POST: api/Caballo
-        [HttpPost("agregarCaballo")]
+        
+        [HttpPost("agregar")]
         public async Task<ActionResult<CaballoDTO>> PostCaballo(CaballoDTO caballoDTO)
         {
 
-            var respuesta = await _caballoService.AgregarCaballoAsync(caballoDTO);
+            var respuesta = await _caballoService.PostCaballoAsync(caballoDTO);
             if (respuesta)
             {
                 return  NotFound("Caballo ya existe");
@@ -78,11 +78,11 @@ namespace APIproyectoEquinoterapia.Controllers
             return Ok("Agreagdo exitosamnete");
         }
 
-        // DELETE: api/Caballo/5
-        [HttpDelete("eliminarCaballo{placa}")]
+        
+        [HttpDelete("eliminar/{placa}")]
         public async Task<IActionResult> DeleteCaballo(string placa)
         {
-            var respuesta = await _caballoService.EliminarCaballoAsync(placa);
+            var respuesta = await _caballoService.DeleteCaballoAsync(placa);
             if (respuesta)
             {
                 return NotFound("Caballo no encontrado");

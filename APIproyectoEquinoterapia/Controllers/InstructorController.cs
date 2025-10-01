@@ -1,7 +1,6 @@
 ﻿using APIproyectoEquinoterapia.DTOs;
-using APIproyectoEquinoterapia.Models;
+using APIproyectoEquinoterapia.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,100 +11,62 @@ namespace APIproyectoEquinoterapia.Controllers
     [ApiController]
     public class InstructorController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly InstructorService _instructorService;
 
-        public InstructorController(AppDbContext context)
+        public InstructorController(InstructorService instructorService)
         {
-            _context = context;
+            _instructorService = instructorService;
         }
 
-        // GET: api/Instructor
-        [HttpGet("obtenerInstructores")]
+        
+        [HttpGet("obtener")]
         public async Task<ActionResult<IEnumerable<InstructorDTO>>> GetInstructores()
         {
-            var instructores = await _context.instructor
-                .Select(i => new InstructorDTO
-                {
-                    InstructorId = i.InstructorId,
-                    Nombre = i.Nombre,
-                    Telefono = i.Telefono
-                })
-                .ToListAsync();
-
-            if (instructores == null || instructores.Count == 0)
+            var instructores = await _instructorService.GetInstructoresAsync();
+            if (instructores == null || !instructores.Any())
                 return NotFound("No hay instructores registrados.");
-
-            return instructores;
+            return Ok(instructores);
         }
 
-        // GET: api/Instructor/5
-        [HttpGet("obtenerInstructor/{id}")]
+        
+        [HttpGet("obtener/{id}")]
         public async Task<ActionResult<InstructorDTO>> GetInstructor(int id)
         {
-            var instructor = await _context.instructor
-                .Where(i => i.InstructorId == id)
-                .Select(i => new InstructorDTO
-                {
-                    InstructorId = i.InstructorId,
-                    Nombre = i.Nombre,
-                    Telefono = i.Telefono
-                })
-                .FirstOrDefaultAsync();
-
+            var instructor = await _instructorService.GetInstructorAsync(id);
             if (instructor == null)
                 return NotFound("Instructor no encontrado.");
-
-            return instructor;
+            return Ok(instructor);
         }
 
-        // POST: api/Instructor
-        [HttpPost("agregarInstructor")]
+        
+        [HttpPost("agregar")]
         public async Task<ActionResult<InstructorDTO>> PostInstructor(InstructorDTO instructorDTO)
         {
-            
-            
-            var instructor = new Instructor
-            {
-                Nombre = instructorDTO.Nombre,
-                Telefono = instructorDTO.Telefono
-            };
-
-            _context.instructor.Add(instructor);
-            await _context.SaveChangesAsync();
-
-            instructorDTO.InstructorId = instructor.InstructorId;
-
-            return CreatedAtAction(nameof(GetInstructor), new { id = instructor.InstructorId }, instructorDTO);
+            await _instructorService.PostInstructorAsync(instructorDTO);
+            return Ok(instructorDTO);
         }
 
-        // PUT: api/Instructor/5
-        [HttpPut("actualizarInstructor/{id}")]
+        
+        [HttpPut("actualizar/{id}")]
         public async Task<IActionResult> PutInstructor(int id, InstructorDTO instructorDTO)
         {
             if (id != instructorDTO.InstructorId)
                 return BadRequest("El ID del instructor no coincide.");
 
-            var instructor = await _context.instructor.FindAsync(id);
-            if (instructor == null)
+            var actualizado = await _instructorService.PutInstructorAsync(id, instructorDTO);
+            if (!actualizado)
                 return NotFound("Instructor no encontrado.");
 
-            instructor.Nombre = instructorDTO.Nombre;
-            instructor.Telefono = instructorDTO.Telefono;
-
-            await _context.SaveChangesAsync();
             return Ok("Instructor actualizado correctamente.");
         }
 
-        // DELETE: api/Instructor/5
-        [HttpDelete("eliminarInstructor/{id}")]
+        
+        [HttpDelete("eliminar/{id}")]
         public async Task<IActionResult> DeleteInstructor(int id)
         {
-            var instructor = await _context.instructor.FindAsync(id);
-            if (instructor == null)
+            var eliminado = await _instructorService.DeleteInstructorAsync(id);
+            if (!eliminado)
                 return NotFound("Instructor no encontrado.");
-
-            _context.instructor.Remove(instructor);
-            await _context.SaveChangesAsync();
 
             return Ok("Instructor eliminado correctamente.");
         }

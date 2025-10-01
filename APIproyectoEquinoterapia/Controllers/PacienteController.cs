@@ -1,12 +1,9 @@
-﻿    using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using APIproyectoEquinoterapia.Models;
 using APIproyectoEquinoterapia.DTOs;
+using APIproyectoEquinoterapia.Services;
 
 namespace APIproyectoEquinoterapia.Controllers
 {
@@ -14,123 +11,109 @@ namespace APIproyectoEquinoterapia.Controllers
     [ApiController]
     public class PacienteController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly PacienteService _pacienteService;
 
-        public PacienteController(AppDbContext context)
+        public PacienteController(PacienteService pacienteService)
         {
-            _context = context;
+            _pacienteService = pacienteService;
         }
 
-        // GET: api/Paciente
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<PacienteDTO>>> GetPacientes()
+        [HttpGet("obtener")]
+        public async Task<ActionResult<IEnumerable<PacienteConFaltasDTO>>> GetPacientes()
         {
-            var pacientes = await _context.paciente
-                .Select(p => new PacienteDTO
-                {
-                    PacienteId = p.PacienteId,
-                    Nombre = p.Nombre,
-                    FechaNacimiento = p.FechaNacimiento,
-                    Tutor = p.Tutor,
-                    TelefonoTutor = p.TelefonoTutor,
-                    FechaRegistro = p.FechaRegistro
-                })
-                .ToListAsync();
-
-            if (pacientes == null || pacientes.Count == 0)
+            var pacientes = await _pacienteService.GetPacientesAsync();
+            if (pacientes == null || !pacientes.Any())
                 return NotFound("No hay pacientes registrados.");
-
-            return pacientes;
+            return Ok(pacientes);
         }
 
-        // GET: api/Paciente/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<PacienteDTO>> GetPaciente(int id)
+
+        [HttpGet("obtener/{id}")]
+        public async Task<ActionResult<PacienteConFaltasDTO>> GetPaciente(int id)
         {
-            var paciente = await _context.paciente
-                .Where(p => p.PacienteId == id)
-                .Select(p => new PacienteDTO
-                {
-                    PacienteId = p.PacienteId,
-                    Nombre = p.Nombre,
-                    FechaNacimiento = p.FechaNacimiento,
-                    Tutor = p.Tutor,
-                    TelefonoTutor = p.TelefonoTutor,
-                    FechaRegistro = p.FechaRegistro
-                })
-                .FirstOrDefaultAsync();
-
+            var paciente = await _pacienteService.GetPacienteAsync(id);
             if (paciente == null)
-            {
                 return NotFound("Paciente no encontrado.");
-            }
-
-            return paciente;
+            return Ok(paciente);
         }
 
-        // PUT: api/Paciente/5
-        [HttpPut("{id}")]
+
+        [HttpPut("actualizar/{id}")]
         public async Task<IActionResult> PutPaciente(int id, PacienteDTO pacienteDTO)
         {
             if (id != pacienteDTO.PacienteId)
-            {
                 return BadRequest();
-            }
 
-            var paciente = await _context.paciente.FindAsync(id);
-            if (paciente == null)
+            var actualizado = await _pacienteService.PutPacienteAsync(id, pacienteDTO);
+            if (!actualizado)
                 return NotFound("Paciente no encontrado.");
 
-            paciente.Nombre = pacienteDTO.Nombre;
-            paciente.FechaNacimiento = pacienteDTO.FechaNacimiento;
-            paciente.Tutor = pacienteDTO.Tutor;
-            paciente.TelefonoTutor = pacienteDTO.TelefonoTutor;
-            paciente.FechaRegistro = pacienteDTO.FechaRegistro;
-
-            await _context.SaveChangesAsync();
             return Ok("Paciente actualizado correctamente.");
         }
 
-        // POST: api/Paciente
-        [HttpPost]
-        public async Task<ActionResult<PacienteDTO>> PostPaciente(PacienteDTO pacienteDTO)
+        
+        [HttpPost("agregar")]
+        public async Task<ActionResult<PacienteConArchivosDTO>> PostPaciente(PacienteConArchivosDTO pacienteconarchivoDTO)
         {
-            var paciente = new Paciente
-            {
-                Nombre = pacienteDTO.Nombre,
-                FechaNacimiento = pacienteDTO.FechaNacimiento,
-                Tutor = pacienteDTO.Tutor,
-                TelefonoTutor = pacienteDTO.TelefonoTutor,
-                FechaRegistro = pacienteDTO.FechaRegistro
-            };
+            var agregado = await _pacienteService.PostPacienteAsync(pacienteconarchivoDTO);
+            if (!agregado)
+                return Conflict("Paciente ya existe.");
 
-            _context.paciente.Add(paciente);
-            await _context.SaveChangesAsync();
-
-            pacienteDTO.PacienteId = paciente.PacienteId;
-
-            return CreatedAtAction(nameof(GetPaciente), new { id = paciente.PacienteId }, pacienteDTO);
+            return Ok(pacienteconarchivoDTO);
         }
 
-        // DELETE: api/Paciente/5
-        [HttpDelete("{id}")]
+        
+        [HttpDelete("eliminar/{id}")]
         public async Task<IActionResult> DeletePaciente(int id)
         {
-            var paciente = await _context.paciente.FindAsync(id);
-            if (paciente == null)
-            {
+            var eliminado = await _pacienteService.DeletePacienteAsync(id);
+            if (!eliminado)
                 return NotFound("Paciente no encontrado.");
-            }
-
-            _context.paciente.Remove(paciente);
-            await _context.SaveChangesAsync();
 
             return Ok("Paciente eliminado correctamente.");
         }
 
-        private bool PacienteExists(int id)
+
+        [HttpGet("Obtener/archivo")]
+        public async Task<IActionResult> GetArchivo(int pacienteId, string archivoRequerido)
         {
-            return _context.paciente.Any(e => e.PacienteId == id);
+            var archivo = await _pacienteService.GetArchivoAsync(archivoRequerido,pacienteId);
+            if (archivo == null || archivo.Length == 0)
+                return NotFound("Archivo no encontrado.");
+            string contentType = archivoRequerido.ToLower() switch
+            {
+                "diagnosticomedico" => "application/pdf",
+                "certificadomedico" => "application/pdf",
+                "actanacimiento" => "application/pdf",
+                "curp" => "application/pdf",
+                "comprobantedomicilio" => "application/pdf",
+                "inetutor" => "application/pdf",
+                "fotografia" => "image/jpeg",
+                _ => "application/octet-stream"
+           };
+            return File(archivo, contentType);
         }
+
+        [HttpPut("actualizarArchivo")]
+        public async Task<IActionResult> PutArchivo(
+            int pacienteId,
+            string archivoRequerido,
+            IFormFile nuevoArchivo)
+        {
+            var actualizado = await _pacienteService.PutArchivoAsync(pacienteId, archivoRequerido, nuevoArchivo);
+            if (!actualizado)
+                return NotFound("Archivo no encontrado.");
+            return Ok("Archivo actualizado correctamente.");
+        }
+
+        [HttpDelete("eliminarArchivo")]
+        public async Task<IActionResult> DeleteArchivo(int pacienteId, string archivoRequerido)
+        {
+            var eliminado = await _pacienteService.DeleteArchivoAsync(pacienteId, archivoRequerido);
+            if (!eliminado)
+                return NotFound("Paciente o archivo no encontrado.");
+            return Ok("Archivo eliminado correctamente.");
+        }
+
     }
 }

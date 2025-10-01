@@ -1,9 +1,9 @@
 public class PacienteDTO
 {
-    public int PacienteId { get; set; }
-    public string Nombre { get; set; }
-    public DateOnly FechaNacimiento { get; set; }
-    public string Tutor { get; set; }
-    public string? TelefonoTutor { get; set; }
+    public int? PacienteId { get; set; }
+    public required string Nombre { get; set; }
+    public required DateOnly FechaNacimiento { get; set; }
+    public required string Tutor { get; set; }
+    public required string TelefonoTutor { get; set; }
     public DateTime? FechaRegistro { get; set; }
 }

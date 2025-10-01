@@ -7,19 +7,20 @@ namespace APIproyectoEquinoterapia.Services
 
 { 
 
-    public class caballoService
+    public class CaballoService
     {
 
 
         private readonly AppDbContext _context;
 
-        public caballoService(AppDbContext context)
+        public CaballoService(AppDbContext context)
         {
             _context = context;
         }
 
-        public async Task<IEnumerable<CaballoDTO>> ObtenerCaballosAsync()
+        public async Task<IEnumerable<CaballoDTO>> GetCaballosAsync()
         {
+
             return await _context.caballo
                     .Select(c => new CaballoDTO
                     {
@@ -32,7 +33,7 @@ namespace APIproyectoEquinoterapia.Services
                     .ToListAsync();
         }
 
-        public async Task<CaballoDTO?> ObtenerCaballoAsync(string placa) 
+        public async Task<CaballoDTO?> GetCaballoAsync(string placa) 
         {
 
             var caballo = await _context.caballo.FindAsync(placa);
@@ -50,7 +51,7 @@ namespace APIproyectoEquinoterapia.Services
         }
 
 
-        public async Task<bool> ActualizarCaballoAsync(string placa, CaballoDTO caballoDTO)
+        public async Task<bool> PutCaballoAsync(string placa, CaballoDTO caballoDTO)
         {
             var caballo = await _context.caballo.FindAsync(placa);
             if (caballo == null)
@@ -66,10 +67,10 @@ namespace APIproyectoEquinoterapia.Services
             return true;
         }
 
-        public async Task<bool> AgregarCaballoAsync(CaballoDTO caballoDTO) 
+        public async Task<bool> PostCaballoAsync(CaballoDTO caballoDTO) 
         {
 
-            if (_context.caballo.Any(c => c.Placa == caballoDTO.Placa)) 
+            if (!_context.caballo.Any(c => c.Placa == caballoDTO.Placa)) 
             {
                 return false;
             }
@@ -92,7 +93,7 @@ namespace APIproyectoEquinoterapia.Services
         }
 
 
-        public async Task<bool> EliminarCaballoAsync(string placa) 
+        public async Task<bool> DeleteCaballoAsync(string placa) 
         {
             var caballo = await _context.caballo.FindAsync(placa);
             if (caballo == null)
