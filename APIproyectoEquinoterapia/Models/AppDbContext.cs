@@ -17,16 +17,13 @@ public partial class AppDbContext : DbContext
     }
 
     public virtual DbSet<Caballo> caballo { get; set; }
-
     public virtual DbSet<Cita> cita { get; set; }
-
     public virtual DbSet<Instructor> instructor { get; set; }
-
     public virtual DbSet<Paciente> paciente { get; set; }
-
     public virtual DbSet<Sesion> sesion { get; set; }
-
     public DbSet<LoginRespuesta> loginrespuesta { get; set; }
+    public DbSet<Formulario> formulario { get; set; }
+    public DbSet<FormularioRespuesta> formularioRespuesta { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -107,6 +104,9 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("paciente");
 
+            entity.Property(e => e.Estado)
+                .HasColumnName("estado")
+                .HasConversion<string>();
             entity.Property(e => e.PacienteId).HasColumnName("paciente_id");
             entity.Property(e => e.ActaNacimiento).HasColumnName("acta_nacimiento");
             entity.Property(e => e.CertificadoMedico).HasColumnName("certificado_medico");
@@ -133,6 +133,12 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("tutor");
+
+
+           entity.HasOne(e => e.Formulario)
+                .WithOne(e => e.Paciente)
+                .HasForeignKey<Formulario>(e => e.PacienteId);
+
         });
 
         modelBuilder.Entity<Sesion>(entity =>
@@ -165,7 +171,51 @@ public partial class AppDbContext : DbContext
         OnModelCreatingPartial(modelBuilder);
 
 
-        modelBuilder.Entity<LoginRespuesta>().HasNoKey(); // No tiene clave primaria
+        modelBuilder.Entity<Formulario>(entity =>
+        {
+            entity.ToTable("formulario");
+            entity.HasKey(e => e.FormularioId);
+
+            entity.Property(e => e.FormularioId)
+                .HasColumnName("formulario_id");
+
+            entity.Property(e => e.PacienteId)
+                .HasColumnName("paciente_id");
+
+            entity.Property(e => e.Fecha)
+                .HasColumnName("fecha");
+
+            // Relación uno a uno con Paciente
+            entity.HasOne(e => e.Paciente)
+                .WithOne(p => p.Formulario)
+                .HasForeignKey<Formulario>(e => e.PacienteId);
+
+            // Relación uno a muchos con FormularioRespuesta
+            entity.HasMany(e => e.Respuestas)
+                .WithOne(r => r.Formulario)
+                .HasForeignKey(r => r.FormularioId);
+        });
+
+        modelBuilder.Entity<FormularioRespuesta>(entity =>
+        {
+            entity.ToTable("formulario_respuesta");
+            entity.HasKey(e => e.FormularioRespuestaId);
+
+            entity.Property(e => e.FormularioRespuestaId)
+                .HasColumnName("formulario_respuesta_id");
+
+            entity.Property(e => e.FormularioId)
+                .HasColumnName("formulario_id");
+
+            entity.Property(e => e.Consulta)
+                .HasColumnName("consulta");
+
+            entity.Property(e => e.Respuesta)
+                .HasColumnName("respuesta");
+        });
+
+
+    modelBuilder.Entity<LoginRespuesta>().HasNoKey(); // No tiene clave primaria
     }
 
 

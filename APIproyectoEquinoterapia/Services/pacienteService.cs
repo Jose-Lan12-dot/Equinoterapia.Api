@@ -23,6 +23,7 @@ namespace APIproyectoEquinoterapia.Services
                                 FechaNacimiento = p.FechaNacimiento,
                                 Tutor = p.Tutor,
                                 TelefonoTutor = p.TelefonoTutor,
+                                Estado = p.Estado.ToString(),
                                 FechaRegistro = p.FechaRegistro,
                                 NumeroFaltas = _context.cita
                                     .Count(c => c.PacienteId == p.PacienteId && c.Asistio == false)
@@ -43,6 +44,7 @@ namespace APIproyectoEquinoterapia.Services
                 FechaNacimiento = paciente.FechaNacimiento,
                 Tutor = paciente.Tutor,
                 TelefonoTutor = paciente.TelefonoTutor,
+                Estado = paciente.Estado.ToString(),
                 FechaRegistro = paciente.FechaRegistro,
                 NumeroFaltas = _context.cita
                                     .Count(c => c.PacienteId == paciente.PacienteId && c.Asistio == false)
@@ -95,6 +97,7 @@ namespace APIproyectoEquinoterapia.Services
                 ComprobanteDomicilio = await ConvertirArchivoABytesAsync(pacienteconarchivosDTO.ComprobanteDomicilio),
                 IneTutor = await ConvertirArchivoABytesAsync(pacienteconarchivosDTO.IneTutor),
                 Fotografia = await ConvertirArchivoABytesAsync(pacienteconarchivosDTO.Fotografia),
+                Estado = EstadoPaciente.Activo,
             };
 
             _context.paciente.Add(nuevoPaciente);

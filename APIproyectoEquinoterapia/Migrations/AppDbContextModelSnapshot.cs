@@ -96,6 +96,59 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.ToTable("cita", (string)null);
                 });
 
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Formulario", b =>
+                {
+                    b.Property<int>("FormularioId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("formulario_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FormularioId"));
+
+                    b.Property<DateOnly>("Fecha")
+                        .HasColumnType("date")
+                        .HasColumnName("fecha");
+
+                    b.Property<int>("PacienteId")
+                        .HasColumnType("int")
+                        .HasColumnName("paciente_id");
+
+                    b.HasKey("FormularioId");
+
+                    b.HasIndex("PacienteId")
+                        .IsUnique();
+
+                    b.ToTable("formulario", (string)null);
+                });
+
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.FormularioRespuesta", b =>
+                {
+                    b.Property<int>("FormularioRespuestaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("formulario_respuesta_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FormularioRespuestaId"));
+
+                    b.Property<string>("Consulta")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("consulta");
+
+                    b.Property<int>("FormularioId")
+                        .HasColumnType("int")
+                        .HasColumnName("formulario_id");
+
+                    b.Property<int>("Respuesta")
+                        .HasColumnType("int")
+                        .HasColumnName("respuesta");
+
+                    b.HasKey("FormularioRespuestaId");
+
+                    b.HasIndex("FormularioId");
+
+                    b.ToTable("formulario_respuesta", (string)null);
+                });
+
             modelBuilder.Entity("APIproyectoEquinoterapia.Models.Instructor", b =>
                 {
                     b.Property<int>("InstructorId")
@@ -188,6 +241,11 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasColumnType("varbinary(max)")
                         .HasColumnName("diagnostico_medico");
 
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("estado");
+
                     b.Property<DateOnly>("FechaNacimiento")
                         .HasColumnType("date")
                         .HasColumnName("fecha_nacimiento");
@@ -214,6 +272,7 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasColumnName("nombre");
 
                     b.Property<string>("TelefonoTutor")
+                        .IsRequired()
                         .HasMaxLength(10)
                         .IsUnicode(false)
                         .HasColumnType("char(10)")
@@ -293,6 +352,28 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.Navigation("Sesion");
                 });
 
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Formulario", b =>
+                {
+                    b.HasOne("APIproyectoEquinoterapia.Models.Paciente", "Paciente")
+                        .WithOne("Formulario")
+                        .HasForeignKey("APIproyectoEquinoterapia.Models.Formulario", "PacienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Paciente");
+                });
+
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.FormularioRespuesta", b =>
+                {
+                    b.HasOne("APIproyectoEquinoterapia.Models.Formulario", "Formulario")
+                        .WithMany("Respuestas")
+                        .HasForeignKey("FormularioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Formulario");
+                });
+
             modelBuilder.Entity("APIproyectoEquinoterapia.Models.Sesion", b =>
                 {
                     b.HasOne("APIproyectoEquinoterapia.Models.Instructor", "Instructor")
@@ -317,6 +398,11 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.Navigation("Sesions");
                 });
 
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Formulario", b =>
+                {
+                    b.Navigation("Respuestas");
+                });
+
             modelBuilder.Entity("APIproyectoEquinoterapia.Models.Instructor", b =>
                 {
                     b.Navigation("Sesions");
@@ -325,6 +411,8 @@ namespace APIproyectoEquinoterapia.Migrations
             modelBuilder.Entity("APIproyectoEquinoterapia.Models.Paciente", b =>
                 {
                     b.Navigation("Cita");
+
+                    b.Navigation("Formulario");
                 });
 
             modelBuilder.Entity("APIproyectoEquinoterapia.Models.Sesion", b =>

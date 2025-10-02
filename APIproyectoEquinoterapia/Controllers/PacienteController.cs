@@ -74,7 +74,7 @@ namespace APIproyectoEquinoterapia.Controllers
         }
 
 
-        [HttpGet("Obtener/archivo")]
+        [HttpGet("obtener/archivo/{archivoRequerido}")]
         public async Task<IActionResult> GetArchivo(int pacienteId, string archivoRequerido)
         {
             var archivo = await _pacienteService.GetArchivoAsync(archivoRequerido,pacienteId);
@@ -94,7 +94,7 @@ namespace APIproyectoEquinoterapia.Controllers
             return File(archivo, contentType);
         }
 
-        [HttpPut("actualizarArchivo")]
+        [HttpPut("actualizar/archivo/{archivoRequerido}")]
         public async Task<IActionResult> PutArchivo(
             int pacienteId,
             string archivoRequerido,
@@ -106,7 +106,7 @@ namespace APIproyectoEquinoterapia.Controllers
             return Ok("Archivo actualizado correctamente.");
         }
 
-        [HttpDelete("eliminarArchivo")]
+        [HttpDelete("eliminar/archivo/{achivoRequerido}")]
         public async Task<IActionResult> DeleteArchivo(int pacienteId, string archivoRequerido)
         {
             var eliminado = await _pacienteService.DeleteArchivoAsync(pacienteId, archivoRequerido);
