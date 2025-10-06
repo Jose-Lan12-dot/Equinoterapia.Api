@@ -11,6 +11,13 @@ public enum EstadoPaciente
     TratamientoCompleto
 }
 
+public enum Generos
+{
+    Masculino,
+    Femenino,
+    NoBinario
+}
+
 public partial class Paciente
 {
     public int PacienteId { get; set; }
@@ -24,6 +31,8 @@ public partial class Paciente
     public required string TelefonoTutor { get; set; }
 
     public EstadoPaciente Estado { get; set; }
+
+    public Generos Genero { get; set; }
 
     public byte[]? DiagnosticoMedico { get; set; }
 

@@ -2,11 +2,12 @@
 {
     public class FormularioRespuesta
     {
-        public int FormularioRespuestaId { get; set; }
+        public int RespuestaId { get; set; }
         public int FormularioId { get; set; }
-        public string? Consulta { get; set; }
-        public int Respuesta { get; set; }
-        public virtual Formulario Formulario { get; set; } = null!;
+        public int PreguntaId { get; set; }
+        public int Respuesta { get; set; } // O string, según el tipo de respuesta
 
+        public virtual Formulario Formulario { get; set; } = null!;
+        public virtual FormularioPregunta Pregunta { get; set; } = null!;
     }
 }

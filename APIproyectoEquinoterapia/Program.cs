@@ -15,6 +15,7 @@ builder.Services.AddScoped<CaballoService>();
 builder.Services.AddScoped<PacienteService>();
 builder.Services.AddScoped<CitaService>();
 builder.Services.AddScoped<InstructorService>();
+builder.Services.AddScoped<FormularioService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

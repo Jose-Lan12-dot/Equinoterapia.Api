@@ -82,7 +82,6 @@ namespace APIproyectoEquinoterapia.Services
                 Estado = caballoDTO.Estado,
                 FechaHerraje = caballoDTO.FechaHerraje,
                 Padecimiento = caballoDTO.Padecimiento,
-                FechaRegistro = DateTime.Now // Establece la fecha de registro al momento actual
             };
 
             _context.caballo.Add(nuevoCaballo);

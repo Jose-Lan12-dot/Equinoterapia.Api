@@ -24,9 +24,11 @@ namespace APIproyectoEquinoterapia.Services
                                 Tutor = p.Tutor,
                                 TelefonoTutor = p.TelefonoTutor,
                                 Estado = p.Estado.ToString(),
+                                Genero = p.Genero.ToString(),
                                 FechaRegistro = p.FechaRegistro,
                                 NumeroFaltas = _context.cita
-                                    .Count(c => c.PacienteId == p.PacienteId && c.Asistio == false)
+                                    .Count(c => c.PacienteId == p.PacienteId && c.Asistio == false),
+                                FormularioHecho = _context.formulario.Any(f => f.PacienteId == p.PacienteId)
                             })
                             .ToListAsync();
         }
@@ -47,7 +49,8 @@ namespace APIproyectoEquinoterapia.Services
                 Estado = paciente.Estado.ToString(),
                 FechaRegistro = paciente.FechaRegistro,
                 NumeroFaltas = _context.cita
-                                    .Count(c => c.PacienteId == paciente.PacienteId && c.Asistio == false)
+                                    .Count(c => c.PacienteId == paciente.PacienteId && c.Asistio == false),
+                FormularioHecho = _context.formulario.Any(f => f.PacienteId == paciente.PacienteId)
             };
         }
 
@@ -61,7 +64,14 @@ namespace APIproyectoEquinoterapia.Services
             paciente.FechaNacimiento = pacienteDTO.FechaNacimiento;
             paciente.Tutor = pacienteDTO.Tutor;
             paciente.TelefonoTutor = pacienteDTO.TelefonoTutor;
-            paciente.FechaRegistro = pacienteDTO.FechaRegistro;
+
+
+            if (Enum.TryParse<EstadoPaciente>(pacienteDTO.Estado, out var estadoValido))
+            {
+                paciente.Estado = estadoValido;
+            }
+            else 
+            { return false; }
 
             await _context.SaveChangesAsync();
             return true;
@@ -156,5 +166,9 @@ namespace APIproyectoEquinoterapia.Services
             await archivo.CopyToAsync(ms);
             return ms.ToArray();
         }
+
+
+
+
     }
 }

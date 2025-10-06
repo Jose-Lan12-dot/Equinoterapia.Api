@@ -5,5 +5,8 @@ public class PacienteDTO
     public required DateOnly FechaNacimiento { get; set; }
     public required string Tutor { get; set; }
     public required string TelefonoTutor { get; set; }
+    public string? Estado { get; set; }
+
+    public string? Genero { get; set; }
     public DateTime? FechaRegistro { get; set; }
 }
