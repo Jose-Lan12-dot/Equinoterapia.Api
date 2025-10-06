@@ -19,58 +19,45 @@ namespace APIproyectoEquinoterapia.Controllers
         }
 
         [HttpGet("obtener")]
-        public async Task<ActionResult<IEnumerable<PacienteConFaltasDTO>>> GetPacientes()
+        public async Task<ActionResult<IEnumerable<PacienteDTO>>> GetPacientes()
         {
-            var pacientes = await _pacienteService.GetPacientesAsync();
+            var (pacientes,mensaje) = await _pacienteService.GetPacientesAsync();
             if (pacientes == null || !pacientes.Any())
-                return NotFound("No hay pacientes registrados.");
+                return NotFound(mensaje);
             return Ok(pacientes);
         }
 
 
         [HttpGet("obtener/{id}")]
-        public async Task<ActionResult<PacienteConFaltasDTO>> GetPaciente(int id)
+        public async Task<ActionResult<PacienteDTO>> GetPaciente(int PacienteId)
         {
-            var paciente = await _pacienteService.GetPacienteAsync(id);
+            var (paciente,mensaje) = await _pacienteService.GetPacienteAsync(PacienteId);
             if (paciente == null)
-                return NotFound("Paciente no encontrado.");
+                return NotFound(mensaje);
             return Ok(paciente);
         }
 
 
         [HttpPut("actualizar/{id}")]
-        public async Task<IActionResult> PutPaciente(int id, PacienteDTO pacienteDTO)
+        public async Task<IActionResult> PutPaciente(int pacienteId, PacienteDTO pacienteDTO)
         {
-            if (id != pacienteDTO.PacienteId)
-                return BadRequest();
 
-            var actualizado = await _pacienteService.PutPacienteAsync(id, pacienteDTO);
-            if (!actualizado)
-                return NotFound("Paciente no encontrado.");
+            var (respuesta,mensaje) = await _pacienteService.PutPacienteAsync(pacienteId, pacienteDTO);
+            if (!respuesta)
+                return NotFound(mensaje);
 
-            return Ok("Paciente actualizado correctamente.");
+            return Ok(mensaje);
         }
 
         
         [HttpPost("agregar")]
-        public async Task<ActionResult<PacienteConArchivosDTO>> PostPaciente(PacienteConArchivosDTO pacienteconarchivoDTO)
+        public async Task<IActionResult> PostPaciente(PacienteConArchivosDTO pacienteconarchivoDTO)
         {
-            var agregado = await _pacienteService.PostPacienteAsync(pacienteconarchivoDTO);
-            if (!agregado)
-                return Conflict("Paciente ya existe.");
+            var (respuesta,mensaje) = await _pacienteService.PostPacienteAsync(pacienteconarchivoDTO);
+            if (!respuesta)
+                return Conflict(mensaje);
 
-            return Ok(pacienteconarchivoDTO);
-        }
-
-        
-        [HttpDelete("eliminar/{id}")]
-        public async Task<IActionResult> DeletePaciente(int id)
-        {
-            var eliminado = await _pacienteService.DeletePacienteAsync(id);
-            if (!eliminado)
-                return NotFound("Paciente no encontrado.");
-
-            return Ok("Paciente eliminado correctamente.");
+            return Ok(mensaje);
         }
 
 
@@ -113,6 +100,17 @@ namespace APIproyectoEquinoterapia.Controllers
             if (!eliminado)
                 return NotFound("Paciente o archivo no encontrado.");
             return Ok("Archivo eliminado correctamente.");
+        }
+
+
+        [HttpDelete("eliminar/{id}")]
+        public async Task<IActionResult> DeletePaciente(int pacienteId)
+        {
+            var (respuesta,mensaje) = await _pacienteService.DeletePacienteAsync(pacienteId);
+            if (!respuesta)
+                return NotFound(mensaje);
+
+            return Ok(mensaje);
         }
 
     }

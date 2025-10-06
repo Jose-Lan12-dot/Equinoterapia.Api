@@ -23,8 +23,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Sesion> sesion { get; set; }
     public DbSet<LoginRespuesta> loginrespuesta { get; set; }
     public DbSet<Formulario> formulario { get; set; }
-    public DbSet<FormularioRespuesta> formularioRespuesta { get; set; }
-    public DbSet<FormularioPregunta> formularioPregunta { get; set; }
+    public DbSet<FormularioRespuestas> formularioRespuesta { get; set; }
+    public DbSet<FormularioPreguntas> formularioPregunta { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -194,13 +194,13 @@ public partial class AppDbContext : DbContext
                 .WithOne(p => p.Formulario)
                 .HasForeignKey<Formulario>(e => e.PacienteId);
 
-            // Relación uno a muchos con FormularioRespuesta
+            // Relación uno a muchos con FormularioRespuestas
             entity.HasMany(e => e.Respuestas)
                 .WithOne(r => r.Formulario)
                 .HasForeignKey(r => r.FormularioId);
         });
 
-        modelBuilder.Entity<FormularioRespuesta>(entity =>
+        modelBuilder.Entity<FormularioRespuestas>(entity =>
         {
             entity.ToTable("formulario_respuesta");
             entity.HasKey(e => e.RespuestaId);
@@ -218,7 +218,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("respuesta");
         });
 
-        modelBuilder.Entity<FormularioPregunta>(entity =>
+        modelBuilder.Entity<FormularioPreguntas>(entity =>
         {
             entity.ToTable("formulario_pregunta");
             entity.HasKey(e => e.PreguntaId);
@@ -233,30 +233,30 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<LoginRespuesta>().HasNoKey(); // No tiene clave primaria
 
 
-        modelBuilder.Entity<FormularioPregunta>().HasData(
-        new FormularioPregunta { PreguntaId = 1, Pregunta = "CONTACTO VISUAL" },
-        new FormularioPregunta { PreguntaId = 2, Pregunta = "SECUENCIA DE INDICACIONES"},
-        new FormularioPregunta { PreguntaId = 3, Pregunta = "UTILIZA COMO INSTRUMENTO AL ADULTO"},
-        new FormularioPregunta { PreguntaId = 4, Pregunta = "CONDUCTA DE SEÑALADO PROIMPERATIVAS" +
+        modelBuilder.Entity<FormularioPreguntas>().HasData(
+        new FormularioPreguntas { PreguntaId = 1, Pregunta = "CONTACTO VISUAL" },
+        new FormularioPreguntas { PreguntaId = 2, Pregunta = "SECUENCIA DE INDICACIONES"},
+        new FormularioPreguntas { PreguntaId = 3, Pregunta = "UTILIZA COMO INSTRUMENTO AL ADULTO"},
+        new FormularioPreguntas { PreguntaId = 4, Pregunta = "CONDUCTA DE SEÑALADO PROIMPERATIVAS" +
                                                             " (PEDIR PARA EL)" },
-        new FormularioPregunta { PreguntaId = 5, Pregunta = "CONDUCTA DE SEÑALADO PROTODECLARATIVAS" +
+        new FormularioPreguntas { PreguntaId = 5, Pregunta = "CONDUCTA DE SEÑALADO PROTODECLARATIVAS" +
                                                             " (FINALIDAD DE COMPARTIR)" },
-        new FormularioPregunta { PreguntaId = 6, Pregunta = "ATENCION CONJUNTA DE CUENTOS, JUEGOS O CANCIONES"},
-        new FormularioPregunta { PreguntaId = 7, Pregunta = "MOSTRAR INTERES POR COMPARTIR OBJETOS" },
-        new FormularioPregunta { PreguntaId = 8, Pregunta = "IMITACIÓN MOTORA GRUESA" },
-        new FormularioPregunta { PreguntaId = 9, Pregunta = "IMITACIÓN MOTORA FINA" },
-        new FormularioPregunta { PreguntaId = 10, Pregunta = "IMITACIÓN VOCAL"},
-        new FormularioPregunta { PreguntaId = 11, Pregunta = "PRESENCIA DE LENGUAJE ORAL Y NIVEL" },
-        new FormularioPregunta { PreguntaId = 12, Pregunta = "ECOLALIAL"},
-        new FormularioPregunta { PreguntaId = 13, Pregunta = "COMPRENSIÓN DE ORDENES SENCILLAS"},
-        new FormularioPregunta { PreguntaId = 14, Pregunta = "JUEGO DE FICCIÓN O SIMBÓLICO" },
-        new FormularioPregunta { PreguntaId = 15, Pregunta = "FLEXIBILIDAD A LOS CAMBIOS"},
-        new FormularioPregunta { PreguntaId = 16, Pregunta = "NIVEL DE ACTIVIDAD MOTORA"},
-        new FormularioPregunta { PreguntaId = 17, Pregunta = "NIVEL DE ATENCIÓN (TIEMPO DE ATENCIÓN REALIZANDO" +
+        new FormularioPreguntas { PreguntaId = 6, Pregunta = "ATENCION CONJUNTA DE CUENTOS, JUEGOS O CANCIONES"},
+        new FormularioPreguntas { PreguntaId = 7, Pregunta = "MOSTRAR INTERES POR COMPARTIR OBJETOS" },
+        new FormularioPreguntas { PreguntaId = 8, Pregunta = "IMITACIÓN MOTORA GRUESA" },
+        new FormularioPreguntas { PreguntaId = 9, Pregunta = "IMITACIÓN MOTORA FINA" },
+        new FormularioPreguntas { PreguntaId = 10, Pregunta = "IMITACIÓN VOCAL"},
+        new FormularioPreguntas { PreguntaId = 11, Pregunta = "PRESENCIA DE LENGUAJE ORAL Y NIVEL" },
+        new FormularioPreguntas { PreguntaId = 12, Pregunta = "ECOLALIAL"},
+        new FormularioPreguntas { PreguntaId = 13, Pregunta = "COMPRENSIÓN DE ORDENES SENCILLAS"},
+        new FormularioPreguntas { PreguntaId = 14, Pregunta = "JUEGO DE FICCIÓN O SIMBÓLICO" },
+        new FormularioPreguntas { PreguntaId = 15, Pregunta = "FLEXIBILIDAD A LOS CAMBIOS"},
+        new FormularioPreguntas { PreguntaId = 16, Pregunta = "NIVEL DE ACTIVIDAD MOTORA"},
+        new FormularioPreguntas { PreguntaId = 17, Pregunta = "NIVEL DE ATENCIÓN (TIEMPO DE ATENCIÓN REALIZANDO" +
                                                              " LA ACTIVIDAD)"},
-        new FormularioPregunta { PreguntaId = 18, Pregunta = "MOTIVACIÓN (INTERES RESTRINGIDOS)"},
-        new FormularioPregunta { PreguntaId = 19, Pregunta = "PLANIFICACIÓN"},
-        new FormularioPregunta { PreguntaId = 20, Pregunta = "NIVEL DE IMPULSIVIDAD"}
+        new FormularioPreguntas { PreguntaId = 18, Pregunta = "MOTIVACIÓN (INTERES RESTRINGIDOS)"},
+        new FormularioPreguntas { PreguntaId = 19, Pregunta = "PLANIFICACIÓN"},
+        new FormularioPreguntas { PreguntaId = 20, Pregunta = "NIVEL DE IMPULSIVIDAD"}
 );
     }
 

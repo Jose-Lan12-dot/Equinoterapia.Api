@@ -119,7 +119,7 @@ namespace APIproyectoEquinoterapia.Services
         {
             for (int i = 0; i < numeroRespuestas; i++)
             {
-                var nuevaRespuesta = new FormularioRespuesta
+                var nuevaRespuesta = new FormularioRespuestas
                 {
                     FormularioId = formularioId,
                     PreguntaId = respuestas.ElementAtOrDefault(i)?.PreguntaIdOrden ?? 0,

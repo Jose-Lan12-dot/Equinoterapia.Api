@@ -6,7 +6,7 @@
         public int PacienteId { get; set; } 
         public DateOnly Fecha { get; set; }
         public virtual Paciente Paciente { get; set; } = null!;
-        public virtual ICollection<FormularioRespuesta> Respuestas { get; set; } = new List<FormularioRespuesta>();
+        public virtual ICollection<FormularioRespuestas> Respuestas { get; set; } = new List<FormularioRespuestas>();
 
     }
 }

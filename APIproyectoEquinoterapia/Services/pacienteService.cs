@@ -13,33 +13,44 @@ namespace APIproyectoEquinoterapia.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<PacienteConFaltasDTO>> GetPacientesAsync()
+        public async Task<(IEnumerable<PacienteDTO>,string)> GetPacientesAsync()
         {
-            return await _context.paciente
-                            .Select(p => new PacienteConFaltasDTO
+            var pacientes = await _context.paciente
+                            .Select(p => new PacienteDTO
                             {
                                 PacienteId = p.PacienteId,
                                 Nombre = p.Nombre,
-                                FechaNacimiento = p.FechaNacimiento,
                                 Tutor = p.Tutor,
-                                TelefonoTutor = p.TelefonoTutor,
                                 Estado = p.Estado.ToString(),
-                                Genero = p.Genero.ToString(),
                                 FechaRegistro = p.FechaRegistro,
                                 NumeroFaltas = _context.cita
                                     .Count(c => c.PacienteId == p.PacienteId && c.Asistio == false),
                                 FormularioHecho = _context.formulario.Any(f => f.PacienteId == p.PacienteId)
                             })
                             .ToListAsync();
+
+            if(pacientes == null)
+            {
+                var mensaje = "No se econtro ningun elemto en pacientes";
+                return (null, mensaje);
+            }
+
+            
+
+            return (pacientes, "Pacientes devueltos con exito");
         }
 
-        public async Task<PacienteConFaltasDTO?> GetPacienteAsync(int id)
+        public async Task<(PacienteDTO?,string)> GetPacienteAsync(int pacienteId)
         {
-            var paciente = await _context.paciente.FindAsync(id);
+            var paciente = await _context.paciente.FindAsync(pacienteId);
             if (paciente == null)
-                return null;
+            {
+                var mensaje = "Paiente no encontrado";
+                return (null,mensaje);
+            }
+               
 
-            return new PacienteConFaltasDTO
+            return (new PacienteDTO
             {
                 PacienteId = paciente.PacienteId,
                 Nombre = paciente.Nombre,
@@ -47,18 +58,36 @@ namespace APIproyectoEquinoterapia.Services
                 Tutor = paciente.Tutor,
                 TelefonoTutor = paciente.TelefonoTutor,
                 Estado = paciente.Estado.ToString(),
+                Genero = paciente.Genero.ToString(),
                 FechaRegistro = paciente.FechaRegistro,
                 NumeroFaltas = _context.cita
                                     .Count(c => c.PacienteId == paciente.PacienteId && c.Asistio == false),
                 FormularioHecho = _context.formulario.Any(f => f.PacienteId == paciente.PacienteId)
-            };
+            },"Paciente encontrado");
         }
 
-        public async Task<bool> PutPacienteAsync(int id, PacienteDTO pacienteDTO)
+        public async Task<(bool,string)> PutPacienteAsync(int pacienteId, PacienteDTO pacienteDTO)
         {
-            var paciente = await _context.paciente.FindAsync(id);
+            var paciente = await _context.paciente.FindAsync(pacienteId);
             if (paciente == null)
-                return false;
+            {
+                var mensaje = "Paciente no encontrado";
+                return (false,mensaje);
+            }
+
+            if (Enum.TryParse<EstadoPaciente>(pacienteDTO.Estado, out var estadoValido)
+                && Enum.TryParse<Generos>(pacienteDTO.Genero,out var generoValido))
+            {
+                paciente.Estado = estadoValido;
+                paciente.Genero = generoValido;
+            }
+            else
+            {
+                var mensaje = "Genero o estado no validos";
+                return (false,mensaje); 
+            }
+
+
 
             paciente.Nombre = pacienteDTO.Nombre;
             paciente.FechaNacimiento = pacienteDTO.FechaNacimiento;
@@ -66,33 +95,25 @@ namespace APIproyectoEquinoterapia.Services
             paciente.TelefonoTutor = pacienteDTO.TelefonoTutor;
 
 
-            if (Enum.TryParse<EstadoPaciente>(pacienteDTO.Estado, out var estadoValido))
-            {
-                paciente.Estado = estadoValido;
-            }
-            else 
-            { return false; }
 
             await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<bool> DeletePacienteAsync(int id)
-        {
-            var paciente = await _context.paciente.FindAsync(id);
-            if (paciente == null)
-                return false;
-
-            _context.paciente.Remove(paciente);
-            await _context.SaveChangesAsync();
-            return true;
+            return (true,"Paciente actualizado de forma exitosa");
         }
 
 
-        public async Task<bool> PostPacienteAsync (PacienteConArchivosDTO pacienteconarchivosDTO)
+        public async Task<(bool,string)> PostPacienteAsync (PacienteConArchivosDTO pacienteconarchivosDTO)
         {
             if (_context.paciente.Any(p => p.PacienteId == pacienteconarchivosDTO.PacienteId))
-                return false;
+            {
+                var mensaje = "El paciente ya existe";
+                return (false, mensaje);
+            }
+
+            if (!Enum.TryParse<Generos>(pacienteconarchivosDTO.Genero, out var generoValido))
+            {
+                var mensaje = "Genero o estado no validos";
+                return (false, mensaje);
+            }
 
             var nuevoPaciente = new Paciente
             {
@@ -100,6 +121,7 @@ namespace APIproyectoEquinoterapia.Services
                 FechaNacimiento = pacienteconarchivosDTO.FechaNacimiento,
                 Tutor = pacienteconarchivosDTO.Tutor,
                 TelefonoTutor = pacienteconarchivosDTO.TelefonoTutor,
+                Genero = pacienteconarchivosDTO.Genero == null ? Generos.NoBinario : generoValido,
                 DiagnosticoMedico = await ConvertirArchivoABytesAsync(pacienteconarchivosDTO.DiagnosticoMedico),
                 CertificadoMedico = await ConvertirArchivoABytesAsync(pacienteconarchivosDTO.CertificadoMedico),
                 ActaNacimiento = await ConvertirArchivoABytesAsync(pacienteconarchivosDTO.ActaNacimiento),
@@ -112,10 +134,8 @@ namespace APIproyectoEquinoterapia.Services
 
             _context.paciente.Add(nuevoPaciente);
             await _context.SaveChangesAsync();
-            return true;
+            return (true,"Agregado Correctamente");
         }
-
-
 
 
         public async Task<byte[]?> GetArchivoAsync(string archivoRequerido, int pacienteId)
@@ -165,6 +185,21 @@ namespace APIproyectoEquinoterapia.Services
             using var ms = new MemoryStream();
             await archivo.CopyToAsync(ms);
             return ms.ToArray();
+        }
+
+
+        public async Task<(bool, string)> DeletePacienteAsync(int pacienteId)
+        {
+            var paciente = await _context.paciente.FindAsync(pacienteId);
+            if (paciente == null)
+            {
+                var mensaje = "Paciente no encontrado";
+                return (false, mensaje);
+            }
+
+            _context.paciente.Remove(paciente);
+            await _context.SaveChangesAsync();
+            return (true, "Se elimino correctamente");
         }
 
 
