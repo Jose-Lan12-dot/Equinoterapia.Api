@@ -47,7 +47,7 @@ namespace APIproyectoEquinoterapia.Services
 
         public async Task<ICollection<FormularioPreguntaDTO>> GetPreguntas() { 
 
-            return await _context.formularioPregunta
+            return await _context.formularioPreguntas
                 .OrderBy(p => p.PreguntaId)
                 .Select(p => new FormularioPreguntaDTO
                 {
@@ -59,7 +59,7 @@ namespace APIproyectoEquinoterapia.Services
 
         private async Task<ICollection<FormularioRespuestaDTO>> GetRespuestas(int  formularioId) { 
 
-            return await _context.formularioRespuesta
+            return await _context.formularioRespuestas
                 .Where(r => r.FormularioId == formularioId)
                 .OrderBy(r => r.PreguntaId)
                 .Select(r => new FormularioRespuestaDTO
@@ -80,7 +80,7 @@ namespace APIproyectoEquinoterapia.Services
                 return (false, mensaje);
             }
 
-            var numeroPreguntas = await _context.formularioPregunta.CountAsync();
+            var numeroPreguntas = await _context.formularioPreguntas.CountAsync();
             var numeroRespuestas = formularioDTO.Respuestas.Count;
             if (numeroPreguntas != numeroRespuestas)
             {
@@ -125,7 +125,7 @@ namespace APIproyectoEquinoterapia.Services
                     PreguntaId = respuestas.ElementAtOrDefault(i)?.PreguntaIdOrden ?? 0,
                     Respuesta = respuestas.ElementAtOrDefault(i)?.Respuesta ?? 0
                 };
-                _context.formularioRespuesta.Add(nuevaRespuesta);
+                _context.formularioRespuestas.Add(nuevaRespuesta);
             }
 
         }

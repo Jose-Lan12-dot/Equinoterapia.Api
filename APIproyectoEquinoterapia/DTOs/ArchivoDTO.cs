@@ -1,7 +1,8 @@
 ﻿namespace APIproyectoEquinoterapia.DTOs
 {
-    public class PacienteConArchivosDTO : PacienteDTO
+    public class ArchivoDTO
     {
+        public int PacienteId { get; set; }
         public IFormFile? DiagnosticoMedico { get; set; }
         public IFormFile? CertificadoMedico { get; set; }
         public IFormFile? ActaNacimiento { get; set; }

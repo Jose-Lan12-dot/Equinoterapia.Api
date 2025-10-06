@@ -51,67 +51,25 @@ namespace APIproyectoEquinoterapia.Controllers
 
         
         [HttpPost("agregar")]
-        public async Task<IActionResult> PostPaciente(PacienteConArchivosDTO pacienteconarchivoDTO)
+        public async Task<IActionResult> PostPaciente(PacienteDTO pacienteDTO, ArchivoDTO archivoDTO)
         {
-            var (respuesta,mensaje) = await _pacienteService.PostPacienteAsync(pacienteconarchivoDTO);
+            var (respuesta,mensaje) = await _pacienteService.PostPacienteAsync(pacienteDTO, archivoDTO);
             if (!respuesta)
                 return Conflict(mensaje);
 
             return Ok(mensaje);
         }
 
-
-        [HttpGet("obtener/archivo/{archivoRequerido}")]
-        public async Task<IActionResult> GetArchivo(int pacienteId, string archivoRequerido)
-        {
-            var archivo = await _pacienteService.GetArchivoAsync(archivoRequerido,pacienteId);
-            if (archivo == null || archivo.Length == 0)
-                return NotFound("Archivo no encontrado.");
-            string contentType = archivoRequerido.ToLower() switch
-            {
-                "diagnosticomedico" => "application/pdf",
-                "certificadomedico" => "application/pdf",
-                "actanacimiento" => "application/pdf",
-                "curp" => "application/pdf",
-                "comprobantedomicilio" => "application/pdf",
-                "inetutor" => "application/pdf",
-                "fotografia" => "image/jpeg",
-                _ => "application/octet-stream"
-           };
-            return File(archivo, contentType);
-        }
-
-        [HttpPut("actualizar/archivo/{archivoRequerido}")]
-        public async Task<IActionResult> PutArchivo(
-            int pacienteId,
-            string archivoRequerido,
-            IFormFile nuevoArchivo)
-        {
-            var actualizado = await _pacienteService.PutArchivoAsync(pacienteId, archivoRequerido, nuevoArchivo);
-            if (!actualizado)
-                return NotFound("Archivo no encontrado.");
-            return Ok("Archivo actualizado correctamente.");
-        }
-
-        [HttpDelete("eliminar/archivo/{achivoRequerido}")]
-        public async Task<IActionResult> DeleteArchivo(int pacienteId, string archivoRequerido)
-        {
-            var eliminado = await _pacienteService.DeleteArchivoAsync(pacienteId, archivoRequerido);
-            if (!eliminado)
-                return NotFound("Paciente o archivo no encontrado.");
-            return Ok("Archivo eliminado correctamente.");
-        }
-
-
         [HttpDelete("eliminar/{id}")]
         public async Task<IActionResult> DeletePaciente(int pacienteId)
         {
-            var (respuesta,mensaje) = await _pacienteService.DeletePacienteAsync(pacienteId);
+            var (respuesta, mensaje) = await _pacienteService.DeletePacienteAsync(pacienteId);
             if (!respuesta)
                 return NotFound(mensaje);
 
             return Ok(mensaje);
         }
+
 
     }
 }

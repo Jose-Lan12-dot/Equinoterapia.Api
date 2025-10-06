@@ -34,20 +34,6 @@ public partial class Paciente
 
     public Generos Genero { get; set; }
 
-    public byte[]? DiagnosticoMedico { get; set; }
-
-    public byte[]? CertificadoMedico { get; set; }
-
-    public byte[]? ActaNacimiento { get; set; }
-
-    public byte[]? Curp { get; set; }
-
-    public byte[]? ComprobanteDomicilio { get; set; }
-
-    public byte[]? IneTutor { get; set; }
-
-    public byte[]? Fotografia { get; set; }
-
     public DateTime? FechaRegistro { get; set; }
 
     public virtual ICollection<Cita> Cita { get; set; } = new List<Cita>();

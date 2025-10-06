@@ -101,15 +101,15 @@ namespace APIproyectoEquinoterapia.Services
         }
 
 
-        public async Task<(bool,string)> PostPacienteAsync (PacienteConArchivosDTO pacienteconarchivosDTO)
+        public async Task<(bool,string)> PostPacienteAsync (PacienteDTO pacienteDTO,ArchivoDTO archivoDTO)
         {
-            if (_context.paciente.Any(p => p.PacienteId == pacienteconarchivosDTO.PacienteId))
+            if (_context.paciente.Any(p => p.PacienteId == pacienteDTO.PacienteId))
             {
                 var mensaje = "El paciente ya existe";
                 return (false, mensaje);
             }
 
-            if (!Enum.TryParse<Generos>(pacienteconarchivosDTO.Genero, out var generoValido))
+            if (!Enum.TryParse<Generos>(pacienteDTO.Genero, out var generoValido))
             {
                 var mensaje = "Genero o estado no validos";
                 return (false, mensaje);
@@ -117,74 +117,30 @@ namespace APIproyectoEquinoterapia.Services
 
             var nuevoPaciente = new Paciente
             {
-                Nombre = pacienteconarchivosDTO.Nombre,
-                FechaNacimiento = pacienteconarchivosDTO.FechaNacimiento,
-                Tutor = pacienteconarchivosDTO.Tutor,
-                TelefonoTutor = pacienteconarchivosDTO.TelefonoTutor,
-                Genero = pacienteconarchivosDTO.Genero == null ? Generos.NoBinario : generoValido,
-                DiagnosticoMedico = await ConvertirArchivoABytesAsync(pacienteconarchivosDTO.DiagnosticoMedico),
-                CertificadoMedico = await ConvertirArchivoABytesAsync(pacienteconarchivosDTO.CertificadoMedico),
-                ActaNacimiento = await ConvertirArchivoABytesAsync(pacienteconarchivosDTO.ActaNacimiento),
-                Curp = await ConvertirArchivoABytesAsync(pacienteconarchivosDTO.Curp),
-                ComprobanteDomicilio = await ConvertirArchivoABytesAsync(pacienteconarchivosDTO.ComprobanteDomicilio),
-                IneTutor = await ConvertirArchivoABytesAsync(pacienteconarchivosDTO.IneTutor),
-                Fotografia = await ConvertirArchivoABytesAsync(pacienteconarchivosDTO.Fotografia),
+                Nombre = pacienteDTO.Nombre,
+                FechaNacimiento = pacienteDTO.FechaNacimiento,
+                Tutor = pacienteDTO.Tutor,
+                TelefonoTutor = pacienteDTO.TelefonoTutor,
+                Genero = pacienteDTO.Genero == null ? Generos.NoBinario : generoValido,
                 Estado = EstadoPaciente.Activo,
             };
 
+            var nuevoArchivo = new Archivo
+            {
+                PacienteId = nuevoPaciente.PacienteId,
+                DiagnosticoMedico = await ConvertirArchivoABytesAsync(archivoDTO.DiagnosticoMedico),
+                CertificadoMedico = await ConvertirArchivoABytesAsync(archivoDTO.CertificadoMedico),
+                ActaNacimiento = await ConvertirArchivoABytesAsync(archivoDTO.ActaNacimiento),
+                Curp = await ConvertirArchivoABytesAsync(archivoDTO.Curp),
+                ComprobanteDomicilio = await ConvertirArchivoABytesAsync(archivoDTO.ComprobanteDomicilio),
+                IneTutor = await ConvertirArchivoABytesAsync(archivoDTO.IneTutor),
+                Fotografia = await ConvertirArchivoABytesAsync(archivoDTO.Fotografia),
+            };
+
             _context.paciente.Add(nuevoPaciente);
+            _context.archivo.Add(nuevoArchivo);
             await _context.SaveChangesAsync();
             return (true,"Agregado Correctamente");
-        }
-
-
-        public async Task<byte[]?> GetArchivoAsync(string archivoRequerido, int pacienteId)
-        {
-            var paciente = await _context.paciente.FindAsync(pacienteId);
-
-            var propiedad = typeof(Paciente).GetProperty(archivoRequerido);
-            if (propiedad == null)
-                return null;
-
-            var valor = propiedad.GetValue(paciente) as byte[];
-            return valor;
-        }
-
-
-        public async Task<bool> PutArchivoAsync(int pacienteId, string archivoRequerido, IFormFile nuevoArchivo)
-        {
-            var paciente = await _context.paciente.FindAsync(pacienteId);
-
-            var propiedad = typeof(Paciente).GetProperty(archivoRequerido);
-            if (propiedad == null)
-                return false;
-
-            var nuevoArchivoByte = ConvertirArchivoABytesAsync (nuevoArchivo);
-
-            propiedad.SetValue(paciente, nuevoArchivoByte);
-
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-
-        public async Task<bool> DeleteArchivoAsync(int pacienteId, string archivoRequerido)
-        {
-            var paciente = await _context.paciente.FindAsync(pacienteId);
-            var propiedad = typeof(Paciente).GetProperty(archivoRequerido);
-            if (propiedad == null)
-                return false;
-            propiedad.SetValue(paciente, null);
-            return true;
-        }
-
-
-        private async Task<byte[]?> ConvertirArchivoABytesAsync(IFormFile? archivo)
-        {
-            if (archivo == null) return null;
-            using var ms = new MemoryStream();
-            await archivo.CopyToAsync(ms);
-            return ms.ToArray();
         }
 
 
@@ -200,6 +156,14 @@ namespace APIproyectoEquinoterapia.Services
             _context.paciente.Remove(paciente);
             await _context.SaveChangesAsync();
             return (true, "Se elimino correctamente");
+        }
+
+        private async Task<byte[]?> ConvertirArchivoABytesAsync(IFormFile? archivo)
+        {
+            if (archivo == null) return null;
+            using var ms = new MemoryStream();
+            await archivo.CopyToAsync(ms);
+            return ms.ToArray();
         }
 
 

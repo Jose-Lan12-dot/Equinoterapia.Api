@@ -23,8 +23,9 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Sesion> sesion { get; set; }
     public DbSet<LoginRespuesta> loginrespuesta { get; set; }
     public DbSet<Formulario> formulario { get; set; }
-    public DbSet<FormularioRespuestas> formularioRespuesta { get; set; }
-    public DbSet<FormularioPreguntas> formularioPregunta { get; set; }
+    public DbSet<FormularioRespuestas> formularioRespuestas { get; set; }
+    public DbSet<FormularioPreguntas> formularioPreguntas { get; set; }
+    public DbSet<Archivo> archivo { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -112,18 +113,11 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("genero")
                 .HasConversion<string>();
             entity.Property(e => e.PacienteId).HasColumnName("paciente_id");
-            entity.Property(e => e.ActaNacimiento).HasColumnName("acta_nacimiento");
-            entity.Property(e => e.CertificadoMedico).HasColumnName("certificado_medico");
-            entity.Property(e => e.ComprobanteDomicilio).HasColumnName("comprobante_domicilio");
-            entity.Property(e => e.Curp).HasColumnName("curp");
-            entity.Property(e => e.DiagnosticoMedico).HasColumnName("diagnostico_medico");
             entity.Property(e => e.FechaNacimiento).HasColumnName("fecha_nacimiento");
             entity.Property(e => e.FechaRegistro)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("fecha_registro");
-            entity.Property(e => e.Fotografia).HasColumnName("fotografia");
-            entity.Property(e => e.IneTutor).HasColumnName("ine_tutor");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(100)
                 .IsUnicode(false)
@@ -218,6 +212,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("respuesta");
         });
 
+
         modelBuilder.Entity<FormularioPreguntas>(entity =>
         {
             entity.ToTable("formulario_pregunta");
@@ -228,6 +223,27 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.Pregunta)
                 .HasColumnName("pregunta");
+        });
+
+
+        modelBuilder.Entity<Archivo>(entity =>
+        {
+            entity.ToTable("archivo");
+            entity.HasKey(a => a.ArchivoId);
+
+            entity.Property(a => a.ArchivoId)
+                .HasColumnName("archivo_id");
+
+            entity.Property(a => a.PacienteId)
+                .HasColumnName("paciente_id");
+
+            entity.Property(e => e.ActaNacimiento).HasColumnName("acta_nacimiento");
+            entity.Property(e => e.CertificadoMedico).HasColumnName("certificado_medico");
+            entity.Property(e => e.ComprobanteDomicilio).HasColumnName("comprobante_domicilio");
+            entity.Property(e => e.Curp).HasColumnName("curp");
+            entity.Property(e => e.DiagnosticoMedico).HasColumnName("diagnostico_medico");
+            entity.Property(e => e.Fotografia).HasColumnName("fotografia");
+            entity.Property(e => e.IneTutor).HasColumnName("ine_tutor");
         });
 
         modelBuilder.Entity<LoginRespuesta>().HasNoKey(); // No tiene clave primaria
