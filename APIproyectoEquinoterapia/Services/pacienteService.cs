@@ -1,5 +1,6 @@
 using APIproyectoEquinoterapia.DTOs;
 using APIproyectoEquinoterapia.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace APIproyectoEquinoterapia.Services
@@ -101,7 +102,7 @@ namespace APIproyectoEquinoterapia.Services
         }
 
 
-        public async Task<(bool,string)> PostPacienteAsync (PacienteDTO pacienteDTO,ArchivoDTO archivoDTO)
+        public async Task<(bool, string)> PostPacienteAsync(PacienteDTO pacienteDTO)
         {
             if (_context.paciente.Any(p => p.PacienteId == pacienteDTO.PacienteId))
             {
@@ -124,47 +125,26 @@ namespace APIproyectoEquinoterapia.Services
                 Genero = pacienteDTO.Genero == null ? Generos.NoBinario : generoValido,
                 Estado = EstadoPaciente.Activo,
             };
-
-            var nuevoArchivo = new Archivo
-            {
-                PacienteId = nuevoPaciente.PacienteId,
-                DiagnosticoMedico = await ConvertirArchivoABytesAsync(archivoDTO.DiagnosticoMedico),
-                CertificadoMedico = await ConvertirArchivoABytesAsync(archivoDTO.CertificadoMedico),
-                ActaNacimiento = await ConvertirArchivoABytesAsync(archivoDTO.ActaNacimiento),
-                Curp = await ConvertirArchivoABytesAsync(archivoDTO.Curp),
-                ComprobanteDomicilio = await ConvertirArchivoABytesAsync(archivoDTO.ComprobanteDomicilio),
-                IneTutor = await ConvertirArchivoABytesAsync(archivoDTO.IneTutor),
-                Fotografia = await ConvertirArchivoABytesAsync(archivoDTO.Fotografia),
-            };
-
             _context.paciente.Add(nuevoPaciente);
-            _context.archivo.Add(nuevoArchivo);
             await _context.SaveChangesAsync();
-            return (true,"Agregado Correctamente");
+
+            return (true,"Datos paciente agregado Correctamente");
         }
 
 
-        public async Task<(bool, string)> DeletePacienteAsync(int pacienteId)
-        {
-            var paciente = await _context.paciente.FindAsync(pacienteId);
-            if (paciente == null)
-            {
-                var mensaje = "Paciente no encontrado";
-                return (false, mensaje);
-            }
+        //public async Task<(bool, string)> DeletePacienteAsync(int pacienteId)
+        //{
+        //    var paciente = await _context.paciente.FindAsync(pacienteId);
+        //    if (paciente == null)
+        //    {
+        //        var mensaje = "Paciente no encontrado";
+        //        return (false, mensaje);
+        //    }
 
-            _context.paciente.Remove(paciente);
-            await _context.SaveChangesAsync();
-            return (true, "Se elimino correctamente");
-        }
-
-        private async Task<byte[]?> ConvertirArchivoABytesAsync(IFormFile? archivo)
-        {
-            if (archivo == null) return null;
-            using var ms = new MemoryStream();
-            await archivo.CopyToAsync(ms);
-            return ms.ToArray();
-        }
+        //    _context.paciente.Remove(paciente);
+        //    await _context.SaveChangesAsync();
+        //    return (true, "Se elimino correctamente");
+        //}
 
 
 

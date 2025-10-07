@@ -51,24 +51,24 @@ namespace APIproyectoEquinoterapia.Controllers
 
         
         [HttpPost("agregar")]
-        public async Task<IActionResult> PostPaciente(PacienteDTO pacienteDTO, ArchivoDTO archivoDTO)
+        public async Task<ActionResult<ArchivoDTO>> PostPaciente(PacienteDTO pacienteDTO)
         {
-            var (respuesta,mensaje) = await _pacienteService.PostPacienteAsync(pacienteDTO, archivoDTO);
+            var (respuesta,mensaje) = await _pacienteService.PostPacienteAsync(pacienteDTO);
             if (!respuesta)
                 return Conflict(mensaje);
 
             return Ok(mensaje);
         }
 
-        [HttpDelete("eliminar/{id}")]
-        public async Task<IActionResult> DeletePaciente(int pacienteId)
-        {
-            var (respuesta, mensaje) = await _pacienteService.DeletePacienteAsync(pacienteId);
-            if (!respuesta)
-                return NotFound(mensaje);
+        //[HttpDelete("eliminar/{id}")]
+        //public async Task<IActionResult> DeletePaciente(int pacienteId)
+        //{
+        //    var (respuesta, mensaje) = await _pacienteService.DeletePacienteAsync(pacienteId);
+        //    if (!respuesta)
+        //        return NotFound(mensaje);
 
-            return Ok(mensaje);
-        }
+        //    return Ok(mensaje);
+        //}
 
 
     }

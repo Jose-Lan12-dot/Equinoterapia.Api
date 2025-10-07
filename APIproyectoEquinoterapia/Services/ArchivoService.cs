@@ -1,4 +1,5 @@
-﻿using APIproyectoEquinoterapia.Models;
+﻿using APIproyectoEquinoterapia.DTOs;
+using APIproyectoEquinoterapia.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace APIproyectoEquinoterapia.Services
@@ -58,12 +59,38 @@ namespace APIproyectoEquinoterapia.Services
                 return (false,mensaje);
             }
 
-            var nuevoArchivoByte = ConvertirArchivoABytesAsync(nuevoArchivo);
+            var nuevoArchivoByte = await ConvertirArchivoABytesAsync(nuevoArchivo);
 
             propiedad.SetValue(archivo, nuevoArchivoByte);
 
             await _context.SaveChangesAsync();
-            return (true,archivoRequerido + "Actualizado Correctamnete");
+            return (true,archivoRequerido + " Actualizado Correctamnete");
+        }
+
+        public async Task<(bool,string)> PostArchivoAsync(ArchivoDTO archivoDTO, int pacienteId)
+        {
+            if(_context.archivo.Any(a => a.PacienteId == pacienteId)) 
+            {
+                var mensaje = "Archivos del paciente ya existen";
+                return (false,mensaje);
+            }
+            
+            var nuevoArchivo = new Archivo
+            {
+                PacienteId = pacienteId,
+                DiagnosticoMedico = await ConvertirArchivoABytesAsync(archivoDTO.DiagnosticoMedico),
+                CertificadoMedico = await ConvertirArchivoABytesAsync(archivoDTO.CertificadoMedico),
+                ActaNacimiento = await ConvertirArchivoABytesAsync(archivoDTO.ActaNacimiento),
+                Curp = await ConvertirArchivoABytesAsync(archivoDTO.Curp),
+                ComprobanteDomicilio = await ConvertirArchivoABytesAsync(archivoDTO.ComprobanteDomicilio),
+                IneTutor = await ConvertirArchivoABytesAsync(archivoDTO.IneTutor),
+                Fotografia = await ConvertirArchivoABytesAsync(archivoDTO.Fotografia),
+            };
+
+            _context.archivo.Add(nuevoArchivo);
+            await _context.SaveChangesAsync();
+
+            return (true, "Archivos del paciente " + pacienteId + " Agregados correctamnete");
         }
 
 
@@ -75,7 +102,8 @@ namespace APIproyectoEquinoterapia.Services
                 var mensaje = "Archivos del paciente no encontrados";
                 return (false,mensaje);
             }
-            var propiedad = typeof(Paciente).GetProperty(archivoRequerido);
+
+            var propiedad = typeof(Archivo).GetProperty(archivoRequerido);
             if(propiedad == null) 
             {
                 var mensaje = "Propiedad no encontrado";

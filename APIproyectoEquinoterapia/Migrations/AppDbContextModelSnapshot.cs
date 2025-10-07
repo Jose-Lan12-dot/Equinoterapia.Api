@@ -22,6 +22,54 @@ namespace APIproyectoEquinoterapia.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Archivo", b =>
+                {
+                    b.Property<int>("ArchivoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("archivo_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ArchivoId"));
+
+                    b.Property<byte[]>("ActaNacimiento")
+                        .HasColumnType("varbinary(max)")
+                        .HasColumnName("acta_nacimiento");
+
+                    b.Property<byte[]>("CertificadoMedico")
+                        .HasColumnType("varbinary(max)")
+                        .HasColumnName("certificado_medico");
+
+                    b.Property<byte[]>("ComprobanteDomicilio")
+                        .HasColumnType("varbinary(max)")
+                        .HasColumnName("comprobante_domicilio");
+
+                    b.Property<byte[]>("Curp")
+                        .HasColumnType("varbinary(max)")
+                        .HasColumnName("curp");
+
+                    b.Property<byte[]>("DiagnosticoMedico")
+                        .HasColumnType("varbinary(max)")
+                        .HasColumnName("diagnostico_medico");
+
+                    b.Property<byte[]>("Fotografia")
+                        .HasColumnType("varbinary(max)")
+                        .HasColumnName("fotografia");
+
+                    b.Property<byte[]>("IneTutor")
+                        .HasColumnType("varbinary(max)")
+                        .HasColumnName("ine_tutor");
+
+                    b.Property<int>("PacienteId")
+                        .HasColumnType("int")
+                        .HasColumnName("paciente_id");
+
+                    b.HasKey("ArchivoId");
+
+                    b.HasIndex("PacienteId");
+
+                    b.ToTable("archivo", (string)null);
+                });
+
             modelBuilder.Entity("APIproyectoEquinoterapia.Models.Caballo", b =>
                 {
                     b.Property<string>("Placa")
@@ -121,7 +169,7 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.ToTable("formulario", (string)null);
                 });
 
-            modelBuilder.Entity("APIproyectoEquinoterapia.Models.FormularioPregunta", b =>
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.FormularioPreguntas", b =>
                 {
                     b.Property<int>("PreguntaId")
                         .ValueGeneratedOnAdd()
@@ -129,10 +177,6 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasColumnName("pregunta_id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PreguntaId"));
-
-                    b.Property<int>("Orden")
-                        .HasColumnType("int")
-                        .HasColumnName("orden");
 
                     b.Property<string>("Pregunta")
                         .IsRequired()
@@ -142,9 +186,111 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.HasKey("PreguntaId");
 
                     b.ToTable("formulario_pregunta", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            PreguntaId = 1,
+                            Pregunta = "CONTACTO VISUAL"
+                        },
+                        new
+                        {
+                            PreguntaId = 2,
+                            Pregunta = "SECUENCIA DE INDICACIONES"
+                        },
+                        new
+                        {
+                            PreguntaId = 3,
+                            Pregunta = "UTILIZA COMO INSTRUMENTO AL ADULTO"
+                        },
+                        new
+                        {
+                            PreguntaId = 4,
+                            Pregunta = "CONDUCTA DE SEÑALADO PROIMPERATIVAS (PEDIR PARA EL)"
+                        },
+                        new
+                        {
+                            PreguntaId = 5,
+                            Pregunta = "CONDUCTA DE SEÑALADO PROTODECLARATIVAS (FINALIDAD DE COMPARTIR)"
+                        },
+                        new
+                        {
+                            PreguntaId = 6,
+                            Pregunta = "ATENCION CONJUNTA DE CUENTOS, JUEGOS O CANCIONES"
+                        },
+                        new
+                        {
+                            PreguntaId = 7,
+                            Pregunta = "MOSTRAR INTERES POR COMPARTIR OBJETOS"
+                        },
+                        new
+                        {
+                            PreguntaId = 8,
+                            Pregunta = "IMITACIÓN MOTORA GRUESA"
+                        },
+                        new
+                        {
+                            PreguntaId = 9,
+                            Pregunta = "IMITACIÓN MOTORA FINA"
+                        },
+                        new
+                        {
+                            PreguntaId = 10,
+                            Pregunta = "IMITACIÓN VOCAL"
+                        },
+                        new
+                        {
+                            PreguntaId = 11,
+                            Pregunta = "PRESENCIA DE LENGUAJE ORAL Y NIVEL"
+                        },
+                        new
+                        {
+                            PreguntaId = 12,
+                            Pregunta = "ECOLALIAL"
+                        },
+                        new
+                        {
+                            PreguntaId = 13,
+                            Pregunta = "COMPRENSIÓN DE ORDENES SENCILLAS"
+                        },
+                        new
+                        {
+                            PreguntaId = 14,
+                            Pregunta = "JUEGO DE FICCIÓN O SIMBÓLICO"
+                        },
+                        new
+                        {
+                            PreguntaId = 15,
+                            Pregunta = "FLEXIBILIDAD A LOS CAMBIOS"
+                        },
+                        new
+                        {
+                            PreguntaId = 16,
+                            Pregunta = "NIVEL DE ACTIVIDAD MOTORA"
+                        },
+                        new
+                        {
+                            PreguntaId = 17,
+                            Pregunta = "NIVEL DE ATENCIÓN (TIEMPO DE ATENCIÓN REALIZANDO LA ACTIVIDAD)"
+                        },
+                        new
+                        {
+                            PreguntaId = 18,
+                            Pregunta = "MOTIVACIÓN (INTERES RESTRINGIDOS)"
+                        },
+                        new
+                        {
+                            PreguntaId = 19,
+                            Pregunta = "PLANIFICACIÓN"
+                        },
+                        new
+                        {
+                            PreguntaId = 20,
+                            Pregunta = "NIVEL DE IMPULSIVIDAD"
+                        });
                 });
 
-            modelBuilder.Entity("APIproyectoEquinoterapia.Models.FormularioRespuesta", b =>
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.FormularioRespuestas", b =>
                 {
                     b.Property<int>("RespuestaId")
                         .ValueGeneratedOnAdd()
@@ -246,32 +392,12 @@ namespace APIproyectoEquinoterapia.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PacienteId"));
 
-                    b.Property<byte[]>("ActaNacimiento")
-                        .HasColumnType("varbinary(max)")
-                        .HasColumnName("acta_nacimiento");
-
-                    b.Property<byte[]>("CertificadoMedico")
-                        .HasColumnType("varbinary(max)")
-                        .HasColumnName("certificado_medico");
-
-                    b.Property<byte[]>("ComprobanteDomicilio")
-                        .HasColumnType("varbinary(max)")
-                        .HasColumnName("comprobante_domicilio");
-
-                    b.Property<byte[]>("Curp")
-                        .HasColumnType("varbinary(max)")
-                        .HasColumnName("curp");
-
-                    b.Property<byte[]>("DiagnosticoMedico")
-                        .HasColumnType("varbinary(max)")
-                        .HasColumnName("diagnostico_medico");
-
                     b.Property<string>("Estado")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("estado");
 
-                    b.Property<DateOnly>("FechaNacimiento")
+                    b.Property<DateOnly?>("FechaNacimiento")
                         .HasColumnType("date")
                         .HasColumnName("fecha_nacimiento");
 
@@ -281,23 +407,18 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasColumnName("fecha_registro")
                         .HasDefaultValueSql("(getdate())");
 
-                    b.Property<byte[]>("Fotografia")
-                        .HasColumnType("varbinary(max)")
-                        .HasColumnName("fotografia");
-
-                    b.Property<byte[]>("IneTutor")
-                        .HasColumnType("varbinary(max)")
-                        .HasColumnName("ine_tutor");
+                    b.Property<string>("Genero")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("genero");
 
                     b.Property<string>("Nombre")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("nombre");
 
                     b.Property<string>("TelefonoTutor")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .IsUnicode(false)
                         .HasColumnType("char(10)")
@@ -305,7 +426,6 @@ namespace APIproyectoEquinoterapia.Migrations
                         .IsFixedLength();
 
                     b.Property<string>("Tutor")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
                         .HasColumnType("varchar(100)")
@@ -356,6 +476,17 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.ToTable("sesion", (string)null);
                 });
 
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Archivo", b =>
+                {
+                    b.HasOne("APIproyectoEquinoterapia.Models.Paciente", "Paciente")
+                        .WithMany()
+                        .HasForeignKey("PacienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Paciente");
+                });
+
             modelBuilder.Entity("APIproyectoEquinoterapia.Models.Cita", b =>
                 {
                     b.HasOne("APIproyectoEquinoterapia.Models.Paciente", "Paciente")
@@ -388,7 +519,7 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.Navigation("Paciente");
                 });
 
-            modelBuilder.Entity("APIproyectoEquinoterapia.Models.FormularioRespuesta", b =>
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.FormularioRespuestas", b =>
                 {
                     b.HasOne("APIproyectoEquinoterapia.Models.Formulario", "Formulario")
                         .WithMany("Respuestas")
@@ -396,7 +527,7 @@ namespace APIproyectoEquinoterapia.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("APIproyectoEquinoterapia.Models.FormularioPregunta", "Pregunta")
+                    b.HasOne("APIproyectoEquinoterapia.Models.FormularioPreguntas", "Pregunta")
                         .WithMany()
                         .HasForeignKey("PreguntaId")
                         .OnDelete(DeleteBehavior.Cascade)

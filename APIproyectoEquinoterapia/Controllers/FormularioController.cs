@@ -23,7 +23,7 @@ namespace APIproyectoEquinoterapia.Controllers
         }
 
         // GET: api/Formulario
-        [HttpGet("/obtener")]
+        [HttpGet("obtener")]
         public async Task<ActionResult<FormularioDTO>> Getformulario(int pacienteId)
         {
             var (formulario,mensaje) = await _formularioService.GetFormularioAsync(pacienteId);
@@ -35,40 +35,35 @@ namespace APIproyectoEquinoterapia.Controllers
             return Ok(formulario);
         }
 
+        // GET: api/Formulario
+        [HttpGet("obtener/preguntas")]
+        public async Task<ActionResult<FormularioDTO>> GetPreguntas()
+        {
+            var (preguntas,mensaje) = await _formularioService.GetPreguntasAsync();
+            if (!preguntas.Any())
+            {
+                return BadRequest(mensaje);
+            }
 
-        //// PUT: api/Formulario/5
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutFormulario(int id, Formulario formulario)
-        //{
-        //    if (id != formulario.FormularioId)
-        //    {
-        //        return BadRequest();
-        //    }
+            return Ok(preguntas);
+        }
 
-        //    _context.Entry(formulario).State = EntityState.Modified;
 
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!FormularioExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
+        // PUT: api/Formulario/5
+        [HttpPut("actualizar")]
+        public async Task<IActionResult> PutFormulario(FormularioDTO formularioDTO, int pacienteId)
+        {
+            var (respuesta,mensaje) = await _formularioService.PutFormularioAsync(formularioDTO, pacienteId);
+            if (!respuesta)
+            {
+                return BadRequest(mensaje);
+            }
 
-        //    return NoContent();
-        //}
+            return Ok(mensaje);
+        }
 
         // POST: api/Formulario
-        [HttpPost("/agregar")]
+        [HttpPost("agregar")]
         public async Task<IActionResult> PostFormulario(FormularioDTO formularioDTO, int pacienteId)
         {
             var (respuesta,mensaje) = await _formularioService.PostFormularioAsync(formularioDTO, pacienteId);
@@ -81,25 +76,18 @@ namespace APIproyectoEquinoterapia.Controllers
             return Ok(mensaje);
         }
 
-        //// DELETE: api/Formulario/5
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteFormulario(int id)
-        //{
-        //    var formulario = await _context.formulario.FindAsync(id);
-        //    if (formulario == null)
-        //    {
-        //        return NotFound();
-        //    }
+        // DELETE: api/Formulario/5
+        [HttpDelete("eliminar")]
+        public async Task<IActionResult> DeleteFormulario(int id)
+        {
+            var (respuesta,mensaje) = await _formularioService.DeleteFormularioAsync(id);
+            if (!respuesta)
+            {
+                return BadRequest(mensaje);
+            }
+            return Ok(mensaje);
+        }
 
-        //    _context.formulario.Remove(formulario);
-        //    await _context.SaveChangesAsync();
 
-        //    return NoContent();
-        //}
-
-        //private bool FormularioExists(int id)
-        //{
-        //    return _context.formulario.Any(e => e.FormularioId == id);
-        //}
     }
 }

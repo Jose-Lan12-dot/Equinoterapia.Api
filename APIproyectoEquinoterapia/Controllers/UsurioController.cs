@@ -8,11 +8,11 @@ namespace APIproyectoEquinoterapia.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class loginController : ControllerBase
+    public class UsurioController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public loginController (AppDbContext context)
+        public UsurioController (AppDbContext context)
         {
             _context = context;
         }

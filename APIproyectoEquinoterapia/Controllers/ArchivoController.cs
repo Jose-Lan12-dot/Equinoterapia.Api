@@ -1,6 +1,8 @@
-﻿using APIproyectoEquinoterapia.Services;
+﻿using APIproyectoEquinoterapia.DTOs;
+using APIproyectoEquinoterapia.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace APIproyectoEquinoterapia.Controllers
 {
@@ -48,7 +50,17 @@ namespace APIproyectoEquinoterapia.Controllers
             return Ok(mensaje);
         }
 
-        [HttpDelete("eliminar/{achivoRequerido}")]
+
+        [HttpPost("agregar")]
+        public async Task<IActionResult> PostArchivo(int pacienteId,ArchivoDTO archivoDTO)
+        {
+            var (respuesta,mensaje) = await _archivoService.PostArchivoAsync(archivoDTO,pacienteId);
+            if (!respuesta)
+                return NotFound(mensaje);
+            return Ok(mensaje);
+        }
+
+        [HttpDelete("eliminar")]
         public async Task<IActionResult> DeleteArchivo(int pacienteId, string archivoRequerido)
         {
             var (respuesta,mensaje) = await _archivoService.DeleteArchivoAsync(pacienteId, archivoRequerido);
