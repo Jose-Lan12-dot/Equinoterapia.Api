@@ -80,8 +80,8 @@ namespace APIproyectoEquinoterapia.Migrations
                         .IsFixedLength();
 
                     b.Property<string>("Estado")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("estado");
 
                     b.Property<DateOnly?>("FechaHerraje")
@@ -328,6 +328,11 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasColumnName("instructor_id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InstructorId"));
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("estado");
 
                     b.Property<string>("Nombre")
                         .IsRequired()

@@ -3,13 +3,23 @@ using System.Collections.Generic;
 
 namespace APIproyectoEquinoterapia.Models;
 
+
+public enum EstadoCaballo
+{
+    Disponible,
+    EnTratamiento,
+    Descansando,
+    Retirado
+}
+
+
 public partial class Caballo
 {
     public string Placa { get; set; } = null!;
 
     public string Nombre { get; set; } = null!;
 
-    public string? Estado { get; set; }
+    public EstadoCaballo Estado { get; set; }
 
     public DateOnly? FechaHerraje { get; set; }
 

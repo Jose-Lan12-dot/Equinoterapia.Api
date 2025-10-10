@@ -2,6 +2,7 @@
 using NuGet.Protocol.Plugins;
 using System;
 using System.Collections.Generic;
+using APIproyectoEquinoterapia.DTOs;
 
 namespace APIproyectoEquinoterapia.Models;
 
@@ -21,15 +22,11 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Instructor> instructor { get; set; }
     public virtual DbSet<Paciente> paciente { get; set; }
     public virtual DbSet<Sesion> sesion { get; set; }
-    public DbSet<LoginRespuesta> loginrespuesta { get; set; }
     public DbSet<Formulario> formulario { get; set; }
     public DbSet<FormularioRespuestas> formularioRespuestas { get; set; }
     public DbSet<FormularioPreguntas> formularioPreguntas { get; set; }
     public DbSet<Archivo> archivo { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=MSI;Database=EquinoterapiaDB;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True");
+    public DbSet<InicioSesion> inicioSesion { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -45,8 +42,9 @@ public partial class AppDbContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("placa");
             entity.Property(e => e.Estado)
-                .HasMaxLength(20)
-                .HasColumnName("estado");
+                .HasColumnName("estado")
+                .HasConversion<string>();
+
             entity.Property(e => e.FechaHerraje).HasColumnName("fecha_herraje");
             entity.Property(e => e.FechaRegistro)
                 .HasDefaultValueSql("(getdate())")
@@ -98,6 +96,9 @@ public partial class AppDbContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("telefono");
+            entity.Property(e => e.Estado)
+                .HasConversion<string>()
+                .HasColumnName("estado");
         });
 
         modelBuilder.Entity<Paciente>(entity =>
@@ -246,7 +247,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.IneTutor).HasColumnName("ine_tutor");
         });
 
-        modelBuilder.Entity<LoginRespuesta>().HasNoKey(); // No tiene clave primaria
+        modelBuilder.Entity<InicioSesion>().HasNoKey();
 
 
         modelBuilder.Entity<FormularioPreguntas>().HasData(
@@ -273,7 +274,7 @@ public partial class AppDbContext : DbContext
         new FormularioPreguntas { PreguntaId = 18, Pregunta = "MOTIVACIÓN (INTERES RESTRINGIDOS)"},
         new FormularioPreguntas { PreguntaId = 19, Pregunta = "PLANIFICACIÓN"},
         new FormularioPreguntas { PreguntaId = 20, Pregunta = "NIVEL DE IMPULSIVIDAD"}
-);
+        );
     }
 
 

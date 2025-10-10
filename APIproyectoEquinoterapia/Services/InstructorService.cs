@@ -13,68 +13,98 @@ namespace APIproyectoEquinoterapia.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<InstructorDTO>> GetInstructoresAsync()
+        public async Task<(IEnumerable<InstructorDTO>, string)> GetInstructoresAsync()
         {
-            return await _context.instructor
+            var instructores = await _context.instructor
                 .Select(i => new InstructorDTO
                 {
                     InstructorId = i.InstructorId,
                     Nombre = i.Nombre,
-                    Telefono = i.Telefono
+                    Telefono = i.Telefono,
+                    Estado = i.Estado.ToString()
                 })
                 .ToListAsync();
+
+            if (instructores == null || !instructores.Any())
+            {
+                var mensaje = "No se encontraron instructores";
+                return (Enumerable.Empty<InstructorDTO>(),mensaje );
+            }
+
+            return (instructores, "Instructores devueltos con éxito");
         }
 
-        public async Task<InstructorDTO?> GetInstructorAsync(int id)
+        public async Task<(InstructorDTO?, string)> GetInstructorAsync(int instructorId)
         {
-            var instructor = await _context.instructor.FindAsync(id);
+            var instructor = await _context.instructor.FindAsync(instructorId);
             if (instructor == null)
-                return null;
+            {
+                var mensaje = "Instructor no encontrado";
+                return (null, mensaje);
+            }
 
-            return new InstructorDTO
+            return (new InstructorDTO
             {
                 InstructorId = instructor.InstructorId,
                 Nombre = instructor.Nombre,
-                Telefono = instructor.Telefono
-            };
+                Telefono = instructor.Telefono,
+                Estado = instructor.Estado.ToString()
+            }, "Instructor encontrado");
         }
 
-        public async Task<bool> PostInstructorAsync(InstructorDTO instructorDTO)
+        public async Task<(bool, string)> PostInstructorAsync(InstructorDTO instructorDTO)
         {
-            var instructor = new Instructor
+            if (instructorDTO == null)
             {
-                Nombre = instructorDTO.Nombre,
-                Telefono = instructorDTO.Telefono
+                var mensaje = "Datos del instructor no proporcionados";
+                return (false, mensaje);
+            }
+
+            if (_context.instructor.Any(i => i.InstructorId == instructorDTO.InstructorId))
+            {
+                var mensaje = "El Instructor ya existe.";
+                return (false,mensaje);
+            }
+
+            if (!Enum.TryParse<EstadoInstructor>(instructorDTO.Estado, out var estadoValido))
+            {
+                var mensaje = "Estado no válido";
+                return (false, mensaje);
+            }
+
+            var nuevoInstructor = new Instructor
+            {
+                Nombre = instructorDTO.Nombre ?? string.Empty,
+                Telefono = instructorDTO.Telefono,
+                Estado = estadoValido
             };
 
-            _context.instructor.Add(instructor);
+            _context.instructor.Add(nuevoInstructor);
             await _context.SaveChangesAsync();
-            instructorDTO.InstructorId = instructor.InstructorId;
-            return true;
+            return (true, "Instructor agregado correctamente");
         }
 
-        public async Task<bool> PutInstructorAsync(int id, InstructorDTO instructorDTO)
+        public async Task<(bool, string)> PutInstructorAsync(int instructorId, InstructorDTO instructorDTO)
         {
-            var instructor = await _context.instructor.FindAsync(id);
+            var instructor = await _context.instructor.FindAsync(instructorId);
             if (instructor == null)
-                return false;
+            {
+                var mensaje = "Instructor no encontrado";
+                return (false, mensaje);
+            }
 
-            instructor.Nombre = instructorDTO.Nombre;
-            instructor.Telefono = instructorDTO.Telefono;
+            if (!Enum.TryParse<EstadoInstructor>(instructorDTO.Estado, out var estadoValido))
+            {
+                var mensaje = "Estado no válido";
+                return (false, mensaje);
+            }
+
+            instructor.Nombre = instructorDTO.Nombre ?? instructor.Nombre;
+            instructor.Telefono = instructorDTO.Telefono ?? instructor.Telefono;
+            instructor.Estado = estadoValido;
 
             await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<bool> DeleteInstructorAsync(int id)
-        {
-            var instructor = await _context.instructor.FindAsync(id);
-            if (instructor == null)
-                return false;
-
-            _context.instructor.Remove(instructor);
-            await _context.SaveChangesAsync();
-            return true;
+            return (true, "Instructor actualizado correctamente");
         }
     }
 }

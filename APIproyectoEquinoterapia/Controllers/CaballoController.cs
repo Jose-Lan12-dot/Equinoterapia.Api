@@ -22,11 +22,11 @@ namespace APIproyectoEquinoterapia.Controllers
         [HttpGet("obtener")]
         public async Task<ActionResult<IEnumerable<CaballoDTO>>> GetCaballos()
         {
-            var caballos = await _caballoService.GetCaballosAsync();
+            var (caballos,mensaje) = await _caballoService.GetCaballosAsync();
 
             if (caballos == null || !caballos.Any())
                 
-                return NotFound("No hay ningun elemento.");
+                return NotFound(mensaje);
 
             return Ok(caballos);
         }
@@ -35,14 +35,14 @@ namespace APIproyectoEquinoterapia.Controllers
         [HttpGet("obtener/{placa}")]
         public async Task<ActionResult<CaballoDTO>> GetCaballo(string placa)
         {
-            var caballo = await _caballoService.GetCaballoAsync(placa);
+            var (caballo, mensaje) = await _caballoService.GetCaballoAsync(placa);
 
             if (caballo == null)
             {
-                return NotFound("Caballo no encontrado");
+                return NotFound(mensaje);
             }
 
-            return caballo;
+            return Ok(caballo);
         }
 
         
@@ -55,13 +55,13 @@ namespace APIproyectoEquinoterapia.Controllers
                 return BadRequest();
             }
 
-            var respuesta = await _caballoService.PutCaballoAsync(placa, caballoDTO);
+            var (respuesta, mensaje) = await _caballoService.PutCaballoAsync(placa, caballoDTO);
 
-            if (respuesta) 
+            if (!respuesta) 
             {
-                return NotFound("Caballo no encontrado");
+                return NotFound(mensaje);
             }
-            return Ok("Caballo actualizado correctamente");
+            return Ok(mensaje);
         }
 
         
@@ -69,26 +69,26 @@ namespace APIproyectoEquinoterapia.Controllers
         public async Task<ActionResult<CaballoDTO>> PostCaballo(CaballoDTO caballoDTO)
         {
 
-            var respuesta = await _caballoService.PostCaballoAsync(caballoDTO);
-            if (respuesta)
+            var (respuesta, mensaje) = await _caballoService.PostCaballoAsync(caballoDTO);
+            if (!respuesta)
             {
-                return  NotFound("Caballo ya existe");
+                return  NotFound(mensaje);
             }
 
-            return Ok("Agreagdo exitosamnete");
+            return Ok(mensaje);
         }
 
         
-        [HttpDelete("eliminar/{placa}")]
-        public async Task<IActionResult> DeleteCaballo(string placa)
-        {
-            var respuesta = await _caballoService.DeleteCaballoAsync(placa);
-            if (respuesta)
-            {
-                return NotFound("Caballo no encontrado");
-            }
+        //[HttpDelete("eliminar/{placa}")]
+        //public async Task<IActionResult> DeleteCaballo(string placa)
+        //{
+        //    var (respuesta,mensaje) = await _caballoService.DeleteCaballoAsync(placa);
+        //    if (!respuesta)
+        //    {
+        //        return NotFound(mensaje);
+        //    }
 
-            return Ok("Eliminado");
-        }
+        //    return Ok(mensaje);
+        //}
     }
 }

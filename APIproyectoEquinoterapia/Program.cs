@@ -17,9 +17,12 @@ builder.Services.AddScoped<CitaService>();
 builder.Services.AddScoped<InstructorService>();
 builder.Services.AddScoped<FormularioService>();
 builder.Services.AddScoped<ArchivoService>();
+builder.Services.AddScoped<InicioSesionService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+//builder.Services.AddDbContext<GastoConfDbContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("CompanyConnection")));
 //builder.Services.AddDbContext<APIproyectoEquinoterapia.Models.AppDbContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("ProyectoEquinoterapiaContext") ?? throw new InvalidOperationException("Connection string 'ProyectoEquinoterapiaContext' not found.")));
 
