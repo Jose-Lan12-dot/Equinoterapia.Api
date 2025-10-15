@@ -1,9 +1,10 @@
 using APIproyectoEquinoterapia.Data.Models;
+using APIproyectoEquinoterapia.Data.Models.Paciente_;
 using APIproyectoEquinoterapia.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace APIproyectoEquinoterapia.Data.Services
+namespace APIproyectoEquinoterapia.Data.Services.Paciente_
 {
     public class PacienteService
     {
@@ -26,10 +27,10 @@ namespace APIproyectoEquinoterapia.Data.Services
                                 FechaRegistro = p.FechaRegistro,
                                 NumeroFaltas = _context.cita
                                     .Count(c => c.PacienteId == p.PacienteId && c.Asistio == false),
-                                FormularioHecho = _context.formulario.Any(f => f.PacienteId == p.PacienteId)
+                                FormularioHecho = _context.evaluacion.Any(f => f.PacienteId == p.PacienteId)
                             })
                             .ToListAsync();
-
+            
             if(pacientes == null)
             {
                 var mensaje = "No se econtro ningun elemto en pacientes";
@@ -49,7 +50,6 @@ namespace APIproyectoEquinoterapia.Data.Services
                 var mensaje = "Paiente no encontrado";
                 return (null,mensaje);
             }
-               
 
             return (new PacienteDTO
             {
@@ -63,8 +63,8 @@ namespace APIproyectoEquinoterapia.Data.Services
                 FechaRegistro = paciente.FechaRegistro,
                 NumeroFaltas = _context.cita
                                     .Count(c => c.PacienteId == paciente.PacienteId && c.Asistio == false),
-                FormularioHecho = _context.formulario.Any(f => f.PacienteId == paciente.PacienteId)
-            },"Paciente encontrado");
+                FormularioHecho = _context.evaluacion.Any(f => f.PacienteId == paciente.PacienteId)
+            },"Paciente_ encontrado");
         }
 
         public async Task<(bool,string)> PutPacienteAsync(int pacienteId, PacienteDTO pacienteDTO)
@@ -72,7 +72,7 @@ namespace APIproyectoEquinoterapia.Data.Services
             var paciente = await _context.paciente.FindAsync(pacienteId);
             if (paciente == null)
             {
-                var mensaje = "Paciente no encontrado";
+                var mensaje = "Paciente_ no encontrado";
                 return (false,mensaje);
             }
 
@@ -98,7 +98,7 @@ namespace APIproyectoEquinoterapia.Data.Services
 
 
             await _context.SaveChangesAsync();
-            return (true,"Paciente actualizado de forma exitosa");
+            return (true,"Paciente_ actualizado de forma exitosa");
         }
 
 
@@ -137,7 +137,7 @@ namespace APIproyectoEquinoterapia.Data.Services
         //    var paciente = await _context.paciente.FindAsync(pacienteId);
         //    if (paciente == null)
         //    {
-        //        var mensaje = "Paciente no encontrado";
+        //        var mensaje = "Paciente_ no encontrado";
         //        return (false, mensaje);
         //    }
 

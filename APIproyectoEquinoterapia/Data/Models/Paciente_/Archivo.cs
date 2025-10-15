@@ -1,4 +1,4 @@
-﻿namespace APIproyectoEquinoterapia.Data.Models
+﻿namespace APIproyectoEquinoterapia.Data.Models.Paciente_
 {
     public class Archivo
     {

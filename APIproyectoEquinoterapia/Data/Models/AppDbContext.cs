@@ -1,8 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using APIproyectoEquinoterapia.Data.Models.Evaluacion_;
+using APIproyectoEquinoterapia.Data.Models.Paciente_;
+using APIproyectoEquinoterapia.DTOs;
+using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Plugins;
 using System;
 using System.Collections.Generic;
-using APIproyectoEquinoterapia.DTOs;
+using System.Reflection.Emit;
 
 namespace APIproyectoEquinoterapia.Data.Models;
 
@@ -22,9 +25,9 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Instructor> instructor { get; set; }
     public virtual DbSet<Paciente> paciente { get; set; }
     public virtual DbSet<Sesion> sesion { get; set; }
-    public DbSet<Formulario> formulario { get; set; }
-    public DbSet<FormularioRespuestas> formularioRespuestas { get; set; }
-    public DbSet<FormularioPreguntas> formularioPreguntas { get; set; }
+    public DbSet<Evaluacion> evaluacion { get; set; }
+    public DbSet<Respuestas> respuestas { get; set; }
+    public DbSet<Preguntas> preguntas { get; set; }
     public DbSet<Archivo> archivo { get; set; }
     public DbSet<InicioSesion> inicioSesion { get; set; }
 
@@ -133,11 +136,6 @@ public partial class AppDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("tutor");
 
-
-           entity.HasOne(e => e.Formulario)
-                .WithOne(e => e.Paciente)
-                .HasForeignKey<Formulario>(e => e.PacienteId);
-
         });
 
         modelBuilder.Entity<Sesion>(entity =>
@@ -167,16 +165,13 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK__Sesion__placa__4316F928");
         });
 
-        OnModelCreatingPartial(modelBuilder);
-
-
-        modelBuilder.Entity<Formulario>(entity =>
+        modelBuilder.Entity<Evaluacion>(entity =>
         {
-            entity.ToTable("formulario");
-            entity.HasKey(e => e.FormularioId);
+            entity.ToTable("evaluacion");
+            entity.HasKey(e => e.EvaluacionId);
 
-            entity.Property(e => e.FormularioId)
-                .HasColumnName("formulario_id");
+            entity.Property(e => e.EvaluacionId)
+                .HasColumnName("evaluacion_id");
 
             entity.Property(e => e.PacienteId)
                 .HasColumnName("paciente_id");
@@ -184,39 +179,43 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Fecha)
                 .HasColumnName("fecha");
 
-            // Relación uno a uno con Paciente
-            entity.HasOne(e => e.Paciente)
-                .WithOne(p => p.Formulario)
-                .HasForeignKey<Formulario>(e => e.PacienteId);
-
-            // Relación uno a muchos con FormularioRespuestas
-            entity.HasMany(e => e.Respuestas)
-                .WithOne(r => r.Formulario)
-                .HasForeignKey(r => r.FormularioId);
+            // --- Relación 1:1 desde la entidad dependiente ---
+            entity.HasOne(evaluacion => evaluacion.Paciente) 
+                  .WithOne(paciente => paciente.Evaluacion)   
+                  .HasForeignKey<Evaluacion>(evaluacion => evaluacion.PacienteId); 
         });
 
-        modelBuilder.Entity<FormularioRespuestas>(entity =>
+        modelBuilder.Entity<Respuestas>(entity =>
         {
-            entity.ToTable("formulario_respuesta");
+            entity.ToTable("respuestas");
             entity.HasKey(e => e.RespuestaId);
 
             entity.Property(e => e.RespuestaId)
                 .HasColumnName("respuesta_id");
 
-            entity.Property(e => e.FormularioId)
-                .HasColumnName("formulario_id");
+            entity.Property(e => e.EvaluacionId)
+                .HasColumnName("evaluacion_id");
 
             entity.Property(e => e.PreguntaId)
                 .HasColumnName("pregunta_id");
 
             entity.Property(e => e.Respuesta)
                 .HasColumnName("respuesta");
+
+            // Contrato #1: Relación entre Respuesta y Evaluacion
+            entity.HasOne(respuesta => respuesta.Evaluacion) 
+                  .WithMany(evaluacion => evaluacion.Respuestas) 
+                  .HasForeignKey(respuesta => respuesta.EvaluacionId); 
+
+            // Contrato #2: Relación entre Respuesta y Pregunta
+            entity.HasOne(respuesta => respuesta.Pregunta) 
+                  .WithMany(pregunta => pregunta.Respuestas) 
+                  .HasForeignKey(respuesta => respuesta.PreguntaId); 
         });
 
-
-        modelBuilder.Entity<FormularioPreguntas>(entity =>
+        modelBuilder.Entity<Preguntas>(entity =>
         {
-            entity.ToTable("formulario_pregunta");
+            entity.ToTable("preguntas");
             entity.HasKey(e => e.PreguntaId);
 
             entity.Property(e => e.PreguntaId)
@@ -225,7 +224,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Pregunta)
                 .HasColumnName("pregunta");
         });
-
 
         modelBuilder.Entity<Archivo>(entity =>
         {
@@ -250,36 +248,34 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<InicioSesion>().HasNoKey();
 
 
-        modelBuilder.Entity<FormularioPreguntas>().HasData(
-        new FormularioPreguntas { PreguntaId = 1, Pregunta = "CONTACTO VISUAL" },
-        new FormularioPreguntas { PreguntaId = 2, Pregunta = "SECUENCIA DE INDICACIONES"},
-        new FormularioPreguntas { PreguntaId = 3, Pregunta = "UTILIZA COMO INSTRUMENTO AL ADULTO"},
-        new FormularioPreguntas { PreguntaId = 4, Pregunta = "CONDUCTA DE SEÑALADO PROIMPERATIVAS" +
+        modelBuilder.Entity<Preguntas>().HasData(
+        new Preguntas { PreguntaId = 1, Pregunta = "CONTACTO VISUAL" },
+        new Preguntas { PreguntaId = 2, Pregunta = "SECUENCIA DE INDICACIONES"},
+        new Preguntas { PreguntaId = 3, Pregunta = "UTILIZA COMO INSTRUMENTO AL ADULTO"},
+        new Preguntas { PreguntaId = 4, Pregunta = "CONDUCTA DE SEÑALADO PROIMPERATIVAS" +
                                                             " (PEDIR PARA EL)" },
-        new FormularioPreguntas { PreguntaId = 5, Pregunta = "CONDUCTA DE SEÑALADO PROTODECLARATIVAS" +
+        new Preguntas { PreguntaId = 5, Pregunta = "CONDUCTA DE SEÑALADO PROTODECLARATIVAS" +
                                                             " (FINALIDAD DE COMPARTIR)" },
-        new FormularioPreguntas { PreguntaId = 6, Pregunta = "ATENCION CONJUNTA DE CUENTOS, JUEGOS O CANCIONES"},
-        new FormularioPreguntas { PreguntaId = 7, Pregunta = "MOSTRAR INTERES POR COMPARTIR OBJETOS" },
-        new FormularioPreguntas { PreguntaId = 8, Pregunta = "IMITACIÓN MOTORA GRUESA" },
-        new FormularioPreguntas { PreguntaId = 9, Pregunta = "IMITACIÓN MOTORA FINA" },
-        new FormularioPreguntas { PreguntaId = 10, Pregunta = "IMITACIÓN VOCAL"},
-        new FormularioPreguntas { PreguntaId = 11, Pregunta = "PRESENCIA DE LENGUAJE ORAL Y NIVEL" },
-        new FormularioPreguntas { PreguntaId = 12, Pregunta = "ECOLALIAL"},
-        new FormularioPreguntas { PreguntaId = 13, Pregunta = "COMPRENSIÓN DE ORDENES SENCILLAS"},
-        new FormularioPreguntas { PreguntaId = 14, Pregunta = "JUEGO DE FICCIÓN O SIMBÓLICO" },
-        new FormularioPreguntas { PreguntaId = 15, Pregunta = "FLEXIBILIDAD A LOS CAMBIOS"},
-        new FormularioPreguntas { PreguntaId = 16, Pregunta = "NIVEL DE ACTIVIDAD MOTORA"},
-        new FormularioPreguntas { PreguntaId = 17, Pregunta = "NIVEL DE ATENCIÓN (TIEMPO DE ATENCIÓN REALIZANDO" +
+        new Preguntas { PreguntaId = 6, Pregunta = "ATENCION CONJUNTA DE CUENTOS, JUEGOS O CANCIONES"},
+        new Preguntas { PreguntaId = 7, Pregunta = "MOSTRAR INTERES POR COMPARTIR OBJETOS" },
+        new Preguntas { PreguntaId = 8, Pregunta = "IMITACIÓN MOTORA GRUESA" },
+        new Preguntas { PreguntaId = 9, Pregunta = "IMITACIÓN MOTORA FINA" },
+        new Preguntas { PreguntaId = 10, Pregunta = "IMITACIÓN VOCAL"},
+        new Preguntas { PreguntaId = 11, Pregunta = "PRESENCIA DE LENGUAJE ORAL Y NIVEL" },
+        new Preguntas { PreguntaId = 12, Pregunta = "ECOLALIAL"},
+        new Preguntas { PreguntaId = 13, Pregunta = "COMPRENSIÓN DE ORDENES SENCILLAS"},
+        new Preguntas { PreguntaId = 14, Pregunta = "JUEGO DE FICCIÓN O SIMBÓLICO" },
+        new Preguntas { PreguntaId = 15, Pregunta = "FLEXIBILIDAD A LOS CAMBIOS"},
+        new Preguntas { PreguntaId = 16, Pregunta = "NIVEL DE ACTIVIDAD MOTORA"},
+        new Preguntas { PreguntaId = 17, Pregunta = "NIVEL DE ATENCIÓN (TIEMPO DE ATENCIÓN REALIZANDO" +
                                                              " LA ACTIVIDAD)"},
-        new FormularioPreguntas { PreguntaId = 18, Pregunta = "MOTIVACIÓN (INTERES RESTRINGIDOS)"},
-        new FormularioPreguntas { PreguntaId = 19, Pregunta = "PLANIFICACIÓN"},
-        new FormularioPreguntas { PreguntaId = 20, Pregunta = "NIVEL DE IMPULSIVIDAD"}
+        new Preguntas { PreguntaId = 18, Pregunta = "MOTIVACIÓN (INTERES RESTRINGIDOS)"},
+        new Preguntas { PreguntaId = 19, Pregunta = "PLANIFICACIÓN"},
+        new Preguntas { PreguntaId = 20, Pregunta = "NIVEL DE IMPULSIVIDAD"}
         );
     }
 
 
-        
 
-
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

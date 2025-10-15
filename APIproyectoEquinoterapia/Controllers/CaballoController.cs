@@ -1,10 +1,12 @@
 ﻿using APIproyectoEquinoterapia.Data.Services;
 using APIproyectoEquinoterapia.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
 namespace APIproyectoEquinoterapia.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CaballoController : ControllerBase

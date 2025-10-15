@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Common;
 
 namespace APIproyectoEquinoterapia.Controllers
 {
@@ -21,12 +22,13 @@ namespace APIproyectoEquinoterapia.Controllers
         [HttpPost("acceso")]
         public async Task<IActionResult> PostInicioSesion(DatosUsuarioDTO datosUsuarioDTO)
         {
-            var (respuesta,mensaje) =  await _inicioSesionService.PostInicioSesionAsync(datosUsuarioDTO);
+            var (exito,mensaje,token) =  await _inicioSesionService.PostInicioSesionAsync(datosUsuarioDTO);
 
-            if (!respuesta)
+            if (!exito)
                 return BadRequest(mensaje);
 
-            return Ok(mensaje);
+
+            return Ok(new{token,mensaje});
         }
 
 

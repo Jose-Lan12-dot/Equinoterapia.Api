@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using APIproyectoEquinoterapia.Data.Services.Paciente_;
+using APIproyectoEquinoterapia.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using APIproyectoEquinoterapia.DTOs;
-using APIproyectoEquinoterapia.Data.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace APIproyectoEquinoterapia.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class FormularioController : ControllerBase
@@ -21,7 +23,7 @@ namespace APIproyectoEquinoterapia.Controllers
             _formularioService = formularioService;
         }
 
-        // GET: api/Formulario
+        // GET: api/Evaluacion_
         [HttpGet("obtener")]
         public async Task<ActionResult<FormularioDTO>> Getformulario(int pacienteId)
         {
@@ -34,7 +36,7 @@ namespace APIproyectoEquinoterapia.Controllers
             return Ok(formulario);
         }
 
-        // GET: api/Formulario
+        // GET: api/Evaluacion_
         [HttpGet("obtener/preguntas")]
         public async Task<ActionResult<FormularioDTO>> GetPreguntas()
         {
@@ -48,7 +50,7 @@ namespace APIproyectoEquinoterapia.Controllers
         }
 
 
-        // PUT: api/Formulario/5
+        // PUT: api/Evaluacion_/5
         [HttpPut("actualizar")]
         public async Task<IActionResult> PutFormulario(FormularioDTO formularioDTO, int pacienteId)
         {
@@ -61,7 +63,7 @@ namespace APIproyectoEquinoterapia.Controllers
             return Ok(mensaje);
         }
 
-        // POST: api/Formulario
+        // POST: api/Evaluacion_
         [HttpPost("agregar")]
         public async Task<IActionResult> PostFormulario(FormularioDTO formularioDTO, int pacienteId)
         {
@@ -75,7 +77,7 @@ namespace APIproyectoEquinoterapia.Controllers
             return Ok(mensaje);
         }
 
-        // DELETE: api/Formulario/5
+        // DELETE: api/Evaluacion_/5
         [HttpDelete("eliminar")]
         public async Task<IActionResult> DeleteFormulario(int id)
         {

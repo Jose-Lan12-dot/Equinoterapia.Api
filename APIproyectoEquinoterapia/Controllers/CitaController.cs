@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using APIproyectoEquinoterapia.Data.Services;
+using APIproyectoEquinoterapia.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using APIproyectoEquinoterapia.DTOs;
-using APIproyectoEquinoterapia.Data.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace APIproyectoEquinoterapia.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CitaController : ControllerBase
@@ -57,7 +59,7 @@ namespace APIproyectoEquinoterapia.Controllers
         {
             var agregado = await _citaService.PostCitaAsync(citaDTO);
             if (!agregado)
-                return NotFound("Sesion o Paciente no existe");
+                return NotFound("Sesion o Paciente_ no existe");
             return Ok(citaDTO);
         }
 

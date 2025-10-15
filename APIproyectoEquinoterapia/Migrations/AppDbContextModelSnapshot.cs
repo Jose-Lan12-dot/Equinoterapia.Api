@@ -146,12 +146,12 @@ namespace APIproyectoEquinoterapia.Migrations
 
             modelBuilder.Entity("APIproyectoEquinoterapia.Models.Formulario", b =>
                 {
-                    b.Property<int>("FormularioId")
+                    b.Property<int>("EvaluacionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("formulario_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FormularioId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EvaluacionId"));
 
                     b.Property<DateOnly>("Fecha")
                         .HasColumnType("date")
@@ -161,7 +161,7 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasColumnType("int")
                         .HasColumnName("paciente_id");
 
-                    b.HasKey("FormularioId");
+                    b.HasKey("EvaluacionId");
 
                     b.HasIndex("PacienteId")
                         .IsUnique();
@@ -299,7 +299,7 @@ namespace APIproyectoEquinoterapia.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RespuestaId"));
 
-                    b.Property<int>("FormularioId")
+                    b.Property<int>("EvaluacionId")
                         .HasColumnType("int")
                         .HasColumnName("formulario_id");
 
@@ -313,7 +313,7 @@ namespace APIproyectoEquinoterapia.Migrations
 
                     b.HasKey("RespuestaId");
 
-                    b.HasIndex("FormularioId");
+                    b.HasIndex("EvaluacionId");
 
                     b.HasIndex("PreguntaId");
 
@@ -388,7 +388,7 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.ToTable("loginrespuesta");
                 });
 
-            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Paciente", b =>
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Paciente_", b =>
                 {
                     b.Property<int>("PacienteId")
                         .ValueGeneratedOnAdd()
@@ -483,18 +483,18 @@ namespace APIproyectoEquinoterapia.Migrations
 
             modelBuilder.Entity("APIproyectoEquinoterapia.Models.Archivo", b =>
                 {
-                    b.HasOne("APIproyectoEquinoterapia.Models.Paciente", "Paciente")
+                    b.HasOne("APIproyectoEquinoterapia.Models.Paciente_", "Paciente_")
                         .WithMany()
                         .HasForeignKey("PacienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Paciente");
+                    b.Navigation("Paciente_");
                 });
 
             modelBuilder.Entity("APIproyectoEquinoterapia.Models.Cita", b =>
                 {
-                    b.HasOne("APIproyectoEquinoterapia.Models.Paciente", "Paciente")
+                    b.HasOne("APIproyectoEquinoterapia.Models.Paciente_", "Paciente_")
                         .WithMany("Cita")
                         .HasForeignKey("PacienteId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -508,27 +508,27 @@ namespace APIproyectoEquinoterapia.Migrations
                         .IsRequired()
                         .HasConstraintName("FK__Cita__sesion_id__45F365D3");
 
-                    b.Navigation("Paciente");
+                    b.Navigation("Paciente_");
 
                     b.Navigation("Sesion");
                 });
 
             modelBuilder.Entity("APIproyectoEquinoterapia.Models.Formulario", b =>
                 {
-                    b.HasOne("APIproyectoEquinoterapia.Models.Paciente", "Paciente")
+                    b.HasOne("APIproyectoEquinoterapia.Models.Paciente_", "Paciente_")
                         .WithOne("Formulario")
                         .HasForeignKey("APIproyectoEquinoterapia.Models.Formulario", "PacienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Paciente");
+                    b.Navigation("Paciente_");
                 });
 
             modelBuilder.Entity("APIproyectoEquinoterapia.Models.FormularioRespuestas", b =>
                 {
                     b.HasOne("APIproyectoEquinoterapia.Models.Formulario", "Formulario")
                         .WithMany("Respuestas")
-                        .HasForeignKey("FormularioId")
+                        .HasForeignKey("EvaluacionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -577,7 +577,7 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.Navigation("Sesions");
                 });
 
-            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Paciente", b =>
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Paciente_", b =>
                 {
                     b.Navigation("Cita");
 

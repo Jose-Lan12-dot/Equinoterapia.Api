@@ -1,8 +1,9 @@
 ﻿using APIproyectoEquinoterapia.Data.Models;
+using APIproyectoEquinoterapia.Data.Models.Paciente_;
 using APIproyectoEquinoterapia.DTOs;
 using Microsoft.EntityFrameworkCore;
 
-namespace APIproyectoEquinoterapia.Data.Services
+namespace APIproyectoEquinoterapia.Data.Services.Paciente_
 {
     public class ArchivoService
     {

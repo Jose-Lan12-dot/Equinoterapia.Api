@@ -1,4 +1,5 @@
-﻿using System;
+﻿using APIproyectoEquinoterapia.Data.Models.Paciente_;
+using System;
 using System.Collections.Generic;
 
 namespace APIproyectoEquinoterapia.Data.Models;

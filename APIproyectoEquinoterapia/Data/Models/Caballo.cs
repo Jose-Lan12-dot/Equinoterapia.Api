@@ -26,6 +26,6 @@ public partial class Caballo
     public string? Padecimiento { get; set; }
 
     public DateTime? FechaRegistro { get; set; }
-
     public virtual ICollection<Sesion> Sesions { get; set; } = new List<Sesion>();
+
 }

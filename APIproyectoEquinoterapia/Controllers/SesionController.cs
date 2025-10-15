@@ -1,13 +1,15 @@
-﻿using APIproyectoEquinoterapia.DTOs;
+﻿using APIproyectoEquinoterapia.Data.Services;
+using APIproyectoEquinoterapia.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using APIproyectoEquinoterapia.Data.Services;
 
 namespace APIproyectoEquinoterapia.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class SesionController : ControllerBase

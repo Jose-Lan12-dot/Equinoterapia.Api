@@ -162,7 +162,7 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.ToTable("loginrespuesta");
                 });
 
-            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Paciente", b =>
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Paciente_", b =>
                 {
                     b.Property<int>("PacienteId")
                         .ValueGeneratedOnAdd()
@@ -277,7 +277,7 @@ namespace APIproyectoEquinoterapia.Migrations
 
             modelBuilder.Entity("APIproyectoEquinoterapia.Models.Cita", b =>
                 {
-                    b.HasOne("APIproyectoEquinoterapia.Models.Paciente", "Paciente")
+                    b.HasOne("APIproyectoEquinoterapia.Models.Paciente_", "Paciente_")
                         .WithMany("Cita")
                         .HasForeignKey("PacienteId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -291,7 +291,7 @@ namespace APIproyectoEquinoterapia.Migrations
                         .IsRequired()
                         .HasConstraintName("FK__Cita__sesion_id__45F365D3");
 
-                    b.Navigation("Paciente");
+                    b.Navigation("Paciente_");
 
                     b.Navigation("Sesion");
                 });
@@ -325,7 +325,7 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.Navigation("Sesions");
                 });
 
-            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Paciente", b =>
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Paciente_", b =>
                 {
                     b.Navigation("Cita");
                 });

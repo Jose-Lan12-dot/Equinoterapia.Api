@@ -22,7 +22,7 @@ namespace APIproyectoEquinoterapia.Migrations
             );
 
             migrationBuilder.RenameTable(
-                name: "Paciente",
+                name: "Paciente_",
                 newName: "paciente"
             );
 
@@ -81,7 +81,7 @@ namespace APIproyectoEquinoterapia.Migrations
 
             migrationBuilder.RenameTable(
                 name: "paciente",
-                newName: "Paciente"
+                newName: "Paciente_"
             );
 
             migrationBuilder.RenameTable(
@@ -96,7 +96,7 @@ namespace APIproyectoEquinoterapia.Migrations
 
             migrationBuilder.AddColumn<int>(
                 name: "faltas",
-                table: "Paciente",
+                table: "Paciente_",
                 type: "int",
                 nullable: true,
                 defaultValue: 0

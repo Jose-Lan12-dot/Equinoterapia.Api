@@ -19,6 +19,5 @@ public partial class Instructor
     public string? Telefono { get; set; }
 
     public EstadoInstructor Estado { get; set; }
-
     public virtual ICollection<Sesion> Sesions { get; set; } = new List<Sesion>();
 }
