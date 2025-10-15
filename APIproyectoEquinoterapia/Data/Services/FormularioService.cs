@@ -1,13 +1,12 @@
-﻿using APIproyectoEquinoterapia.Models;
-using APIproyectoEquinoterapia.DTOs;
-using APIproyectoEquinoterapia.Models;
+﻿using APIproyectoEquinoterapia.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using Microsoft.CodeAnalysis.CSharp;
 using Newtonsoft.Json.Bson;
 using System.Threading.Tasks;
+using APIproyectoEquinoterapia.Data.Models;
 
-namespace APIproyectoEquinoterapia.Services
+namespace APIproyectoEquinoterapia.Data.Services
 {
     public class FormularioService
     {

@@ -1,6 +1,5 @@
-﻿using APIproyectoEquinoterapia.DTOs;
-using APIproyectoEquinoterapia.Models;
-using APIproyectoEquinoterapia.Services;
+﻿using APIproyectoEquinoterapia.Data.Services;
+using APIproyectoEquinoterapia.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 

@@ -1,8 +1,8 @@
+using APIproyectoEquinoterapia.Data.Models;
 using APIproyectoEquinoterapia.DTOs;
-using APIproyectoEquinoterapia.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace APIproyectoEquinoterapia.Services
+namespace APIproyectoEquinoterapia.Data.Services
 {
     public class InstructorService
     {

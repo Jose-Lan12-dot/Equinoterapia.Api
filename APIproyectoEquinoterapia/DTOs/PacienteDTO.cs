@@ -12,5 +12,4 @@ public class PacienteDTO
     public DateTime? FechaRegistro { get; set; }
     public int? NumeroFaltas { get; set; }
     public bool? FormularioHecho { get; set; }
-    public ArchivoDTO? archivo { get; set; }
 }

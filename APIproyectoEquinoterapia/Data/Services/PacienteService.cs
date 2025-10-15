@@ -1,9 +1,9 @@
+using APIproyectoEquinoterapia.Data.Models;
 using APIproyectoEquinoterapia.DTOs;
-using APIproyectoEquinoterapia.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace APIproyectoEquinoterapia.Services
+namespace APIproyectoEquinoterapia.Data.Services
 {
     public class PacienteService
     {

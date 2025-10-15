@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using APIproyectoEquinoterapia.Models;
 using APIproyectoEquinoterapia.DTOs;
-using APIproyectoEquinoterapia.Services;
+using APIproyectoEquinoterapia.Data.Services;
 
 namespace APIproyectoEquinoterapia.Controllers
 {

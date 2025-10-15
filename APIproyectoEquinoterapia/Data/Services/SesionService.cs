@@ -1,9 +1,9 @@
+using APIproyectoEquinoterapia.Data.Models;
 using APIproyectoEquinoterapia.DTOs;
-using APIproyectoEquinoterapia.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Numerics;
 
-namespace APIproyectoEquinoterapia.Services
+namespace APIproyectoEquinoterapia.Data.Services
 {
     public class SesionService
     {

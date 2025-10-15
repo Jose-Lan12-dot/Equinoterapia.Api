@@ -1,9 +1,9 @@
-﻿using APIproyectoEquinoterapia.DTOs;
-using APIproyectoEquinoterapia.Models;
+﻿using APIproyectoEquinoterapia.Data.Models;
+using APIproyectoEquinoterapia.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace APIproyectoEquinoterapia.Services
+namespace APIproyectoEquinoterapia.Data.Services
 
 { 
 
@@ -36,8 +36,6 @@ namespace APIproyectoEquinoterapia.Services
                 var mensaje = "No se encontro ningun caballo";
                 return (Enumerable.Empty<CaballoDTO>(), mensaje);
             }
-
-
 
             return (caballos,"Lista de caballos devulelta satisfactoriamente");
         }

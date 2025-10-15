@@ -1,10 +1,10 @@
-﻿using APIproyectoEquinoterapia.DTOs;
-using APIproyectoEquinoterapia.Models;
+﻿using APIproyectoEquinoterapia.Data.Models;
+using APIproyectoEquinoterapia.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.AccessControl;
 
-namespace APIproyectoEquinoterapia.Services
+namespace APIproyectoEquinoterapia.Data.Services
 {
     public class InicioSesionService
     {

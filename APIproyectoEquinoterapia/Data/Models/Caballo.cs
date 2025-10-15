@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace APIproyectoEquinoterapia.Models;
+namespace APIproyectoEquinoterapia.Data.Models;
 
 
 public enum EstadoCaballo

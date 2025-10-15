@@ -1,4 +1,4 @@
-﻿namespace APIproyectoEquinoterapia.Models
+﻿namespace APIproyectoEquinoterapia.Data.Models
 {
     public class FormularioPreguntas
     {

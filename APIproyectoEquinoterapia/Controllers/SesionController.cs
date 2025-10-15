@@ -1,11 +1,10 @@
 ﻿using APIproyectoEquinoterapia.DTOs;
-using APIproyectoEquinoterapia.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using APIproyectoEquinoterapia.Services;
+using APIproyectoEquinoterapia.Data.Services;
 
 namespace APIproyectoEquinoterapia.Controllers
 {

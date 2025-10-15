@@ -1,5 +1,5 @@
-﻿using APIproyectoEquinoterapia.DTOs;
-using APIproyectoEquinoterapia.Services;
+﻿using APIproyectoEquinoterapia.Data.Services;
+using APIproyectoEquinoterapia.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

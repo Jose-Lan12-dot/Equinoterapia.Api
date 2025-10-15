@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using APIproyectoEquinoterapia.DTOs;
 
-namespace APIproyectoEquinoterapia.Models;
+namespace APIproyectoEquinoterapia.Data.Models;
 
 public partial class AppDbContext : DbContext
 {
