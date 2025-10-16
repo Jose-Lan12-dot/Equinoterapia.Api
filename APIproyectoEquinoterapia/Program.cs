@@ -17,7 +17,7 @@ builder.Services.AddScoped<CaballoService>();
 builder.Services.AddScoped<PacienteService>();
 builder.Services.AddScoped<CitaService>();
 builder.Services.AddScoped<InstructorService>();
-builder.Services.AddScoped<FormularioService>();
+builder.Services.AddScoped<EvaluacionService>();
 builder.Services.AddScoped<ArchivoService>();
 builder.Services.AddScoped<InicioSesionService>();
 

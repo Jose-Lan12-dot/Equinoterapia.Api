@@ -42,7 +42,7 @@ namespace APIproyectoEquinoterapia.Migrations
                 table: "paciente");
 
             migrationBuilder.DropColumn(
-                name: "orden",
+                name: "Orden",
                 table: "formulario_pregunta");
 
             migrationBuilder.AlterColumn<string>(
@@ -364,7 +364,7 @@ namespace APIproyectoEquinoterapia.Migrations
                 nullable: true);
 
             migrationBuilder.AddColumn<int>(
-                name: "orden",
+                name: "Orden",
                 table: "formulario_pregunta",
                 type: "int",
                 nullable: false,

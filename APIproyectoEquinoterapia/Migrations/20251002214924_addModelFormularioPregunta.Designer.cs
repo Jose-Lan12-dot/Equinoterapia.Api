@@ -126,23 +126,23 @@ namespace APIproyectoEquinoterapia.Migrations
 
             modelBuilder.Entity("APIproyectoEquinoterapia.Models.FormularioPregunta", b =>
                 {
-                    b.Property<int>("PreguntaId")
+                    b.Property<int>("Orden")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("pregunta_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PreguntaId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Orden"));
 
                     b.Property<int>("Orden")
                         .HasColumnType("int")
-                        .HasColumnName("orden");
+                        .HasColumnName("Orden");
 
                     b.Property<string>("Pregunta")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("pregunta");
 
-                    b.HasKey("PreguntaId");
+                    b.HasKey("Orden");
 
                     b.ToTable("formulario_pregunta", (string)null);
                 });
@@ -160,7 +160,7 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasColumnType("int")
                         .HasColumnName("formulario_id");
 
-                    b.Property<int>("PreguntaId")
+                    b.Property<int>("Orden")
                         .HasColumnType("int")
                         .HasColumnName("pregunta_id");
 
@@ -172,7 +172,7 @@ namespace APIproyectoEquinoterapia.Migrations
 
                     b.HasIndex("EvaluacionId");
 
-                    b.HasIndex("PreguntaId");
+                    b.HasIndex("Orden");
 
                     b.ToTable("formulario_respuesta", (string)null);
                 });
@@ -401,7 +401,7 @@ namespace APIproyectoEquinoterapia.Migrations
 
                     b.HasOne("APIproyectoEquinoterapia.Models.FormularioPregunta", "Pregunta")
                         .WithMany()
-                        .HasForeignKey("PreguntaId")
+                        .HasForeignKey("Orden")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

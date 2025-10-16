@@ -6,7 +6,6 @@ namespace APIproyectoEquinoterapia.Data.Models.Evaluacion_
     public class Respuestas
     {
         public int RespuestaId { get; set; }
-
         public int EvaluacionId { get; set; }
         public int PreguntaId { get; set; }
         public int Respuesta { get; set; }
