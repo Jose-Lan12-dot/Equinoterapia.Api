@@ -1,9 +1,10 @@
-﻿using APIproyectoEquinoterapia.Data.Models.Evaluacion_;
+﻿using APIproyectoEquinoterapia.Data.Models.Archivo_;
+using APIproyectoEquinoterapia.Data.Models.Evaluacion_;
 using System;
 using System.Collections.Generic;
 
 
-namespace APIproyectoEquinoterapia.Data.Models.Paciente_
+namespace APIproyectoEquinoterapia.Data.Models
 {
     public enum EstadoPaciente
     {
@@ -38,7 +39,7 @@ namespace APIproyectoEquinoterapia.Data.Models.Paciente_
         public DateTime? FechaRegistro { get; set; }
 
         public virtual ICollection<Cita> Cita { get; set; } = new List<Cita>();
-
+        public virtual ICollection<Archivos> Archivos { get; set; } = new List<Archivos>();
         public virtual Evaluacion? Evaluacion { get; set; }
 
     }

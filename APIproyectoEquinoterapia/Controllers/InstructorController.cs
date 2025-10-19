@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace APIproyectoEquinoterapia.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class InstructorController : ControllerBase
@@ -20,38 +20,52 @@ namespace APIproyectoEquinoterapia.Controllers
             _instructorService = instructorService;
         }
 
-        [HttpGet("obtener")]
-        public async Task<ActionResult<IEnumerable<InstructorDTO>>> GetInstructores()
+//////////////////////
+        [HttpGet("obtener-todos")]
+        public async Task<ActionResult<IEnumerable<InstructorDto>>> GetAll()
         {
-            var (instructores, mensaje) = await _instructorService.GetInstructoresAsync();
-            if (instructores == null || !instructores.Any())
+            var (instructores, mensaje) = await _instructorService.GetAllAsync();
+            if (instructores.Count() == 0)
                 return NotFound(mensaje);
-            return Ok(instructores);
+            return Ok(new {mensaje,instructores});
         }
 
-        [HttpGet("obtener/{id}")]
-        public async Task<ActionResult<InstructorDTO>> GetInstructor(int id)
+//////////////////////
+        [HttpGet("obtener-por-id/{instructorId}")]
+        public async Task<ActionResult<InstructorDto>> GetById(int instructorId)
         {
-            var (instructor, mensaje) = await _instructorService.GetInstructorAsync(id);
+            var (instructor, mensaje) = await _instructorService.GetByIdAsync(instructorId);
             if (instructor == null)
                 return NotFound(mensaje);
-            return Ok(instructor);
+            return Ok(new { mensaje, instructor });
         }
 
+//////////////////////
         [HttpPost("agregar")]
-        public async Task<IActionResult> PostInstructor(InstructorDTO instructorDTO)
+        public async Task<IActionResult> Create(InstructorCreationDto instructorCreationDto)
         {
-            var (respuesta, mensaje) = await _instructorService.PostInstructorAsync(instructorDTO);
-            if (!respuesta)
+            var (exito, mensaje) = await _instructorService.CreateAsync(instructorCreationDto);
+            if (!exito)
                 return Conflict(mensaje);
             return Ok(mensaje);
         }
 
-        [HttpPut("actualizar/{id}")]
-        public async Task<IActionResult> PutInstructor(int id, InstructorDTO instructorDTO)
+//////////////////////
+        [HttpPut("actualizar-todo/{instructorId}")]
+        public async Task<IActionResult> UpdateAll(InstructorDto instructorDto, int instructorId)
         {
-            var (respuesta, mensaje) = await _instructorService.PutInstructorAsync(id, instructorDTO);
-            if (!respuesta)
+            var (exito, mensaje) = await _instructorService.UpdateAllAsync(instructorDto,instructorId);
+            if (!exito)
+                return NotFound(mensaje);
+            return Ok(mensaje);
+        }
+
+//////////////////////
+        [HttpPut("actualizar-parcialmente/{instructorId}")]
+        public async Task<IActionResult> UpdatePartial(InstructorDto instructorDto, int instructorId)
+        {
+            var (exito, mensaje) = await _instructorService.UpdatePartialAsync(instructorDto,instructorId);
+            if (!exito)
                 return NotFound(mensaje);
             return Ok(mensaje);
         }

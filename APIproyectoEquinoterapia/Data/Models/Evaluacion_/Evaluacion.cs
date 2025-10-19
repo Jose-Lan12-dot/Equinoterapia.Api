@@ -1,5 +1,4 @@
-﻿using APIproyectoEquinoterapia.Data.Models.Paciente_;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 namespace APIproyectoEquinoterapia.Data.Models.Evaluacion_
 {
     public class Evaluacion

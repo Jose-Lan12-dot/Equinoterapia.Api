@@ -1,5 +1,5 @@
-﻿using APIproyectoEquinoterapia.Data.Models.Evaluacion_;
-using APIproyectoEquinoterapia.Data.Models.Paciente_;
+﻿using APIproyectoEquinoterapia.Data.Models.Archivo_;
+using APIproyectoEquinoterapia.Data.Models.Evaluacion_;
 using APIproyectoEquinoterapia.DTOs;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Plugins;
@@ -28,7 +28,8 @@ public partial class AppDbContext : DbContext
     public DbSet<Evaluacion> evaluacion { get; set; }
     public DbSet<Respuestas> respuestas { get; set; }
     public DbSet<Preguntas> preguntas { get; set; }
-    public DbSet<Archivo> archivo { get; set; }
+    public DbSet<Archivos> archivo { get; set; }
+    public DbSet<TipoArchivo> tipoArchivos { get; set; }
     public DbSet<InicioSesion> inicioSesion { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -65,41 +66,41 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Cita>(entity =>
         {
-            entity.HasKey(e => e.CitaId).HasName("PK__Cita__5AC1B05BF327E219");
+            entity.HasKey(c => c.CitaId).HasName("PK__Cita__5AC1B05BF327E219");
 
             entity.ToTable("cita");
 
-            entity.Property(e => e.CitaId).HasColumnName("cita_id");
-            entity.Property(e => e.Asistio).HasColumnName("asistio");
-            entity.Property(e => e.PacienteId).HasColumnName("paciente_id");
-            entity.Property(e => e.SesionId).HasColumnName("sesion_id");
+            entity.Property(c => c.CitaId).HasColumnName("cita_id");
+            entity.Property(c => c.Asistio).HasColumnName("asistio");
+            entity.Property(c => c.PacienteId).HasColumnName("paciente_id");
+            entity.Property(c => c.SesionId).HasColumnName("sesion_id");
 
-            entity.HasOne(d => d.Paciente).WithMany(p => p.Cita)
-                .HasForeignKey(d => d.PacienteId)
+            entity.HasOne(c => c.Paciente).WithMany(p => p.Cita)
+                .HasForeignKey(c => c.PacienteId)
                 .HasConstraintName("FK__Cita__paciente_i__46E78A0C");
 
-            entity.HasOne(d => d.Sesion).WithMany(p => p.Cita)
+            entity.HasOne(c => c.Sesion).WithMany(c => c.Cita)
                 .HasForeignKey(d => d.SesionId)
                 .HasConstraintName("FK__Cita__sesion_id__45F365D3");
         });
 
         modelBuilder.Entity<Instructor>(entity =>
         {
-            entity.HasKey(e => e.InstructorId).HasName("PK__Instruct__A1EF56E897854518");
+            entity.HasKey(i => i.InstructorId).HasName("PK__Instruct__A1EF56E897854518");
 
             entity.ToTable("instructor");
 
-            entity.Property(e => e.InstructorId).HasColumnName("instructor_id");
-            entity.Property(e => e.Nombre)
+            entity.Property(i => i.InstructorId).HasColumnName("instructor_id");
+            entity.Property(i => i.Nombre)
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("nombre");
-            entity.Property(e => e.Telefono)
+            entity.Property(i => i.Telefono)
                 .HasMaxLength(10)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("telefono");
-            entity.Property(e => e.Estado)
+            entity.Property(i => i.Estado)
                 .HasConversion<string>()
                 .HasColumnName("estado");
         });
@@ -188,18 +189,18 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<Respuestas>(entity =>
         {
             entity.ToTable("respuestas");
-            entity.HasKey(e => e.RespuestaId);
+            entity.HasKey(r => r.RespuestaId);
 
-            entity.Property(e => e.RespuestaId)
+            entity.Property(r => r.RespuestaId)
                 .HasColumnName("respuesta_id");
 
-            entity.Property(e => e.EvaluacionId)
+            entity.Property(r => r.EvaluacionId)
                 .HasColumnName("evaluacion_id");
 
-            entity.Property(e => e.PreguntaId)
+            entity.Property(r => r.PreguntaId)
                 .HasColumnName("pregunta_id");
 
-            entity.Property(e => e.Respuesta)
+            entity.Property(r => r.Respuesta)
                 .HasColumnName("respuesta");
 
             // Contrato #1: Relación entre Respuesta y Evaluacion
@@ -216,18 +217,18 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<Preguntas>(entity =>
         {
             entity.ToTable("preguntas");
-            entity.HasKey(e => e.PreguntaId);
+            entity.HasKey(p => p.PreguntaId);
 
-            entity.Property(e => e.PreguntaId)
+            entity.Property(p => p.PreguntaId)
                 .HasColumnName("pregunta_id");
 
-            entity.Property(e => e.Pregunta)
+            entity.Property(p => p.Pregunta)
                 .HasColumnName("pregunta");
         });
 
-        modelBuilder.Entity<Archivo>(entity =>
+        modelBuilder.Entity<Archivos>(entity =>
         {
-            entity.ToTable("archivo");
+            entity.ToTable("archivos");
             entity.HasKey(a => a.ArchivoId);
 
             entity.Property(a => a.ArchivoId)
@@ -236,13 +237,37 @@ public partial class AppDbContext : DbContext
             entity.Property(a => a.PacienteId)
                 .HasColumnName("paciente_id");
 
-            entity.Property(e => e.ActaNacimiento).HasColumnName("acta_nacimiento");
-            entity.Property(e => e.CertificadoMedico).HasColumnName("certificado_medico");
-            entity.Property(e => e.ComprobanteDomicilio).HasColumnName("comprobante_domicilio");
-            entity.Property(e => e.Curp).HasColumnName("curp");
-            entity.Property(e => e.DiagnosticoMedico).HasColumnName("diagnostico_medico");
-            entity.Property(e => e.Fotografia).HasColumnName("fotografia");
-            entity.Property(e => e.IneTutor).HasColumnName("ine_tutor");
+            entity.Property(a => a.TipoArchivoId)
+                .HasColumnName("tipo_archivo_id");
+
+            entity.Property(a => a.Archivo).HasColumnName("archivo");
+
+            // Contrato #1: Relación entre Arhchivo y Paciente
+            entity.HasOne(archivo => archivo.Paciente)
+                  .WithMany(paciente => paciente.Archivos)
+                  .HasForeignKey(archivo => archivo.PacienteId);
+
+            // Contrato #2: Relación entre Archivo y TipoArchivo
+            entity.HasOne(archivo => archivo.TipoArchivo)
+                  .WithMany(tipoArchivo => tipoArchivo.Archivos)
+                  .HasForeignKey(archivo => archivo.TipoArchivoId);
+
+        });
+
+
+        modelBuilder.Entity<TipoArchivo>(entity =>
+        {
+            entity.ToTable("tipo_archivo");
+            entity.HasKey(t => t.TipoArchivoId);
+
+            entity.Property(t => t.TipoArchivoId)
+                .HasColumnName("tipo_archivo_id");
+
+            entity.Property(t => t.Nombre)
+                .HasColumnName("nombre");
+
+            entity.Property(t => t.Extension)
+                .HasColumnName("extension");
         });
 
         modelBuilder.Entity<InicioSesion>().HasNoKey();
@@ -273,6 +298,19 @@ public partial class AppDbContext : DbContext
         new Preguntas { PreguntaId = 19, Pregunta = "PLANIFICACIÓN"},
         new Preguntas { PreguntaId = 20, Pregunta = "NIVEL DE IMPULSIVIDAD"}
         );
+
+
+        modelBuilder.Entity<TipoArchivo>().HasData(
+            new TipoArchivo { TipoArchivoId = 1, Nombre = "DiagnosticoMedico", Extension = ".pdf" },
+            new TipoArchivo { TipoArchivoId = 2, Nombre = "CertificadoMedico", Extension = ".pdf" },
+            new TipoArchivo { TipoArchivoId = 3, Nombre = "ActaNacimiento", Extension = ".pdf" },
+            new TipoArchivo { TipoArchivoId = 4, Nombre = "Curp", Extension = ".pdf" },
+            new TipoArchivo { TipoArchivoId = 5, Nombre = "ComprobanteDomicilio", Extension = ".pdf" },
+            new TipoArchivo { TipoArchivoId = 6, Nombre = "IneTutor", Extension = ".pdf" },
+            new TipoArchivo { TipoArchivoId = 7, Nombre = "Fotografia", Extension = ".jpg" }
+        );
+
+
     }
 
 

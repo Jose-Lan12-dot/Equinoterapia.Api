@@ -14,10 +14,10 @@ public partial class Instructor
 {
     public int InstructorId { get; set; }
 
-    public string Nombre { get; set; } = null!;
+    public required string Nombre { get; set; } = null!;
 
-    public string? Telefono { get; set; }
+    public required string Telefono { get; set; }
 
-    public EstadoInstructor Estado { get; set; }
+    public required EstadoInstructor Estado { get; set; }
     public virtual ICollection<Sesion> Sesions { get; set; } = new List<Sesion>();
 }

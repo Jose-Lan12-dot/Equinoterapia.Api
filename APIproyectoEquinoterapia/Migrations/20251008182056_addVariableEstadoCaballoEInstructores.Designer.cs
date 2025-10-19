@@ -25,7 +25,7 @@ namespace APIproyectoEquinoterapia.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Archivo", b =>
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Archivos", b =>
                 {
                     b.Property<int>("ArchivoId")
                         .ValueGeneratedOnAdd()
@@ -484,7 +484,7 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.ToTable("sesion", (string)null);
                 });
 
-            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Archivo", b =>
+            modelBuilder.Entity("APIproyectoEquinoterapia.Models.Archivos", b =>
                 {
                     b.HasOne("APIproyectoEquinoterapia.Models.Paciente_", "Paciente_")
                         .WithMany()

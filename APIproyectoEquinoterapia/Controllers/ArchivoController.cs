@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace APIproyectoEquinoterapia.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ArchivoController : ControllerBase
@@ -19,45 +19,38 @@ namespace APIproyectoEquinoterapia.Controllers
             _archivoService = archivoService;
         }
 
+
         [HttpGet("obtener/{archivoRequerido}")]
         public async Task<IActionResult> GetArchivo(int pacienteId, string archivoRequerido)
         {
-            var (archivo,mensaje) = await _archivoService.GetArchivoAsync(archivoRequerido, pacienteId);
+            var (archivo,mensaje,tipo) = await _archivoService.GetArchivoAsync(archivoRequerido, pacienteId);
             if (archivo == null || archivo.Length == 0)
                 return NotFound(mensaje);
 
-            string contentType = archivoRequerido.ToLower() switch
+            string contentType = tipo.ToLower() switch
             {
-                "diagnosticomedico" => "application/pdf",
-                "certificadomedico" => "application/pdf",
-                "actanacimiento" => "application/pdf",
-                "curp" => "application/pdf",
-                "comprobantedomicilio" => "application/pdf",
-                "inetutor" => "application/pdf",
-                "fotografia" => "image/jpeg",
+                "pdf" => "application/pdf",
+                "jpg" => "image/jpeg",
                 _ => "application/octet-stream"
             };
             return Ok(File(archivo, contentType));
         }
 
         [HttpPut("actualizar/{archivoRequerido}")]
-        public async Task<IActionResult> PutArchivo(
-            int pacienteId,
-            string archivoRequerido,
-            IFormFile nuevoArchivo)
+        public async Task<IActionResult> PutArchivo(ArchivoDTO archivoDTO)
         {
-            var (respuesta,mensaje) = await _archivoService.PutArchivoAsync(pacienteId, archivoRequerido, nuevoArchivo);
-            if (!respuesta)
+            var (exito,mensaje) = await _archivoService.PutArchivoAsync(archivoDTO);
+            if (!exito)
                 return NotFound(mensaje);
             return Ok(mensaje);
         }
 
 
         [HttpPost("agregar")]
-        public async Task<IActionResult> PostArchivo(int pacienteId,ArchivoDTO archivoDTO)
+        public async Task<IActionResult> PostArchivo(ArchivoDTO archivoDTO)
         {
-            var (respuesta,mensaje) = await _archivoService.PostArchivoAsync(archivoDTO,pacienteId);
-            if (!respuesta)
+            var (exito,mensaje) = await _archivoService.PostArchivoAsync(archivoDTO);
+            if (!exito)
                 return NotFound(mensaje);
             return Ok(mensaje);
         }

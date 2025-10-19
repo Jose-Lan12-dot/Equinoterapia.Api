@@ -30,6 +30,11 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
                 return (null, mensaje);
             }
 
+            var nombrePaciente = await _context.paciente
+                .Where(p => p.PacienteId == evaluacion.PacienteId)
+                .Select(p => p.Nombre)
+                .FirstOrDefaultAsync();
+
             var paciente = await _context.paciente.FindAsync(evaluacion.PacienteId);
             if (EsNulo(paciente))
             {
@@ -112,13 +117,13 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
                 return (false, mensaje);
             }
 
-            if (!PacienteExiste(pacienteId))
+            if (!await PacienteExiste(pacienteId))
             {
                 var mensaje = "Paciente_ no encontrado";
                 return (false, mensaje);
             }
 
-            if (EvaluacionExiste(pacienteId))
+            if (await EvaluacionExiste(pacienteId))
             {
                 var mensaje = "Ya existe un evaluacion para este paciente";
                 return (false, mensaje);
@@ -164,7 +169,7 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
                 return (false, mensaje);
             }
 
-            if (!PacienteExiste(pacienteId))
+            if (!await PacienteExiste(pacienteId))
             {
                 var mensaje = "Paciente_ no encontrado";
                 return (false, mensaje);
@@ -237,14 +242,14 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
             return false;
         }
 
-        public bool PacienteExiste(int pacienteId)
+        public async Task<bool> PacienteExiste(int pacienteId)
         {
-            return _context.paciente.Any(p => p.PacienteId == pacienteId);
+            return await _context.paciente.AnyAsync(p => p.PacienteId == pacienteId);
         }
 
-        public bool EvaluacionExiste(int pacienteId)
+        public async Task<bool> EvaluacionExiste(int pacienteId)
         {
-            return _context.evaluacion.Any(e => e.PacienteId == pacienteId);
+            return await _context.evaluacion.AnyAsync(e => e.PacienteId == pacienteId);
         }
 
     }

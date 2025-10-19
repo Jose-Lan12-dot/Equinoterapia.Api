@@ -1,5 +1,4 @@
 using APIproyectoEquinoterapia.Data.Models;
-using APIproyectoEquinoterapia.Data.Models.Paciente_;
 using APIproyectoEquinoterapia.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

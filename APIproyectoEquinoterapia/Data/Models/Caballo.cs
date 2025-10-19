@@ -15,6 +15,7 @@ public enum EstadoCaballo
 
 public partial class Caballo
 {
+    public int CaballoId { get; set; }
     public string Placa { get; set; } = null!;
 
     public string Nombre { get; set; } = null!;

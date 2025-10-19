@@ -2,12 +2,8 @@
 {
     public class ArchivoDTO
     {
-        public IFormFile? DiagnosticoMedico { get; set; }
-        public IFormFile? CertificadoMedico { get; set; }
-        public IFormFile? ActaNacimiento { get; set; }
-        public IFormFile? Curp { get; set; }
-        public IFormFile? ComprobanteDomicilio { get; set; }
-        public IFormFile? IneTutor { get; set; }
-        public IFormFile? Fotografia { get; set; }
+        public int PacienteId { get; set; }
+        public required String nombre { get; set; }
+        public IFormFile? Archivo { get; set; }
     }
 }
