@@ -27,7 +27,7 @@ namespace APIproyectoEquinoterapia.Controllers
             var (instructores, mensaje) = await _instructorService.GetAllAsync();
             if (instructores.Count() == 0)
                 return NotFound(mensaje);
-            return Ok(new {mensaje,instructores});
+            return Ok(new { mensaje, instructores });
         }
 
 //////////////////////
@@ -54,17 +54,26 @@ namespace APIproyectoEquinoterapia.Controllers
         [HttpPut("actualizar-todo/{instructorId}")]
         public async Task<IActionResult> UpdateAll(InstructorDto instructorDto, int instructorId)
         {
-            var (exito, mensaje) = await _instructorService.UpdateAllAsync(instructorDto,instructorId);
+            var (exito, mensaje) = await _instructorService.UpdateAllAsync(instructorDto, instructorId);
+            if (!exito)
+                return NotFound(mensaje);
+            return Ok(mensaje);
+        }
+//////////////////////
+        [HttpPut("actualizar-parcialmente/{instructorId}")]
+        public async Task<IActionResult> UpdatePartial(InstructorDto instructorDto, int instructorId)
+        {
+            var (exito, mensaje) = await _instructorService.UpdatePartialAsync(instructorDto, instructorId);
             if (!exito)
                 return NotFound(mensaje);
             return Ok(mensaje);
         }
 
 //////////////////////
-        [HttpPut("actualizar-parcialmente/{instructorId}")]
-        public async Task<IActionResult> UpdatePartial(InstructorDto instructorDto, int instructorId)
+        [HttpDelete("eliminar/{instructorId}")]
+        public async Task<IActionResult> Delete(int instructorId)
         {
-            var (exito, mensaje) = await _instructorService.UpdatePartialAsync(instructorDto,instructorId);
+            var (exito, mensaje) = await _instructorService.DeleteAsync(instructorId);
             if (!exito)
                 return NotFound(mensaje);
             return Ok(mensaje);

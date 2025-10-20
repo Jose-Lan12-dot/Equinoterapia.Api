@@ -22,29 +22,122 @@ namespace APIproyectoEquinoterapia.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Archivo_.Archivos", b =>
+                {
+                    b.Property<int>("ArchivoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("archivo_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ArchivoId"));
+
+                    b.Property<byte[]>("Archivo")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)")
+                        .HasColumnName("archivo");
+
+                    b.Property<int>("PacienteId")
+                        .HasColumnType("int")
+                        .HasColumnName("paciente_id");
+
+                    b.Property<int>("TipoArchivoId")
+                        .HasColumnType("int")
+                        .HasColumnName("tipo_archivo_id");
+
+                    b.HasKey("ArchivoId");
+
+                    b.HasIndex("PacienteId");
+
+                    b.HasIndex("TipoArchivoId");
+
+                    b.ToTable("archivos", (string)null);
+                });
+
+            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Archivo_.TipoArchivo", b =>
+                {
+                    b.Property<int>("TipoArchivoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("tipo_archivo_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TipoArchivoId"));
+
+                    b.Property<string>("Extension")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("extension");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("nombre");
+
+                    b.HasKey("TipoArchivoId");
+
+                    b.ToTable("tipo_archivo", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            TipoArchivoId = 1,
+                            Extension = ".pdf",
+                            Nombre = "DiagnosticoMedico"
+                        },
+                        new
+                        {
+                            TipoArchivoId = 2,
+                            Extension = ".pdf",
+                            Nombre = "CertificadoMedico"
+                        },
+                        new
+                        {
+                            TipoArchivoId = 3,
+                            Extension = ".pdf",
+                            Nombre = "ActaNacimiento"
+                        },
+                        new
+                        {
+                            TipoArchivoId = 4,
+                            Extension = ".pdf",
+                            Nombre = "Curp"
+                        },
+                        new
+                        {
+                            TipoArchivoId = 5,
+                            Extension = ".pdf",
+                            Nombre = "ComprobanteDomicilio"
+                        },
+                        new
+                        {
+                            TipoArchivoId = 6,
+                            Extension = ".pdf",
+                            Nombre = "IneTutor"
+                        },
+                        new
+                        {
+                            TipoArchivoId = 7,
+                            Extension = ".jpg",
+                            Nombre = "Fotografia"
+                        });
+                });
+
             modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Caballo", b =>
                 {
-                    b.Property<string>("Placa")
-                        .HasMaxLength(10)
-                        .IsUnicode(false)
-                        .HasColumnType("char(10)")
-                        .HasColumnName("placa")
-                        .IsFixedLength();
+                    b.Property<int>("CaballoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("caballo_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CaballoId"));
 
                     b.Property<string>("Estado")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("estado");
 
-                    b.Property<DateOnly?>("FechaHerraje")
+                    b.Property<DateOnly>("FechaHerraje")
                         .HasColumnType("date")
                         .HasColumnName("fecha_herraje");
-
-                    b.Property<DateTime?>("FechaRegistro")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasColumnName("fecha_registro")
-                        .HasDefaultValueSql("(getdate())");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -54,13 +147,21 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasColumnName("nombre");
 
                     b.Property<string>("Padecimiento")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .IsUnicode(false)
                         .HasColumnType("varchar(255)")
                         .HasColumnName("padecimientos");
 
-                    b.HasKey("Placa")
-                        .HasName("PK__Caballo__0C057424DFD410E3");
+                    b.Property<string>("Placa")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .IsUnicode(false)
+                        .HasColumnType("char(10)")
+                        .HasColumnName("placa")
+                        .IsFixedLength();
+
+                    b.HasKey("CaballoId");
 
                     b.ToTable("caballo", (string)null);
                 });
@@ -86,8 +187,7 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasColumnType("int")
                         .HasColumnName("sesion_id");
 
-                    b.HasKey("CitaId")
-                        .HasName("PK__Cita__5AC1B05BF327E219");
+                    b.HasKey("CitaId");
 
                     b.HasIndex("PacienteId");
 
@@ -323,67 +423,19 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasColumnName("nombre");
 
                     b.Property<string>("Telefono")
+                        .IsRequired()
                         .HasMaxLength(10)
                         .IsUnicode(false)
                         .HasColumnType("char(10)")
                         .HasColumnName("telefono")
                         .IsFixedLength();
 
-                    b.HasKey("InstructorId")
-                        .HasName("PK__Instruct__A1EF56E897854518");
+                    b.HasKey("InstructorId");
 
                     b.ToTable("instructor", (string)null);
                 });
 
-            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Paciente_.Archivos", b =>
-                {
-                    b.Property<int>("ArchivoId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("archivo_id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ArchivoId"));
-
-                    b.Property<byte[]>("ActaNacimiento")
-                        .HasColumnType("varbinary(max)")
-                        .HasColumnName("acta_nacimiento");
-
-                    b.Property<byte[]>("CertificadoMedico")
-                        .HasColumnType("varbinary(max)")
-                        .HasColumnName("certificado_medico");
-
-                    b.Property<byte[]>("ComprobanteDomicilio")
-                        .HasColumnType("varbinary(max)")
-                        .HasColumnName("comprobante_domicilio");
-
-                    b.Property<byte[]>("Curp")
-                        .HasColumnType("varbinary(max)")
-                        .HasColumnName("curp");
-
-                    b.Property<byte[]>("DiagnosticoMedico")
-                        .HasColumnType("varbinary(max)")
-                        .HasColumnName("diagnostico_medico");
-
-                    b.Property<byte[]>("Fotografia")
-                        .HasColumnType("varbinary(max)")
-                        .HasColumnName("fotografia");
-
-                    b.Property<byte[]>("IneTutor")
-                        .HasColumnType("varbinary(max)")
-                        .HasColumnName("ine_tutor");
-
-                    b.Property<int>("PacienteId")
-                        .HasColumnType("int")
-                        .HasColumnName("paciente_id");
-
-                    b.HasKey("ArchivoId");
-
-                    b.HasIndex("PacienteId");
-
-                    b.ToTable("archivo", (string)null);
-                });
-
-            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Paciente_.Paciente", b =>
+            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Paciente", b =>
                 {
                     b.Property<int>("PacienteId")
                         .ValueGeneratedOnAdd()
@@ -446,6 +498,10 @@ namespace APIproyectoEquinoterapia.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SesionId"));
 
+                    b.Property<int>("CaballoId")
+                        .HasColumnType("int")
+                        .HasColumnName("caballo_id");
+
                     b.Property<DateOnly>("Fecha")
                         .HasColumnType("date")
                         .HasColumnName("fecha");
@@ -458,39 +514,47 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasColumnType("int")
                         .HasColumnName("instructor_id");
 
-                    b.Property<string>("Placa")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .IsUnicode(false)
-                        .HasColumnType("char(10)")
-                        .HasColumnName("placa")
-                        .IsFixedLength();
+                    b.HasKey("SesionId");
 
-                    b.HasKey("SesionId")
-                        .HasName("PK__Sesion__0F8043C63FBA2D3F");
+                    b.HasIndex("CaballoId");
 
                     b.HasIndex("InstructorId");
-
-                    b.HasIndex("Placa");
 
                     b.ToTable("sesion", (string)null);
                 });
 
+            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Archivo_.Archivos", b =>
+                {
+                    b.HasOne("APIproyectoEquinoterapia.Data.Models.Paciente", "Paciente")
+                        .WithMany("Archivos")
+                        .HasForeignKey("PacienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("APIproyectoEquinoterapia.Data.Models.Archivo_.TipoArchivo", "TipoArchivo")
+                        .WithMany("Archivos")
+                        .HasForeignKey("TipoArchivoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Paciente");
+
+                    b.Navigation("TipoArchivo");
+                });
+
             modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Cita", b =>
                 {
-                    b.HasOne("APIproyectoEquinoterapia.Data.Models.Paciente_.Paciente", "Paciente")
+                    b.HasOne("APIproyectoEquinoterapia.Data.Models.Paciente", "Paciente")
                         .WithMany("Cita")
                         .HasForeignKey("PacienteId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK__Cita__paciente_i__46E78A0C");
+                        .IsRequired();
 
                     b.HasOne("APIproyectoEquinoterapia.Data.Models.Sesion", "Sesion")
                         .WithMany("Cita")
                         .HasForeignKey("SesionId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK__Cita__sesion_id__45F365D3");
+                        .IsRequired();
 
                     b.Navigation("Paciente");
 
@@ -499,7 +563,7 @@ namespace APIproyectoEquinoterapia.Migrations
 
             modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Evaluacion_.Evaluacion", b =>
                 {
-                    b.HasOne("APIproyectoEquinoterapia.Data.Models.Paciente_.Paciente", "Paciente")
+                    b.HasOne("APIproyectoEquinoterapia.Data.Models.Paciente", "Paciente")
                         .WithOne("Evaluacion")
                         .HasForeignKey("APIproyectoEquinoterapia.Data.Models.Evaluacion_.Evaluacion", "PacienteId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -527,34 +591,28 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.Navigation("Pregunta");
                 });
 
-            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Paciente_.Archivos", b =>
+            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Sesion", b =>
                 {
-                    b.HasOne("APIproyectoEquinoterapia.Data.Models.Paciente_.Paciente", "Paciente")
-                        .WithMany()
-                        .HasForeignKey("PacienteId")
+                    b.HasOne("APIproyectoEquinoterapia.Data.Models.Caballo", "Caballo")
+                        .WithMany("Sesions")
+                        .HasForeignKey("CaballoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Paciente");
-                });
-
-            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Sesion", b =>
-                {
                     b.HasOne("APIproyectoEquinoterapia.Data.Models.Instructor", "Instructor")
                         .WithMany("Sesions")
                         .HasForeignKey("InstructorId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Sesion__instruct__4222D4EF");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("APIproyectoEquinoterapia.Data.Models.Caballo", "PlacaNavigation")
-                        .WithMany("Sesions")
-                        .HasForeignKey("Placa")
-                        .IsRequired()
-                        .HasConstraintName("FK__Sesion__placa__4316F928");
+                    b.Navigation("Caballo");
 
                     b.Navigation("Instructor");
+                });
 
-                    b.Navigation("PlacaNavigation");
+            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Archivo_.TipoArchivo", b =>
+                {
+                    b.Navigation("Archivos");
                 });
 
             modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Caballo", b =>
@@ -577,8 +635,10 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.Navigation("Sesions");
                 });
 
-            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Paciente_.Paciente", b =>
+            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Paciente", b =>
                 {
+                    b.Navigation("Archivos");
+
                     b.Navigation("Cita");
 
                     b.Navigation("Evaluacion");

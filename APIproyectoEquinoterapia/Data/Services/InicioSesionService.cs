@@ -23,73 +23,108 @@ namespace APIproyectoEquinoterapia.Data.Services
             _configuration = configuration;
         }
 
-
-        public async Task <(bool,string,string)> PostInicioSesionAsync(DatosUsuarioDTO datosUsuarioDTO)
+//////////////////////
+        public async Task <(bool,string,string)> LoginAsync(InicioSesionDataDto inicioSesionDataDto)
         {
-            if (datosUsuarioDTO == null || string.IsNullOrEmpty(datosUsuarioDTO.Usuario) 
-                || string.IsNullOrEmpty(datosUsuarioDTO.contrasena))
+            if (ValidateData(inicioSesionDataDto))
                 return (false,"Datos de usuario incompletos","");
 
-
-            //datosUsuarioDTO.contrasena = Encrypt.EncryptStringSspcWeb(datosUsuarioDTO.contrasena);
-
-            var usuario = await ValidarUsuarioAsync(datosUsuarioDTO);
-            if (usuario == null || usuario.IdUsuario == 0)
+            var usuario = await ValidateUserInDB(inicioSesionDataDto.Usuario);
+            if (IsNull(usuario) || IsNull(usuario!.IdUsuario) || usuario.IdUsuario == 0)
                 return (false,"Usuario no encontrado","");
 
-            var acceso = await ValidarAccesoAsync(datosUsuarioDTO, usuario.IdUsuario);
-            if (acceso == null || acceso.IdUsuario == 0)
+            //inicioSesionDto.contrasena = EncryptPassword(inicioSesionDto.contrasena);
+            var acceso = await ValidateAccesoInDb(inicioSesionDataDto, usuario.IdUsuario);
+            if (IsNull(acceso) || acceso!.IdUsuario == 0)
                 return (false, "Credenciales incorrectas", "");
 
-            //var acceso = await ValidarAccesoAsync(datosUsuarioDTO, usuario.IdUsuario);
-            //if (acceso == null || acceso.IdUsuario == 0)
-            //    return (false, "Credenciales incorrectas", "");
-
-            var token = GenerarToken(datosUsuarioDTO, acceso.IdUsuario);
+            var token = GetToken(acceso);
 
             return (true,"Usuario encontrado",token);
         }
 
 
-        private async Task <InicioSesionDTO?> ValidarUsuarioAsync(DatosUsuarioDTO datosUsuarioDTO)
+
+
+
+
+
+//////////////////////
+        private bool IsEmpty(string? str)
+        {
+            return string.IsNullOrWhiteSpace(str);
+        }
+
+//////////////////////
+        private bool IsNull(object? obj)
+        {
+            if (obj == null)
+            {
+                return true;
+            }
+            return false;
+        }
+
+//////////////////////
+        private bool ValidateData(InicioSesionDataDto inicioSesionDataDto)
+        {
+            if (IsEmpty(inicioSesionDataDto.Usuario)
+                || IsEmpty(inicioSesionDataDto.contrasena))
+                return true;
+            return false;
+        }
+
+//////////////////////
+        private string EncryptPassword(string contrasena)
+        {
+            return Encrypt.EncryptStringSspcWeb(contrasena);
+        }
+
+//////////////////////
+        private async Task <InicioSesion?> ValidateUserInDB(string usuario)
         {
             var resultados = await _context.inicioSesion
                 .FromSqlInterpolated($@"
                     EXEC dbo.Sp_LoginNovedades 
-                        @User = {datosUsuarioDTO.Usuario}, 
+                        @User = {usuario}, 
                         @Password = '', 
                         @IdSistema = {1}, 
                         @IdPerfil = {0}, 
                         @Accion = {1}")
                 .ToListAsync();
+            if(resultados.Count == 0)
+                return null;
 
-            var usuarioFormateado = FormatearADTO(resultados.SingleOrDefault());
-            return usuarioFormateado;
+            return resultados.SingleOrDefault();
 
         }
 
-        private async Task <InicioSesionDTO?> ValidarAccesoAsync(DatosUsuarioDTO datosUsuarioDTO, int idUsuario)
+//////////////////////
+        private async Task <InicioSesionDto?> ValidateAccesoInDb(InicioSesionDataDto inicioSesionDataDto, int idUsuario)
         {
             var resultados = await _context.inicioSesion
                 .FromSqlInterpolated($@"
                     EXEC dbo.Sp_LoginNovedades 
-                        @User = {datosUsuarioDTO.Usuario}, 
-                        @Password = {datosUsuarioDTO.contrasena}, 
+                        @User = {inicioSesionDataDto.Usuario}, 
+                        @Password = {inicioSesionDataDto.contrasena}, 
                         @IdSistema = {1}, 
                         @IdPerfil = {idUsuario}, 
                         @Accion = {2}")
                 .ToListAsync();
 
-            var usuarioFormateado = FormatearADTO(resultados.SingleOrDefault());
+            if (resultados.Count == 0)
+                return null;
+
+            var usuarioFormateado = MapToDto(resultados.SingleOrDefault());
 
             return usuarioFormateado;
         }
 
-
-        private InicioSesionDTO FormatearADTO (InicioSesion usuario)
+//////////////////////
+        private InicioSesionDto MapToDto (InicioSesion usuario)
         {
 
-            return new InicioSesionDTO
+            return new InicioSesionDto
             {
                 IdUsuario = usuario.IdUsuario,
                 IdKronos = usuario.IdKronos,
@@ -102,16 +137,16 @@ namespace APIproyectoEquinoterapia.Data.Services
             };
         }
 
-
-        public string GenerarToken(DatosUsuarioDTO datosUsuarioDTO, int idUsuario)
+//////////////////////
+        public string GetToken(InicioSesionDto inicioSesionDto)
         {
             var claims = new[]
             {
-        new Claim(ClaimTypes.Name, datosUsuarioDTO.Usuario ?? ""),
-        new Claim(ClaimTypes.NameIdentifier, idUsuario.ToString()),
+        new Claim(ClaimTypes.Name, inicioSesionDto.Usuario ?? ""),
+        new Claim(ClaimTypes.NameIdentifier, inicioSesionDto.IdUsuario.ToString()),
     };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(

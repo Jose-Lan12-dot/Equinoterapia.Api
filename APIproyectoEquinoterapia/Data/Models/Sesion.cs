@@ -9,7 +9,7 @@ public partial class Sesion
 
     public int InstructorId { get; set; }
 
-    public string Placa { get; set; } = null!;
+    public int CaballoId { get; set; }
 
     public DateOnly Fecha { get; set; }
 
@@ -19,5 +19,5 @@ public partial class Sesion
 
     public virtual Instructor Instructor { get; set; } = null!;
 
-    public virtual Caballo PlacaNavigation { get; set; } = null!;
+    public virtual Caballo Caballo { get; set; } = null!;
 }

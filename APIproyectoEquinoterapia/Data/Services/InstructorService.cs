@@ -40,7 +40,16 @@ namespace APIproyectoEquinoterapia.Data.Services
 //////////////////////
         public async Task<(InstructorDto?, string)> GetByIdAsync(int instructorId)
         {
-            var instructor = await GetInstructorById(instructorId);
+            var instructor = null as Instructor;
+            try
+            {
+                instructor = await GetInstructorById(instructorId);
+            }
+            catch (Exception ex)
+            {
+                var mensaje = $"Error al obtener el instructor: {ex.Message}";
+                return (null, mensaje);
+            }
 
             if (IsNull(instructor))
             {
@@ -56,7 +65,7 @@ namespace APIproyectoEquinoterapia.Data.Services
         {
             if (ValidateInstructorData(instructorCreationDto))
             {
-                var mensaje = "Datos del instructor no válidos";
+                var mensaje = "Datos del instructor incompletos";
                 return (false, mensaje);
             }
 
@@ -90,9 +99,7 @@ namespace APIproyectoEquinoterapia.Data.Services
                 return (false, mensaje);
             }
 
-            if (IsEmpty(instructorDto.Telefono) 
-                || IsEmpty(instructorDto.Nombre) 
-                || IsEmpty(instructorDto.Estado))
+            if (ValidateInstructorData(instructorDto))
             {
                 var mensaje = "Datos del instructor incompletos";
                 return (false, mensaje);
@@ -106,9 +113,9 @@ namespace APIproyectoEquinoterapia.Data.Services
             }
 
 
-            instructor!.Nombre = instructorDto.Nombre;
-            instructor.Telefono = instructorDto.Telefono;
-            instructor.Estado = GetEstado(instructorDto.Estado);
+            instructor!.Nombre = instructorDto.Nombre!;
+            instructor.Telefono = instructorDto.Telefono!;
+            instructor.Estado = GetEstado(instructorDto.Estado!,instructor.Estado);
 
             try
             {
@@ -141,15 +148,15 @@ namespace APIproyectoEquinoterapia.Data.Services
 
             if (!IsEmpty(instructorDto.Telefono))
             {
-                instructor!.Telefono = instructorDto.Telefono;
+                instructor!.Telefono = instructorDto.Telefono!;
             }
             if (!IsEmpty(instructorDto.Nombre))
             {
-                instructor!.Nombre = instructorDto.Nombre;
+                instructor!.Nombre = instructorDto.Nombre!;
             }
             if (!IsEmpty(instructorDto.Estado))
             {
-                instructor!.Estado = GetEstado(instructorDto.Estado);
+                instructor!.Estado = GetEstado(instructorDto.Estado!,instructor.Estado);
             }
 
 
@@ -165,7 +172,35 @@ namespace APIproyectoEquinoterapia.Data.Services
             }
         }
 
+//////////////////////
+        public async Task<(bool, string)> DeleteAsync(int instructorId)
+        {
+            var instructor = await GetInstructorById(instructorId);
+            if (IsNull(instructor))
+            {
+                var mensaje = "Instructor no encontrado";
+                return (false, mensaje);
+            }
 
+            var tieneSesiones = await InstructorHasSesiones(instructorId);
+            if (tieneSesiones)
+            {
+                var mensaje = "No se puede eliminar el instructor porque tiene sesiones asociadas.";
+                return (false, mensaje);
+            }
+
+            try
+            {
+                _context.instructor.Remove(instructor!);
+                await _context.SaveChangesAsync();
+                return (true, "Instructor eliminado correctamente");
+            }
+            catch (Exception ex)
+            {
+                var mensaje = $"Error al eliminar el instructor: {ex.Message}";
+                return (false, mensaje);
+            }
+        }
 
 
 
@@ -206,6 +241,12 @@ namespace APIproyectoEquinoterapia.Data.Services
         }
 
 //////////////////////
+        private async Task<bool> InstructorHasSesiones(int instructorId)
+        {
+            return await _context.sesion.AnyAsync(s => s.InstructorId == instructorId);
+        }
+
+//////////////////////
         private bool ValidateInstructorData(InstructorCreationDto instructorCreationDto)
         {
             if (IsEmpty(instructorCreationDto.Telefono)
@@ -217,10 +258,23 @@ namespace APIproyectoEquinoterapia.Data.Services
         }
 
 //////////////////////
-        private EstadoInstructor GetEstado(string estado)
+        private bool ValidateInstructorData(InstructorDto instructorDto)
         {
-            Enum.TryParse<EstadoInstructor>(estado, out var estadoValido);
-            return estadoValido;
+            if (IsEmpty(instructorDto.Telefono)
+                || IsEmpty(instructorDto.Nombre)
+                || IsEmpty(instructorDto.Estado))
+            {
+                return true;
+            }
+            return false;
+        }
+
+//////////////////////
+        private EstadoInstructor GetEstado(string estado, EstadoInstructor estadoActual)
+        {
+            if(Enum.TryParse<EstadoInstructor>(estado, out var estadoNuevo))
+                return estadoNuevo;
+            return estadoActual;
         }
 
 //////////////////////
@@ -236,7 +290,7 @@ namespace APIproyectoEquinoterapia.Data.Services
 //////////////////////
         private bool IsEmpty(string? str)
         {
-            return string.IsNullOrEmpty(str);
+            return string.IsNullOrWhiteSpace(str);
         }
 
 

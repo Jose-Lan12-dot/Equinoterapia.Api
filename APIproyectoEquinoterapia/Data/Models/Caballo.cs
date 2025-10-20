@@ -16,17 +16,16 @@ public enum EstadoCaballo
 public partial class Caballo
 {
     public int CaballoId { get; set; }
-    public string Placa { get; set; } = null!;
+    public required string Placa { get; set; } = null!;
 
-    public string Nombre { get; set; } = null!;
+    public required string Nombre { get; set; } = null!;
 
-    public EstadoCaballo Estado { get; set; }
+    public required EstadoCaballo Estado { get; set; }
 
-    public DateOnly? FechaHerraje { get; set; }
+    public required DateOnly FechaHerraje { get; set; }
 
-    public string? Padecimiento { get; set; }
+    public required string Padecimiento { get; set; }
 
-    public DateTime? FechaRegistro { get; set; }
     public virtual ICollection<Sesion> Sesions { get; set; } = new List<Sesion>();
 
 }

@@ -36,10 +36,12 @@ public partial class AppDbContext : DbContext
     {
         modelBuilder.Entity<Caballo>(entity =>
         {
-            entity.HasKey(e => e.Placa).HasName("PK__Caballo__0C057424DFD410E3");
 
             entity.ToTable("caballo");
+            entity.HasKey(c => c.CaballoId);
 
+            entity.Property(c => c.CaballoId)
+                .HasColumnName("caballo_id");
             entity.Property(e => e.Placa)
                 .HasMaxLength(10)
                 .IsUnicode(false)
@@ -48,12 +50,8 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Estado)
                 .HasColumnName("estado")
                 .HasConversion<string>();
-
-            entity.Property(e => e.FechaHerraje).HasColumnName("fecha_herraje");
-            entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime")
-                .HasColumnName("fecha_registro");
+            entity.Property(e => e.FechaHerraje)
+                .HasColumnName("fecha_herraje");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -66,29 +64,28 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Cita>(entity =>
         {
-            entity.HasKey(c => c.CitaId).HasName("PK__Cita__5AC1B05BF327E219");
-
             entity.ToTable("cita");
+            entity.HasKey(c => c.CitaId);
 
             entity.Property(c => c.CitaId).HasColumnName("cita_id");
             entity.Property(c => c.Asistio).HasColumnName("asistio");
             entity.Property(c => c.PacienteId).HasColumnName("paciente_id");
             entity.Property(c => c.SesionId).HasColumnName("sesion_id");
 
-            entity.HasOne(c => c.Paciente).WithMany(p => p.Cita)
-                .HasForeignKey(c => c.PacienteId)
-                .HasConstraintName("FK__Cita__paciente_i__46E78A0C");
+            entity.HasOne(c => c.Paciente)
+                .WithMany(p => p.Cita)
+                .HasForeignKey(c => c.PacienteId);
 
-            entity.HasOne(c => c.Sesion).WithMany(c => c.Cita)
-                .HasForeignKey(d => d.SesionId)
-                .HasConstraintName("FK__Cita__sesion_id__45F365D3");
+            entity.HasOne(c => c.Sesion)
+                .WithMany(c => c.Cita)
+                .HasForeignKey(d => d.SesionId);
         });
 
         modelBuilder.Entity<Instructor>(entity =>
         {
-            entity.HasKey(i => i.InstructorId).HasName("PK__Instruct__A1EF56E897854518");
 
             entity.ToTable("instructor");
+            entity.HasKey(i => i.InstructorId);
 
             entity.Property(i => i.InstructorId).HasColumnName("instructor_id");
             entity.Property(i => i.Nombre)
@@ -141,29 +138,30 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Sesion>(entity =>
         {
-            entity.HasKey(e => e.SesionId).HasName("PK__Sesion__0F8043C63FBA2D3F");
 
             entity.ToTable("sesion");
+            entity.HasKey(e => e.SesionId);
 
-            entity.Property(e => e.SesionId).HasColumnName("sesion_id");
-            entity.Property(e => e.Fecha).HasColumnName("fecha");
+            entity.Property(e => e.SesionId)
+                .HasColumnName("sesion_id");
+            entity.Property(e => e.Fecha)
+                .HasColumnName("fecha");
             entity.Property(e => e.Hora).HasColumnName("hora");
-            entity.Property(e => e.InstructorId).HasColumnName("instructor_id");
-            entity.Property(e => e.Placa)
-                .HasMaxLength(10)
-                .IsUnicode(false)
-                .IsFixedLength()
-                .HasColumnName("placa");
+            entity.Property(e => e.InstructorId)
+                .HasColumnName("instructor_id");
+            entity.Property(e => e.CaballoId)
+                .HasColumnName("caballo_id");
 
-            entity.HasOne(d => d.Instructor).WithMany(p => p.Sesions)
-                .HasForeignKey(d => d.InstructorId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Sesion__instruct__4222D4EF");
+            // Contrato #2: Relación entre Sesion e Instructor
+            entity.HasOne(sesion => sesion.Instructor)
+                .WithMany(instructor => instructor.Sesions)
+                .HasForeignKey(sesion => sesion.InstructorId);
 
-            entity.HasOne(d => d.PlacaNavigation).WithMany(p => p.Sesions)
-                .HasForeignKey(d => d.Placa)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Sesion__placa__4316F928");
+            // Contrato #2: Relación entre Sesion y Caballo
+            entity.HasOne(sesion => sesion.Caballo)
+            .WithMany(caballo => caballo.Sesions)
+            .HasForeignKey(sesion => sesion.CaballoId);
+
         });
 
         modelBuilder.Entity<Evaluacion>(entity =>

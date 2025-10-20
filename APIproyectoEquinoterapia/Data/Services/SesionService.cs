@@ -21,7 +21,7 @@ namespace APIproyectoEquinoterapia.Data.Services
                 {
                     SesionId = s.SesionId,
                     InstructorId = s.InstructorId,
-                    Placa = s.Placa,
+                    CaballoId = s.CaballoId,
                     Fecha = s.Fecha,
                     Hora = s.Hora
                 })
@@ -38,7 +38,7 @@ namespace APIproyectoEquinoterapia.Data.Services
             {
                 SesionId = sesion.SesionId,
                 InstructorId = sesion.InstructorId,
-                Placa = sesion.Placa,
+                CaballoId = sesion.CaballoId,
                 Fecha = sesion.Fecha,
                 Hora = sesion.Hora
             };
@@ -49,7 +49,7 @@ namespace APIproyectoEquinoterapia.Data.Services
             var sesion = new Sesion
             {
                 InstructorId = sesionDTO.InstructorId,
-                Placa = sesionDTO.Placa,
+                CaballoId = sesionDTO.CaballoId,
                 Fecha = sesionDTO.Fecha,
                 Hora = sesionDTO.Hora
             };
@@ -67,7 +67,7 @@ namespace APIproyectoEquinoterapia.Data.Services
                 return false;
 
             sesion.InstructorId = sesionDTO.InstructorId;
-            sesion.Placa = sesionDTO.Placa;
+            sesion.CaballoId = sesionDTO.CaballoId;
             sesion.Fecha = sesionDTO.Fecha;
             sesion.Hora = sesionDTO.Hora;
 

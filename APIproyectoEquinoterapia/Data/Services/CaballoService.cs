@@ -2,10 +2,11 @@
 using APIproyectoEquinoterapia.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Numerics;
 
 namespace APIproyectoEquinoterapia.Data.Services
 
-{ 
+{
 
     public class CaballoService
     {
@@ -18,11 +19,214 @@ namespace APIproyectoEquinoterapia.Data.Services
             _context = context;
         }
 
-        public async Task<(IEnumerable<CaballoDTO>,string)> GetCaballosAsync()
+//////////////////////
+        public async Task<(IEnumerable<CaballoDto>, string)> GetAllAsync()
         {
-            var caballos = await _context.caballo
-                    .Select(c => new CaballoDTO
+            var caballos = new List<CaballoDto>();
+            try
+            {
+                caballos = await GetAllCaballos();
+            }
+            catch (Exception ex)
+            {
+                var mensaje = $"Error al obtener los caballos: {ex.Message}";
+                return (Enumerable.Empty<CaballoDto>(), mensaje);
+            }
+
+            if (caballos.Count == 0)
+            {
+                var mensaje = "No se encontro ningun caballoId";
+                return (Enumerable.Empty<CaballoDto>(), mensaje);
+            }
+
+            return (caballos, "Lista de caballos devulelta satisfactoriamente");
+        }
+
+        //////////////////////
+        public async Task<(CaballoDto?, string)> GetByIdAsync(int caballoId)
+        {
+            var caballo = null as Caballo;
+            try
+            {
+                caballo = await GetCaballoById(caballoId);
+            }
+            catch (Exception ex)
+            {
+                var mensaje = $"Error al obtener el caballo: {ex.Message}";
+                return (null, mensaje);
+            }
+            if (IsNull(caballo))
+            {
+                var mensaje = "Caballo no encontrado";
+                return (null, mensaje);
+            }
+
+            return (MapToCaballoDto(caballo!), "Caballo encontrado");
+        }
+
+////////////////////
+        public async Task<(bool, string)> CreateAsync(CaballoCreationDto caballoCreationDto)
+        {
+            if (ValidateCaballoData(caballoCreationDto))
+            {
+                var mensaje = "Datos del Caballo incompletos";
+                return (false, mensaje);
+            }
+
+
+            var nuevoCaballo = new Caballo
+            {
+                Placa = caballoCreationDto.Placa,
+                Nombre = caballoCreationDto.Nombre,
+                Estado = EstadoCaballo.Disponible,
+                FechaHerraje = caballoCreationDto.FechaHerraje,
+                Padecimiento = caballoCreationDto.Padecimiento,
+            };
+
+            try
+            {
+                _context.caballo.Add(nuevoCaballo);
+                await _context.SaveChangesAsync();
+                return (true, "Caballo agregado correctamente");
+            }
+            catch (Exception ex)
+            {
+                var mensaje = $"Error al agregar el caballo: {ex.Message}";
+                return (false, mensaje);
+
+
+            }
+        }
+
+//////////////////////
+        public async Task<(bool, string)> UpdateAllAsync(CaballoDto caballoDto, int caballoId)
+        {
+            if(caballoDto.CaballoId != caballoId) { 
+                var mensaje = "El ID del caballo no coincide";
+                return (false, mensaje);
+            }
+
+            if (ValidateCaballoData(caballoDto))
+            {
+                var mensaje = "Datos del caballo incompletos";
+                return (false, mensaje);
+            }
+
+            var caballo = await GetCaballoById(caballoId);
+            if (IsNull(caballo))
+            {
+                var mensaje = "Caballo no encontrado";
+                return (false, mensaje);
+            }
+
+
+            caballo!.Placa = caballoDto.Placa!;
+            caballo.Nombre = caballoDto.Nombre!;
+            caballo.Estado = GetEstado(caballoDto.Estado!, caballo!.Estado);
+            caballo.FechaHerraje = caballoDto.FechaHerraje!.Value;
+            caballo.Padecimiento = caballoDto.Padecimiento!;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return (true, "Caballo actualizado correctamente");
+            }
+            catch (Exception ex)
+            {
+                var mensaje = $"Error al actualizar el caballo: {ex.Message}";
+                return (false, mensaje);
+            }
+        }
+
+//////////////////////
+        public async Task<(bool, string)> UpdatePartialAsync(CaballoDto caballoDto, int caballoId)
+        {
+            if(caballoDto.CaballoId != caballoId) { 
+                var mensaje = "El ID del caballo no coincide";
+                return (false, mensaje);
+            }
+
+            var caballo = await GetCaballoById(caballoId);
+            if (IsNull(caballo))
+            {
+                var mensaje = "Caballo no encontrado";
+                return (false, mensaje);
+            }
+
+            if (!IsEmpty(caballoDto.Placa)) { 
+                caballo!.Placa = caballoDto.Placa!;
+            }
+
+            if (!IsEmpty(caballoDto.Nombre)) { 
+                caballo!.Nombre = caballoDto.Nombre!;
+            }
+
+            if (!IsEmpty(caballoDto.Estado)) { 
+                caballo!.Estado = GetEstado(caballoDto.Estado!, caballo!.Estado);
+            }
+
+            if (!IsNull(caballoDto.FechaHerraje)) { 
+                caballo!.FechaHerraje = caballoDto.FechaHerraje!.Value;
+            }
+
+            if (!IsEmpty(caballoDto.Padecimiento)) { 
+                caballo!.Padecimiento = caballoDto.Padecimiento!;
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return (true, "Caballo actualizado correctamente");
+            }
+            catch (Exception ex)
+            {
+                var mensaje = $"Error al actualizar el caballo: {ex.Message}";
+                return (false, mensaje);
+            }
+        }
+
+//////////////////////
+        public async Task<(bool, string)> DeleteAsync(int caballoId)
+        {
+            var caballo = await GetCaballoById(caballoId);
+            if (IsNull(caballo))
+            {
+                var mensaje = "Caballo no encontrado";
+                return (false, mensaje);
+            }
+
+            var tieneSesiones = await CaballoHasSesiones(caballoId);
+            if (tieneSesiones)
+            {
+                var mensaje = "No se puede eliminar el caballo porque tiene sesiones asociadas.";
+                return (false, mensaje);
+            }
+
+            try
+            {
+                _context.caballo.Remove(caballo!);
+                await _context.SaveChangesAsync();
+                return (true, "Caballo eliminado correctamente");
+            }
+            catch (Exception ex)
+            {
+                var mensaje = $"Error al eliminar el caballo: {ex.Message}";
+                return (false, mensaje);
+            }
+        }
+
+
+
+
+
+
+//////////////////////
+        private async Task<List<CaballoDto>> GetAllCaballos()
+        {
+            return await _context.caballo
+                    .Select(c => new CaballoDto
                     {
+                        CaballoId = c.CaballoId,
                         Placa = c.Placa,
                         Nombre = c.Nombre,
                         Estado = c.Estado.ToString(),
@@ -30,112 +234,88 @@ namespace APIproyectoEquinoterapia.Data.Services
                         Padecimiento = c.Padecimiento,
                     })
                     .ToListAsync();
-
-            if (caballos == null || !caballos.Any())
-            {
-                var mensaje = "No se encontro ningun caballo";
-                return (Enumerable.Empty<CaballoDTO>(), mensaje);
-            }
-
-            return (caballos,"Lista de caballos devulelta satisfactoriamente");
         }
 
-        public async Task<(CaballoDTO?,string)> GetCaballoAsync(string placa) 
+//////////////////////
+        private async Task<Caballo?> GetCaballoById(int caballoId)
         {
+            return await _context.caballo.FindAsync(caballoId);
+        }
 
-            var caballo = await _context.caballo.FindAsync(placa);
-            if (caballo == null)
+//////////////////////
+        private bool IsNull(object? objeto)
+        {
+            if (objeto == null)
             {
-                var mensaje = "Caballo no encontrado";
-                return (null,mensaje);
+                return true;
             }
 
-            return (new CaballoDTO
+            return false;
+
+        }
+
+//////////////////////
+        private CaballoDto MapToCaballoDto(Caballo caballo)
+
+        {
+            return new CaballoDto
             {
+                CaballoId = caballo.CaballoId,
                 Placa = caballo.Placa,
                 Nombre = caballo.Nombre,
                 Estado = caballo.Estado.ToString(),
                 FechaHerraje = caballo.FechaHerraje,
                 Padecimiento = caballo.Padecimiento,
-            },"Caballo devulelta satisfactoriamente");
-        }
-
-
-        public async Task<(bool,string)> PutCaballoAsync(string placa, CaballoDTO caballoDTO)
-        {
-            var caballo = await _context.caballo.FindAsync(placa);
-            if (caballo == null)
-            {
-                var mensaje = "Caballo no encontrado";
-                return (false,mensaje);
-            }
-
-            if (!Enum.TryParse<EstadoCaballo>(caballoDTO.Estado, out var estadoValido))
-            {
-                var mensaje = "Estado no valido";
-                return (false,mensaje);
-            }
-
-            caballo.Nombre = caballoDTO.Nombre ?? caballo.Nombre;
-            caballo.Estado = estadoValido;
-            caballo.FechaHerraje = caballoDTO.FechaHerraje;
-            caballo.Padecimiento = caballoDTO.Padecimiento;
-
-            await _context.SaveChangesAsync();
-            return (false,"Caballo "+placa+" actualizado correctamente");
-        }
-
-        public async Task<(bool,string)> PostCaballoAsync(CaballoDTO caballoDTO) 
-        {
-
-            if (caballoDTO.Placa == null || caballoDTO == null) 
-            {
-                var mensaje = "La placa es obligatoria";
-                return (false, mensaje);
-            }
-
-            if (!_context.caballo.Any(c => c.Placa == caballoDTO.Placa)) 
-            {
-                var mensaje = "Ya existe un caballo con esa placa";
-                return (false, mensaje);
-            }
-
-            if (!Enum.TryParse<EstadoCaballo>(caballoDTO.Estado, out var estadoValido))
-            {
-                var mensaje = "Estado no valido";
-                return (false, mensaje);
-            }
-
-
-            var nuevoCaballo = new Caballo
-            {
-                Placa = caballoDTO.Placa,
-                Nombre = caballoDTO.Nombre ?? "",
-                Estado = estadoValido,
-                FechaHerraje = caballoDTO.FechaHerraje,
-                Padecimiento = caballoDTO.Padecimiento,
             };
-
-            _context.caballo.Add(nuevoCaballo);
-            await _context.SaveChangesAsync();
-            return (true,"Caballo " +caballoDTO.Placa + " agregado correctamente");
-      
-           
         }
 
+//////////////////////
+        private async Task<bool> CaballoHasSesiones(int caballoId)
+        {
+            return await _context.sesion.AnyAsync(s => s.CaballoId == caballoId);
+        }   
 
-        //public async Task<bool> DeleteCaballoAsync(string placa) 
-        //{
-        //    var caballo = await _context.caballo.FindAsync(placa);
-        //    if (caballo == null)
-        //        return false;
-        //    _context.caballo.Remove(caballo);
-        //    await _context.SaveChangesAsync();
-        //    return true;
-        //}
+//////////////////////
+        private bool IsEmpty(string? str)
+        {
 
+            return string.IsNullOrWhiteSpace(str);
+        }
 
+//////////////////////
+        private bool ValidateCaballoData(CaballoCreationDto caballoCreationDto)
+        {
+            if (IsEmpty(caballoCreationDto.Placa)
+                || IsEmpty(caballoCreationDto.Nombre)
+                || IsEmpty(caballoCreationDto.Padecimiento)
+                || IsNull(caballoCreationDto.FechaHerraje))
+            {
+                return true;
+            }
+            return false;
+        }
 
+//////////////////////
+        private bool ValidateCaballoData(CaballoDto caballoDto)
+        {
+            if (IsEmpty(caballoDto.Placa)
+                || IsEmpty(caballoDto.Nombre)
+                || IsEmpty(caballoDto.Padecimiento)
+                || IsNull(caballoDto.FechaHerraje)
+                || IsEmpty(caballoDto.Estado))
+            {
+                return true;
+            }
+            return false;
+        }
+
+//////////////////////
+        private EstadoCaballo GetEstado (string estado,EstadoCaballo estadoActual)
+        {
+            if (Enum.TryParse<EstadoCaballo>(estado, out var estadoNuevo))
+                return estadoNuevo;
+            return estadoActual;
+        }
 
     }
 }

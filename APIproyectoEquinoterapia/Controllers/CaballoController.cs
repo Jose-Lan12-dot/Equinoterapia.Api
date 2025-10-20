@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace APIproyectoEquinoterapia.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CaballoController : ControllerBase
@@ -19,77 +19,86 @@ namespace APIproyectoEquinoterapia.Controllers
             _caballoService = caballoservice;
         }
 
-        
-        [HttpGet("obtener")]
-        public async Task<ActionResult<IEnumerable<CaballoDTO>>> GetCaballos()
+//////////////////////
+        [HttpGet("obtener-todos")]
+        public async Task<ActionResult<IEnumerable<CaballoDto>>> GetAll()
         {
-            var (caballos,mensaje) = await _caballoService.GetCaballosAsync();
+            var (caballos, mensaje) = await _caballoService.GetAllAsync();
 
-            if (caballos == null || !caballos.Any())
-                
+            if (caballos.Count() == 0)
+
                 return NotFound(mensaje);
 
-            return Ok(caballos);
+            return Ok(new {mensaje, caballos});
         }
 
-        
-        [HttpGet("obtener/{placa}")]
-        public async Task<ActionResult<CaballoDTO>> GetCaballo(string placa)
+ //////////////////////
+        [HttpGet("obtener-por-id/{caballoId}")]
+        public async Task<ActionResult<CaballoDto>> GetById(int caballoId)
         {
-            var (caballo, mensaje) = await _caballoService.GetCaballoAsync(placa);
+            var (caballo, mensaje) = await _caballoService.GetByIdAsync(caballoId);
 
             if (caballo == null)
             {
                 return NotFound(mensaje);
             }
 
-            return Ok(caballo);
+            return Ok(new {mensaje,caballo });
         }
 
-        
-        [HttpPut("actualizar/{placa}")]
-        public async Task<IActionResult> PutCaballo(string placa, CaballoDTO caballoDTO)
+//////////////////////
+        [HttpPost("agregar")]
+        public async Task<IActionResult> Create(CaballoCreationDto caballoCreationDto)
         {
-           
-            if (placa != caballoDTO.Placa)
+
+            var (exito, mensaje) = await _caballoService.CreateAsync(caballoCreationDto);
+
+            if (!exito)
             {
-                return BadRequest();
+                return Conflict(mensaje);
+            }
+            return Ok(mensaje);
+        }
+
+//////////////////////
+        [HttpPut("actualizar-todo/{caballoId}")]
+        public async Task<ActionResult<CaballoDto>> UpdateAll(CaballoDto caballoDto, int caballoId)
+        {
+
+            var (exito, mensaje) = await _caballoService.UpdateAllAsync(caballoDto,caballoId);
+            if (!exito)
+            {
+                return NotFound(mensaje);
             }
 
-            var (respuesta, mensaje) = await _caballoService.PutCaballoAsync(placa, caballoDTO);
+            return Ok(mensaje);
+        }
 
-            if (!respuesta) 
+//////////////////////
+        [HttpPut("actualizar-parcialmente/{caballoId}")]
+        public async Task<ActionResult<CaballoDto>> UpdatePartial(CaballoDto caballoDto, int caballoId)
+        {
+
+            var (exito, mensaje) = await _caballoService.UpdatePartialAsync(caballoDto, caballoId);
+            if (!exito)
+            {
+                return NotFound(mensaje);
+            }
+
+            return Ok(mensaje);
+        }
+
+        //////////////////////
+        [HttpDelete("eliminar/{caballoId}")]
+        public async Task<IActionResult> Delete(int caballoId)
+        {
+            var (exito, mensaje) = await _caballoService.DeleteAsync(caballoId);
+            if (!exito)
             {
                 return NotFound(mensaje);
             }
             return Ok(mensaje);
         }
 
-        
-        [HttpPost("agregar")]
-        public async Task<ActionResult<CaballoDTO>> PostCaballo(CaballoDTO caballoDTO)
-        {
-
-            var (respuesta, mensaje) = await _caballoService.PostCaballoAsync(caballoDTO);
-            if (!respuesta)
-            {
-                return  NotFound(mensaje);
-            }
-
-            return Ok(mensaje);
-        }
-
-        
-        //[HttpDelete("eliminar/{placa}")]
-        //public async Task<IActionResult> DeleteCaballo(string placa)
-        //{
-        //    var (respuesta,mensaje) = await _caballoService.DeleteCaballoAsync(placa);
-        //    if (!respuesta)
-        //    {
-        //        return NotFound(mensaje);
-        //    }
-
-        //    return Ok(mensaje);
-        //}
     }
 }
