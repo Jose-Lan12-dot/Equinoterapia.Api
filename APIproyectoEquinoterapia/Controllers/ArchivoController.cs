@@ -12,7 +12,7 @@ namespace APIproyectoEquinoterapia.Controllers
     [ApiController]
     public class ArchivoController : ControllerBase
     {
-        
+
         private readonly ArchivoService _archivoService;
         public ArchivoController(ArchivoService archivoService)
         {
@@ -20,10 +20,10 @@ namespace APIproyectoEquinoterapia.Controllers
         }
 
 
-        [HttpGet("obtener/{archivoRequerido}")]
-        public async Task<IActionResult> GetArchivo(int pacienteId, string archivoRequerido)
+        [HttpGet("obtener/{nombreArchivo}")]
+        public async Task<IActionResult> Get(int pacienteId, string nombreArchivo)
         {
-            var (archivo,mensaje,tipo) = await _archivoService.GetArchivoAsync(archivoRequerido, pacienteId);
+            var (archivo, mensaje, tipo) = await _archivoService.Getsync(nombreArchivo, pacienteId);
             if (archivo == null || archivo.Length == 0)
                 return NotFound(mensaje);
 
@@ -36,30 +36,29 @@ namespace APIproyectoEquinoterapia.Controllers
             return Ok(File(archivo, contentType));
         }
 
-        [HttpPut("actualizar/{archivoRequerido}")]
-        public async Task<IActionResult> PutArchivo(ArchivoDTO archivoDTO)
-        {
-            var (exito,mensaje) = await _archivoService.PutArchivoAsync(archivoDTO);
-            if (!exito)
-                return NotFound(mensaje);
-            return Ok(mensaje);
-        }
-
-
         [HttpPost("agregar")]
-        public async Task<IActionResult> PostArchivo(ArchivoDTO archivoDTO)
+        public async Task<IActionResult> Add(ArchivoDto archivoDTO, int pacienteId)
         {
-            var (exito,mensaje) = await _archivoService.PostArchivoAsync(archivoDTO);
+            var (exito, mensaje) = await _archivoService.AddAsync(archivoDTO, pacienteId);
             if (!exito)
                 return NotFound(mensaje);
             return Ok(mensaje);
         }
 
-        [HttpDelete("eliminar")]
-        public async Task<IActionResult> DeleteArchivo(int pacienteId, string archivoRequerido)
+        [HttpPut("actualizar/{pacienteId}")]
+        public async Task<IActionResult> Update(ArchivoDto archivoDTO, int pacienteId)
         {
-            var (respuesta,mensaje) = await _archivoService.DeleteArchivoAsync(pacienteId, archivoRequerido);
-            if (!respuesta)
+            var (exito, mensaje) = await _archivoService.UpdateAsync(archivoDTO, pacienteId);
+            if (!exito)
+                return NotFound(mensaje);
+            return Ok(mensaje);
+        }
+
+        [HttpDelete("eliminar/{pacienteId}")]
+        public async Task<IActionResult> Delete(int pacienteId, string archivoRequerido)
+        {
+            var (exito,mensaje) = await _archivoService.DeleteAsync(archivoRequerido, pacienteId);
+            if (!exito)
                 return NotFound(mensaje);
             return Ok(mensaje);
         }

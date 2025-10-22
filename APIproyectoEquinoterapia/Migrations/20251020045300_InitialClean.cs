@@ -266,7 +266,7 @@ namespace APIproyectoEquinoterapia.Migrations
 
             migrationBuilder.InsertData(
                 table: "tipo_archivo",
-                columns: new[] { "tipo_archivo_id", "extension", "nombre" },
+                columns: new[] { "tipo_archivo_id", "extension", "Nombre" },
                 values: new object[,]
                 {
                     { 1, ".pdf", "DiagnosticoMedico" },

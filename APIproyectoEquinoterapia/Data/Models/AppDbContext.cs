@@ -29,7 +29,7 @@ public partial class AppDbContext : DbContext
     public DbSet<Respuestas> respuestas { get; set; }
     public DbSet<Preguntas> preguntas { get; set; }
     public DbSet<Archivos> archivo { get; set; }
-    public DbSet<TipoArchivo> tipoArchivos { get; set; }
+    public DbSet<TipoArchivo> tipoArchivo { get; set; }
     public DbSet<InicioSesion> inicioSesion { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -55,7 +55,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(20)
                 .IsUnicode(false)
-                .HasColumnName("nombre");
+                .HasColumnName("Nombre");
             entity.Property(e => e.Padecimiento)
                 .HasMaxLength(255)
                 .IsUnicode(false)
@@ -91,7 +91,7 @@ public partial class AppDbContext : DbContext
             entity.Property(i => i.Nombre)
                 .HasMaxLength(100)
                 .IsUnicode(false)
-                .HasColumnName("nombre");
+                .HasColumnName("Nombre");
             entity.Property(i => i.Telefono)
                 .HasMaxLength(10)
                 .IsUnicode(false)
@@ -123,7 +123,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(100)
                 .IsUnicode(false)
-                .HasColumnName("nombre");
+                .HasColumnName("Nombre");
             entity.Property(e => e.TelefonoTutor)
                 .HasMaxLength(10)
                 .IsUnicode(false)
@@ -235,8 +235,8 @@ public partial class AppDbContext : DbContext
             entity.Property(a => a.PacienteId)
                 .HasColumnName("paciente_id");
 
-            entity.Property(a => a.TipoArchivoId)
-                .HasColumnName("tipo_archivo_id");
+            entity.Property(a => a.TipoId)
+                .HasColumnName("archivo_permitido_id");
 
             entity.Property(a => a.Archivo).HasColumnName("archivo");
 
@@ -246,23 +246,23 @@ public partial class AppDbContext : DbContext
                   .HasForeignKey(archivo => archivo.PacienteId);
 
             // Contrato #2: Relación entre Archivo y TipoArchivo
-            entity.HasOne(archivo => archivo.TipoArchivo)
+            entity.HasOne(archivo => archivo.TiposArchivo)
                   .WithMany(tipoArchivo => tipoArchivo.Archivos)
-                  .HasForeignKey(archivo => archivo.TipoArchivoId);
+                  .HasForeignKey(archivo => archivo.TipoId);
 
         });
 
 
         modelBuilder.Entity<TipoArchivo>(entity =>
         {
-            entity.ToTable("tipo_archivo");
-            entity.HasKey(t => t.TipoArchivoId);
+            entity.ToTable("tipos_archivos");
+            entity.HasKey(t => t.TipoId);
 
-            entity.Property(t => t.TipoArchivoId)
-                .HasColumnName("tipo_archivo_id");
+            entity.Property(t => t.TipoId)
+                .HasColumnName("tipo_id");
 
             entity.Property(t => t.Nombre)
-                .HasColumnName("nombre");
+                .HasColumnName("Nombre");
 
             entity.Property(t => t.Extension)
                 .HasColumnName("extension");
@@ -299,13 +299,13 @@ public partial class AppDbContext : DbContext
 
 
         modelBuilder.Entity<TipoArchivo>().HasData(
-            new TipoArchivo { TipoArchivoId = 1, Nombre = "DiagnosticoMedico", Extension = ".pdf" },
-            new TipoArchivo { TipoArchivoId = 2, Nombre = "CertificadoMedico", Extension = ".pdf" },
-            new TipoArchivo { TipoArchivoId = 3, Nombre = "ActaNacimiento", Extension = ".pdf" },
-            new TipoArchivo { TipoArchivoId = 4, Nombre = "Curp", Extension = ".pdf" },
-            new TipoArchivo { TipoArchivoId = 5, Nombre = "ComprobanteDomicilio", Extension = ".pdf" },
-            new TipoArchivo { TipoArchivoId = 6, Nombre = "IneTutor", Extension = ".pdf" },
-            new TipoArchivo { TipoArchivoId = 7, Nombre = "Fotografia", Extension = ".jpg" }
+            new TipoArchivo { TipoId = 1, Nombre = "DiagnosticoMedico", Extension = ".pdf" },
+            new TipoArchivo { TipoId = 2, Nombre = "CertificadoMedico", Extension = ".pdf" },
+            new TipoArchivo { TipoId = 3, Nombre = "ActaNacimiento", Extension = ".pdf" },
+            new TipoArchivo { TipoId = 4, Nombre = "Curp", Extension = ".pdf" },
+            new TipoArchivo { TipoId = 5, Nombre = "ComprobanteDomicilio", Extension = ".pdf" },
+            new TipoArchivo { TipoId = 6, Nombre = "IneTutor", Extension = ".pdf" },
+            new TipoArchivo { TipoId = 7, Nombre = "Fotografia", Extension = ".jpg" }
         );
 
 

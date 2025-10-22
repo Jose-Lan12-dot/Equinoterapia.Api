@@ -40,7 +40,7 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasColumnType("int")
                         .HasColumnName("paciente_id");
 
-                    b.Property<int>("TipoArchivoId")
+                    b.Property<int>("TipoId")
                         .HasColumnType("int")
                         .HasColumnName("tipo_archivo_id");
 
@@ -48,19 +48,19 @@ namespace APIproyectoEquinoterapia.Migrations
 
                     b.HasIndex("PacienteId");
 
-                    b.HasIndex("TipoArchivoId");
+                    b.HasIndex("TipoId");
 
                     b.ToTable("archivos", (string)null);
                 });
 
             modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Archivo_.TipoArchivo", b =>
                 {
-                    b.Property<int>("TipoArchivoId")
+                    b.Property<int>("TipoId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("tipo_archivo_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TipoArchivoId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TipoId"));
 
                     b.Property<string>("Extension")
                         .IsRequired()
@@ -70,9 +70,9 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnName("nombre");
+                        .HasColumnName("Nombre");
 
-                    b.HasKey("TipoArchivoId");
+                    b.HasKey("TipoId");
 
                     b.ToTable("tipo_archivo", (string)null);
 
@@ -144,7 +144,7 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasMaxLength(20)
                         .IsUnicode(false)
                         .HasColumnType("varchar(20)")
-                        .HasColumnName("nombre");
+                        .HasColumnName("Nombre");
 
                     b.Property<string>("Padecimiento")
                         .IsRequired()
@@ -420,7 +420,7 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasMaxLength(100)
                         .IsUnicode(false)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("nombre");
+                        .HasColumnName("Nombre");
 
                     b.Property<string>("Telefono")
                         .IsRequired()
@@ -449,11 +449,11 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("estado");
 
-                    b.Property<DateOnly?>("FechaNacimiento")
+                    b.Property<DateOnly>("FechaNacimiento")
                         .HasColumnType("date")
                         .HasColumnName("fecha_nacimiento");
 
-                    b.Property<DateTime?>("FechaRegistro")
+                    b.Property<DateTime>("FechaRegistro")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
                         .HasColumnName("fecha_registro")
@@ -465,12 +465,14 @@ namespace APIproyectoEquinoterapia.Migrations
                         .HasColumnName("genero");
 
                     b.Property<string>("Nombre")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("nombre");
+                        .HasColumnName("Nombre");
 
                     b.Property<string>("TelefonoTutor")
+                        .IsRequired()
                         .HasMaxLength(10)
                         .IsUnicode(false)
                         .HasColumnType("char(10)")
@@ -478,6 +480,7 @@ namespace APIproyectoEquinoterapia.Migrations
                         .IsFixedLength();
 
                     b.Property<string>("Tutor")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
                         .HasColumnType("varchar(100)")
@@ -533,7 +536,7 @@ namespace APIproyectoEquinoterapia.Migrations
 
                     b.HasOne("APIproyectoEquinoterapia.Data.Models.Archivo_.TipoArchivo", "TipoArchivo")
                         .WithMany("Archivos")
-                        .HasForeignKey("TipoArchivoId")
+                        .HasForeignKey("TipoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

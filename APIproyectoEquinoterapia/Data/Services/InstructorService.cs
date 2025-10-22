@@ -229,6 +229,15 @@ namespace APIproyectoEquinoterapia.Data.Services
         }
 
 //////////////////////
+        private async Task<bool> InstructorHasSesiones(int instructorId)
+        {
+            return await _context.sesion.AnyAsync(s => s.InstructorId == instructorId);
+        }
+
+
+
+
+//////////////////////
         private InstructorDto MapToInstructorDto(Instructor instructor)
         {
             return new InstructorDto
@@ -238,12 +247,6 @@ namespace APIproyectoEquinoterapia.Data.Services
                 Telefono = instructor.Telefono,
                 Estado = instructor.Estado.ToString()
             };
-        }
-
-//////////////////////
-        private async Task<bool> InstructorHasSesiones(int instructorId)
-        {
-            return await _context.sesion.AnyAsync(s => s.InstructorId == instructorId);
         }
 
 //////////////////////

@@ -42,7 +42,7 @@ namespace APIproyectoEquinoterapia.Data.Services
             return (caballos, "Lista de caballos devulelta satisfactoriamente");
         }
 
-        //////////////////////
+//////////////////////
         public async Task<(CaballoDto?, string)> GetByIdAsync(int caballoId)
         {
             var caballo = null as Caballo;
@@ -243,6 +243,15 @@ namespace APIproyectoEquinoterapia.Data.Services
         }
 
 //////////////////////
+        private async Task<bool> CaballoHasSesiones(int caballoId)
+        {
+            return await _context.sesion.AnyAsync(s => s.CaballoId == caballoId);
+        }
+
+
+
+
+//////////////////////
         private bool IsNull(object? objeto)
         {
             if (objeto == null)
@@ -268,12 +277,6 @@ namespace APIproyectoEquinoterapia.Data.Services
                 Padecimiento = caballo.Padecimiento,
             };
         }
-
-//////////////////////
-        private async Task<bool> CaballoHasSesiones(int caballoId)
-        {
-            return await _context.sesion.AnyAsync(s => s.CaballoId == caballoId);
-        }   
 
 //////////////////////
         private bool IsEmpty(string? str)

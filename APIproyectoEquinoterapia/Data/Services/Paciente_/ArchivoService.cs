@@ -18,124 +18,132 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
         }
 
 
-
-        public async Task<(byte[]?,string,string)> GetArchivoAsync(string nombreArchivo, int pacienteId)
+//////////////////////
+        public async Task<(byte[]?,string,string)> Getsync(string nombreArchivo, int pacienteId)
         {
-            var tipoArchivo = await _context.tipoArchivos.
-                FirstOrDefaultAsync(t => t.Nombre == nombreArchivo);
+            var tipoArchivo = await GetTipoArchivo(nombreArchivo);
 
-            if(EsNulo(tipoArchivo))
+            if (IsNull(tipoArchivo))
             {
-                var mensaje = "Tipo de archivoActual no encontrado";
+                var mensaje = "Tipo de archivo no encontrado";
                 return (null,mensaje,"");
             }
 
 
-            var archivo = await _context.archivo
-                .Where(a => a.PacienteId == pacienteId && a.TipoArchivoId == tipoArchivo!.TipoArchivoId)
-                .Select(p => p.Archivo)
-                .FirstOrDefaultAsync();
+            var archivo = await GetArchivo(pacienteId, tipoArchivo!.TipoId);
 
-            if (EsNulo(archivo))
+            if (IsNull(archivo))
             {
                 var mensaje = "Archivo no encontrado";
                 return (null,mensaje,"");
             }
 
-            return (archivo,"Archivos encontrado",tipoArchivo.Extension);
+            return (archivo!.Archivo,"Archivos encontrado",tipoArchivo!.Extension);
         }
 
-
-        public async Task<(bool,string)> PutArchivoAsync(ArchivoDTO archivoDTO)
+//////////////////////
+        public async Task<(bool, string)> AddAsync(ArchivoDto archivoDto, int pacienteId)
         {
-            if (EsNulo(archivoDTO.Archivo))
+            if (ValidateFileData(archivoDto))
             {
-                var mensaje = "Sin Archivo";
+                var mensaje = "Entrada no valida";
                 return (false, mensaje);
             }
 
-            var tipoArchivoId = await ObtenerTipoArchivoId(archivoDTO.nombre);
-
-            if (EsNulo(tipoArchivoId))
+            var tipoId = await GetTipoId(archivoDto.Nombre!);
+            if (tipoId == 0)
             {
-                var mensaje = "Tipo de archivoActual no aceptado";
+                var mensaje = "Tipo de archivo no permitido";
                 return (false, mensaje);
             }
 
-            var archivoActual = await _context.archivo
-                .Where(a => a.PacienteId == archivoDTO.PacienteId
-                && a.TipoArchivoId == tipoArchivoId)
-                .Select(a => a.Archivo)
-                .FirstOrDefaultAsync();
+            if (!await PacienteExist(pacienteId))
+            {
+                var mensaje = "El paciente no existe";
+                return (false, mensaje);
+            }
 
-            if (EsNulo(archivoActual))
+            if (await ArchivoExist(tipoId, pacienteId))
+            {
+                var mensaje = "Archivo del paciente ya existe";
+                return (false, mensaje);
+            }
+
+            var nuevoArchivo = new Archivos
+            {
+                PacienteId = pacienteId,
+                TipoId = tipoId,
+                Archivo = await FileToArrayAsync(archivoDto.Archivo!)
+            };
+
+            try
+            {
+                _context.archivo.Add(nuevoArchivo);
+                await _context.SaveChangesAsync();
+                return (true, archivoDto.Nombre + " Agregado correctamnete");
+            }
+            catch (Exception ex)
+            {
+                var mensaje = "Error al agregar el archivo: " + ex.Message;
+                return (false, mensaje);
+            }
+        }
+
+//////////////////////
+        public async Task<(bool,string)> UpdateAsync(ArchivoDto archivoDto, int pacienteId)
+        {
+            if (ValidateFileData(archivoDto))
+            {
+                var mensaje = "Entrada no valida";
+                return (false, mensaje);
+            }
+
+            var tipoId = await GetTipoId(archivoDto.Nombre!);
+            if (tipoId == 0)
+            {
+                var mensaje = "Tipo de archivo no permitido";
+                return (false, mensaje);
+            }
+
+            var archivo = await GetArchivo(pacienteId, tipoId);
+            if (IsNull(archivo))
             {
                 var mensaje = "Archivo del paciente no existe";
                 return (false, mensaje);
             }
 
-            archivoActual = await ConvertirArchivoABytesAsync(archivoDTO.Archivo);
+            try
+            { 
+            archivo!.Archivo = await FileToArrayAsync(archivoDto.Archivo!);
             await _context.SaveChangesAsync();
-
-            return (true,archivoDTO.nombre + " Actualizado Correctamnete");
-        }
-
-        public async Task<(bool,string)> PostArchivoAsync(ArchivoDTO archivoDTO)
-        {
-            if (EsNulo(archivoDTO.Archivo))
-            {
-                var mensaje = "Sin Archivo";
-                return (false,mensaje);
+            return (true,archivoDto.Nombre + " Actualizado Correctamnete");
             }
-
-            var tipoArchivoId = await ObtenerTipoArchivoId(archivoDTO.nombre);
-            if (EsNulo(tipoArchivoId))
+            catch (Exception ex)
             {
-                var mensaje = "Tipo de archivoActual no aceptado";
+                var mensaje = "Error al actualizar el archivo: " + ex.Message;
                 return (false, mensaje);
             }
+        }
 
-            if (!await ArchivoExiste(archivoDTO.PacienteId, tipoArchivoId)) 
-            {
-                var mensaje = "Archivos del paciente ya existen";
-                return (false,mensaje);
-            }
+//////////////////////
+        public async Task<(bool,string)> DeleteAsync( string nombreArchivo, int pacienteId)
+        {
+
             
-            var nuevoArchivo = new Archivos
+            var tipoId = await GetTipoId(nombreArchivo);
+            if (tipoId == 0)
             {
-                PacienteId = archivoDTO.PacienteId,
-                TipoArchivoId = tipoArchivoId ?? 0,
-                Archivo = await ConvertirArchivoABytesAsync(archivoDTO.Archivo)
-            };
-
-            _context.archivo.Add(nuevoArchivo);
-            await _context.SaveChangesAsync();
-
-            return (true, archivoDTO.nombre + " Agregado correctamnete");
-        }
-
-
-        public async Task<(bool,string)> DeleteArchivoAsync(int pacienteId, string nombreArchivo)
-        {
-
-            var tipoArchivoId = await ObtenerTipoArchivoId(nombreArchivo);
-
-            if (EsNulo(tipoArchivoId))
-            {
-                var mensaje = "Tipo de archivoActual no encontrado";
+                var mensaje = "Tipo de archivo no permitido";
                 return (false, mensaje);
             }
 
-            var archivo = await _context.archivo
-                .Where(a => a.PacienteId == pacienteId
-                && a.TipoArchivoId == tipoArchivoId)
-                .FirstOrDefaultAsync();
-
-            if (EsNulo(archivo))
+            var archivo = await GetArchivo(pacienteId, tipoId);
+            if (IsNull(archivo))
             {
-                var mensaje = "Archivo no encontrado";
+                var mensaje = "Archivo del paciente no existe";
                 return (false, mensaje);
             }
+
 
             _context.archivo.Remove(archivo!);
             await _context.SaveChangesAsync();
@@ -145,31 +153,87 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
 
 
 
-        private async Task<byte[]?> ConvertirArchivoABytesAsync(IFormFile? archivo)
+
+
+
+
+
+
+//////////////////////
+        private async Task<bool> PacienteExist(int pacienteId)
+        {
+            return await _context.paciente
+                .AnyAsync(p => p.PacienteId == pacienteId);
+        }
+
+//////////////////////
+        private async Task<bool> ArchivoExist(int tipoId,int pacienteId)
+        {
+            return await _context.archivo
+                .AnyAsync(a => a.TipoId == tipoId && a.PacienteId == pacienteId);
+        }
+
+//////////////////////
+        private async Task<Archivos?> GetArchivo(int pacienteId, int tipoId)
+        {
+            return await _context.archivo
+                .FirstOrDefaultAsync(a => a.PacienteId == pacienteId && a.TipoId == tipoId);
+        }
+
+//////////////////////
+        private async Task<TipoArchivo?> GetTipoArchivo(string nombreArchivo)
+        {
+            return await _context.tipoArchivo
+                .FirstOrDefaultAsync(t => t.Nombre == nombreArchivo);
+        }
+
+//////////////////////
+        private async Task<int> GetTipoId(string nombreArchivo)
+        {
+            return await _context.tipoArchivo
+                .Where(t => t.Nombre == nombreArchivo)
+                .Select(t => t.TipoId)
+                .FirstOrDefaultAsync();
+        }
+
+//////////////////////
+        private async Task<byte[]> FileToArrayAsync(IFormFile archivo)
         {
             using var ms = new MemoryStream();
-            await archivo!.CopyToAsync(ms);
+            await archivo.CopyToAsync(ms);
             return ms.ToArray();
         }
 
-        private bool EsNulo(object? objeto)
+
+
+
+//////////////////////
+        private bool ValidateFileData(ArchivoDto? archivoDto)
+        {
+            if (IsNull(archivoDto)
+                ||IsEmpty(archivoDto!.Nombre)
+                || IsNull(archivoDto.Archivo)
+                || archivoDto.Archivo!.Length <= 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+//////////////////////
+        private bool IsEmpty(string? str)
+        {
+            return string.IsNullOrWhiteSpace(str);
+        }
+
+//////////////////////
+        private bool IsNull(object? objeto)
         {
             if (objeto == null)
             {
                 return true;
             }
             return false;
-        }
-        private async Task<bool> ArchivoExiste(int pacienteId, int? tipoArchivoId)
-        {
-            return await _context.archivo.AnyAsync(a => a.PacienteId == pacienteId && a.TipoArchivoId == tipoArchivoId);
-        }
-        private async Task<int?> ObtenerTipoArchivoId(string nombreArchivo)
-        {
-            return await _context.tipoArchivos
-                .Where(a => a.Nombre == nombreArchivo)
-                .Select(a => a.TipoArchivoId)
-                .FirstOrDefaultAsync();
         }
     }
 }

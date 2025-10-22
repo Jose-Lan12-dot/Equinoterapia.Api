@@ -60,7 +60,7 @@ namespace APIproyectoEquinoterapia.Controllers
             return Ok(mensaje);
         }
 //////////////////////
-        [HttpPut("actualizar-parcialmente/{instructorId}")]
+        [HttpPatch("actualizar-parcialmente/{instructorId}")]
         public async Task<IActionResult> UpdatePartial(InstructorDto instructorDto, int instructorId)
         {
             var (exito, mensaje) = await _instructorService.UpdatePartialAsync(instructorDto, instructorId);
