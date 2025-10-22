@@ -20,6 +20,7 @@ builder.Services.AddScoped<InstructorService>();
 builder.Services.AddScoped<EvaluacionService>();
 builder.Services.AddScoped<ArchivoService>();
 builder.Services.AddScoped<InicioSesionService>();
+builder.Services.AddScoped<RespuestasService>();
 
 //AUTENTICACION JWT (TOKEN)
 builder.Services.AddAuthentication(options =>

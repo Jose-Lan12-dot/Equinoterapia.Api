@@ -23,7 +23,7 @@ public class AllPacienteDto
 }
 
 
-public class PacienteCreationDto
+public class AddPacienteDto
 {
     public required string Nombre { get; set; }
     public required DateOnly FechaNacimiento { get; set; }

@@ -61,9 +61,9 @@ namespace APIproyectoEquinoterapia.Data.Services
         }
 
 //////////////////////
-        public async Task<(bool, string)> CreateAsync(InstructorCreationDto instructorCreationDto)
+        public async Task<(bool, string)> AddAsync(AddInstructorDto addInstructorDto)
         {
-            if (ValidateInstructorData(instructorCreationDto))
+            if (ValidateInstructorData(addInstructorDto))
             {
                 var mensaje = "Datos del instructor incompletos";
                 return (false, mensaje);
@@ -71,8 +71,8 @@ namespace APIproyectoEquinoterapia.Data.Services
 
             var nuevoInstructor = new Instructor
             {
-                Nombre = instructorCreationDto.Nombre,
-                Telefono = instructorCreationDto.Telefono,
+                Nombre = addInstructorDto.Nombre,
+                Telefono = addInstructorDto.Telefono,
                 Estado = EstadoInstructor.Activo
             };
 
@@ -250,10 +250,10 @@ namespace APIproyectoEquinoterapia.Data.Services
         }
 
 //////////////////////
-        private bool ValidateInstructorData(InstructorCreationDto instructorCreationDto)
+        private bool ValidateInstructorData(AddInstructorDto addInstructorDto)
         {
-            if (IsEmpty(instructorCreationDto.Telefono)
-                || IsEmpty(instructorCreationDto.Nombre))
+            if (IsEmpty(addInstructorDto.Telefono)
+                || IsEmpty(addInstructorDto.Nombre))
             {
                 return true;
             }

@@ -65,9 +65,9 @@ namespace APIproyectoEquinoterapia.Data.Services
         }
 
 ////////////////////
-        public async Task<(bool, string)> CreateAsync(CaballoCreationDto caballoCreationDto)
+        public async Task<(bool, string)> AddAsync(AddCaballoDto addCaballoDto)
         {
-            if (ValidateCaballoData(caballoCreationDto))
+            if (ValidateCaballoData(addCaballoDto))
             {
                 var mensaje = "Datos del Caballo incompletos";
                 return (false, mensaje);
@@ -76,11 +76,11 @@ namespace APIproyectoEquinoterapia.Data.Services
 
             var nuevoCaballo = new Caballo
             {
-                Placa = caballoCreationDto.Placa,
-                Nombre = caballoCreationDto.Nombre,
+                Placa = addCaballoDto.Placa,
+                Nombre = addCaballoDto.Nombre,
                 Estado = EstadoCaballo.Disponible,
-                FechaHerraje = caballoCreationDto.FechaHerraje,
-                Padecimiento = caballoCreationDto.Padecimiento,
+                FechaHerraje = addCaballoDto.FechaHerraje,
+                Padecimiento = addCaballoDto.Padecimiento,
             };
 
             try
@@ -286,12 +286,12 @@ namespace APIproyectoEquinoterapia.Data.Services
         }
 
 //////////////////////
-        private bool ValidateCaballoData(CaballoCreationDto caballoCreationDto)
+        private bool ValidateCaballoData(AddCaballoDto addCaballoDto)
         {
-            if (IsEmpty(caballoCreationDto.Placa)
-                || IsEmpty(caballoCreationDto.Nombre)
-                || IsEmpty(caballoCreationDto.Padecimiento)
-                || IsNull(caballoCreationDto.FechaHerraje))
+            if (IsEmpty(addCaballoDto.Placa)
+                || IsEmpty(addCaballoDto.Nombre)
+                || IsEmpty(addCaballoDto.Padecimiento)
+                || IsNull(addCaballoDto.FechaHerraje))
             {
                 return true;
             }

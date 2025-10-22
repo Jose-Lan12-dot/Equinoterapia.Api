@@ -1,4 +1,4 @@
-public class InstructorCreationDto
+public class AddInstructorDto
 {
     public required string Nombre { get; set; }
     public required string Telefono { get; set; }

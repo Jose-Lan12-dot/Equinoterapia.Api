@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
+﻿using APIproyectoEquinoterapia.Data.Models;
+using APIproyectoEquinoterapia.Data.Models.Evaluacion_;
+using APIproyectoEquinoterapia.DTOs;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Newtonsoft.Json.Bson;
 using System.Threading.Tasks;
-using APIproyectoEquinoterapia.Data.Models;
-using APIproyectoEquinoterapia.Data.Models.Evaluacion_;
-using APIproyectoEquinoterapia.DTOs.Evaluacion_;
 
 namespace APIproyectoEquinoterapia.Data.Services.Paciente_
 {
@@ -13,63 +13,216 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
     {
 
         private readonly AppDbContext _context;
+        private readonly RespuestasService _respuestasService;
 
-        public EvaluacionService(AppDbContext context) 
+        public EvaluacionService(AppDbContext context, RespuestasService respuestasService)
         {
             _context = context;
+            _respuestasService = respuestasService;
         }
 
-
-        public async Task<(EvaluacionDTO?,string)> GetEvaluacionAsync(int pacienteId)
+//////////////////////
+        public async Task<(EvaluacionDto?,string,string)> GetAsync(int pacienteId)
         {
-            var evaluacion = await _context.evaluacion.FirstOrDefaultAsync(e => e.PacienteId == pacienteId);
-
-            if (EsNulo(evaluacion))
+            var mensaje = "";
+            if (!await PacienteExist(pacienteId))
             {
-                var mensaje = "Evaluacion no encontrada";
-                return (null, mensaje);
+                mensaje = "Paciente no encontrado";
+                return (null,"", mensaje);
             }
 
-            var nombrePaciente = await _context.paciente
-                .Where(p => p.PacienteId == evaluacion.PacienteId)
-                .Select(p => p.Nombre)
-                .FirstOrDefaultAsync();
-
-            var paciente = await _context.paciente.FindAsync(evaluacion.PacienteId);
-            if (EsNulo(paciente))
+            var evaluacion = await GetEvaluacion(pacienteId);
+            if (IsNull(evaluacion))
             {
-                var mensaje = "Paciente no encontrado";
-                return (null, mensaje);
+                mensaje = "Evaluacion no encontrada";
+                return (null,"", mensaje);
             }
 
-            var (preguntas,aux) = await GetPreguntasAsync();
-            if (preguntas.Count == 0)
+            var nombrePaciente = await GetNombrePaciente(pacienteId);
+            var preguntas = Enumerable.Empty<PreguntasDto>();
+
+            (preguntas, mensaje) = await GetPreguntasAsync();
+            if (preguntas.Count() == 0)
             {
-                return (null, aux);
+                return (null,"", mensaje);
             }
 
-            var respuestas = await GetRespuestas(evaluacion.EvaluacionId);
-            if (respuestas.Count == 0)
+            var respuestas = Enumerable.Empty<RespuestasDto>();
+            (respuestas, mensaje) = await _respuestasService.Get(evaluacion!.EvaluacionId);
+            if (respuestas.Count() == 0)
             {
-                return (null, "Respuestas no encontradas");
+                return (null,"", mensaje);
             }
 
-            return (new EvaluacionDTO
+
+            return (new EvaluacionDto
             {
-                NombrePaciente = paciente?.Nombre ?? string.Empty,
-                Fecha = evaluacion.Fecha ?? DateOnly.MinValue,
+                Fecha = evaluacion.Fecha,
                 Preguntas = preguntas,
                 Respuestas = respuestas
-            }, "Evaluacion Encontrada");
+            },nombrePaciente ,"Evaluacion Encontrada");
 
         }
 
+//////////////////////
+        public async Task<(bool, string)> AddAsync(EvaluacionDto evaluacionDto, int pacienteId)
+        {
 
-        public async Task<(ICollection<PreguntasDTO>,string)> GetPreguntasAsync() { 
+            var mensaje = "";
+            if (!await PacienteExist(pacienteId))
+            {
+                mensaje = "Paciente no encontrado";
+                return (false, mensaje);
+            }
+
+
+            if (ValidateDataEvaluacion(evaluacionDto))
+            {
+                mensaje = "Datos de evaluación inválidos";
+                return (false, mensaje);
+            }
+
+            var numeroPreguntas = await _context.preguntas.CountAsync();
+            var numeroRespuestas = evaluacionDto.Respuestas.Count();
+            if (numeroPreguntas != numeroRespuestas)
+            {
+                mensaje = "El número de respuestas no coincide con el número de preguntas";
+                return (false, mensaje);
+            }
+
+
+            if (await EvaluacionExist(pacienteId))
+            {
+                mensaje = "Ya existe un evaluacion para este paciente";
+                return (false, mensaje);
+            }
+
+            var nuevaEvaluacion = new Evaluacion
+            {
+                PacienteId = pacienteId,
+                Fecha = evaluacionDto.Fecha
+            };
+            _context.evaluacion.Add(nuevaEvaluacion);
+
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                var exito = false;
+                (exito, mensaje) = await _respuestasService.Add(evaluacionDto.Respuestas, nuevaEvaluacion.EvaluacionId);
+                if (!exito)
+                {
+                    return (false, mensaje);
+                }
+
+                return (true, "Evaluacion guardada correctamente");
+            }
+            catch (Exception ex)
+            {
+                mensaje = "Error al guardar la evaluacion: " + ex.Message;
+                return (false, mensaje);
+            }
+        }
+
+//////////////////////
+        public async Task<(bool, string)> UpdateAsync(EvaluacionDto evaluacionDto, int pacienteId)
+        {
+            var mensaje = "";
+            if (!await PacienteExist(pacienteId))
+            {
+                mensaje = "Paciente_ no encontrado";
+                return (false, mensaje);
+            }
+
+
+            if (ValidateDataEvaluacion(evaluacionDto))
+            {
+                mensaje = "Datos de evaluación inválidos";
+                return (false, mensaje);
+            }
+
+            var numeroPreguntas = await _context.preguntas.CountAsync();
+            var numeroRespuestas = evaluacionDto.Respuestas.Count();
+            if (numeroPreguntas != numeroRespuestas)
+            {
+                mensaje = "El número de respuestas no coincide con el número de preguntas";
+                return (false, mensaje);
+            }
+
+            var evaluacion = await GetEvaluacion(pacienteId);
+            if (IsNull(evaluacion))
+            {
+                mensaje = "La evaluación no existe";
+                return (false, mensaje);
+            }
+
+            evaluacion!.Fecha = evaluacionDto.Fecha;
+            await _context.SaveChangesAsync();
+
+
+            try
+            {
+                var exito = false;
+                (exito, mensaje) = await _respuestasService.Update(evaluacionDto.Respuestas, evaluacion!.EvaluacionId);
+                if (!exito)
+                {
+                    return (false, mensaje);
+                }
+                return (true, "Evaluacion actualizada correctamente");
+            }
+            catch (Exception ex)
+            {
+                mensaje = "Error al actualizar la evaluacion: " + ex.Message;
+                return (false, mensaje);
+            }
+        }
+
+//////////////////////
+        public async Task<(bool, string)> DeleteAsync(int pacienteId)
+        {
+
+            var mensaje = "";
+            if (!await PacienteExist(pacienteId))
+            {
+                mensaje = "Paciente no encontrado";
+                return (false, mensaje);
+            }
+
+            var evaluacion = await GetEvaluacion(pacienteId);
+            if (IsNull(evaluacion))
+            {
+                mensaje = "La evaluacion no exite";
+                return (false, mensaje);
+            }
+
+            try
+            {
+                var exito = false;
+                (exito, mensaje) = await _respuestasService.Delete(evaluacion!.EvaluacionId);
+                if (!exito)
+                {
+                    return (false, mensaje);
+                }
+                _context.evaluacion.Remove(evaluacion!);
+                await _context.SaveChangesAsync();
+
+                return (true, "Evaluacion eliminada correctamente");
+            }
+            catch (Exception ex)
+            {
+                mensaje = "Error al eliminar la evaluacion: " + ex.Message;
+                return (false, mensaje);
+            }
+
+        }
+
+//////////////////////
+        public async Task<(IEnumerable<PreguntasDto>, string)> GetPreguntasAsync()
+        {
 
             var preguntas = await _context.preguntas
                 .OrderBy(p => p.PreguntaId)
-                .Select(p => new PreguntasDTO
+                .Select(p => new PreguntasDto
                 {
                     Orden = p.PreguntaId,
                     Pregunta = p.Pregunta,
@@ -82,158 +235,53 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
                 return (preguntas, mensaje);
             }
 
-            return (preguntas,"Preguntas encontradas");
-        }
-
-        private async Task<ICollection<RespuestasDTO>> GetRespuestas(int  evaluacionId) { 
-
-            return await _context.respuestas
-                .Where(r => r.EvaluacionId == evaluacionId)
-                .OrderBy(r => r.PreguntaId)
-                .Select(r => new RespuestasDTO
-                {
-                    PreguntaId = r.PreguntaId,
-                    Respuesta = r.Respuesta
-                })
-                .ToListAsync();
+            return (preguntas, "Preguntas encontradas");
         }
 
 
-        public async Task<(bool, string)> PostEvaluacionAsync(EvaluacionDTO evaluacionDTO, int pacienteId)
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////
+        private async Task<Evaluacion?> GetEvaluacion(int pacienteId)
         {
-
-            if (EsNulo(evaluacionDTO) || EsNulo(evaluacionDTO.Respuestas) 
-                ||!evaluacionDTO.Respuestas.Any())
-            {
-                var mensaje = "Evaluacion vacia";
-                return (false, mensaje);
-            }
-
-            var numeroPreguntas = await _context.preguntas.CountAsync();
-            var numeroRespuestas = evaluacionDTO.Respuestas.Count;
-            if (numeroPreguntas != numeroRespuestas)
-            {
-                var mensaje = "El número de respuestas no coincide con el número de preguntas";
-                return (false, mensaje);
-            }
-
-            if (!await PacienteExiste(pacienteId))
-            {
-                var mensaje = "Paciente_ no encontrado";
-                return (false, mensaje);
-            }
-
-            if (await EvaluacionExiste(pacienteId))
-            {
-                var mensaje = "Ya existe un evaluacion para este paciente";
-                return (false, mensaje);
-            }
-
-            var nuevaEvaluacion = new Evaluacion
-            {
-                PacienteId = pacienteId,
-                Fecha = evaluacionDTO.Fecha,
-            };
-
-            _context.evaluacion.Add(nuevaEvaluacion);
-            await _context.SaveChangesAsync();
-            AgregarRespuesta(evaluacionDTO.Respuestas, numeroRespuestas, nuevaEvaluacion.EvaluacionId);
-            await _context.SaveChangesAsync();
-
-            return (true, "Evaluacion guardada correctamente");
+            return await _context.evaluacion
+                .FirstOrDefaultAsync(e => e.PacienteId == pacienteId);
         }
 
-
-        private void AgregarRespuesta(ICollection<RespuestasDTO> respuestas, int numeroRespuestas, int evaluacionId) 
+//////////////////////
+        private async Task<string> GetNombrePaciente(int pacienteId)
         {
-            for (int i = 0; i < numeroRespuestas; i++)
-            {
-                var nuevaRespuesta = new Respuestas
-                {
-                    EvaluacionId = evaluacionId,
-                    PreguntaId = respuestas.ElementAtOrDefault(i)?.PreguntaId ?? 0,
-                    Respuesta = respuestas.ElementAtOrDefault(i)?.Respuesta ?? 0
-                };
-                _context.respuestas.Add(nuevaRespuesta);
-            }
-
+            return await _context.paciente
+                .Where(p => p.PacienteId == pacienteId)
+                .Select(p => p.Nombre)
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<(bool, string)> PutEvaluacionAsync(EvaluacionDTO evaluacionDTO, int pacienteId)
+ //////////////////////
+        private async Task<bool> PacienteExist(int pacienteId)
         {
-
-            if (EsNulo(evaluacionDTO) || EsNulo(evaluacionDTO.Respuestas) 
-                || !evaluacionDTO.Respuestas.Any())
-            {
-                var mensaje = "Evaluacion vacia";
-                return (false, mensaje);
-            }
-
-            if (!await PacienteExiste(pacienteId))
-            {
-                var mensaje = "Paciente_ no encontrado";
-                return (false, mensaje);
-            }
-
-            var evaluacion = await _context.evaluacion.FirstOrDefaultAsync(e => e.PacienteId == pacienteId);
-            if (EsNulo(evaluacion))
-            {
-                var mensaje = "La evaluación no existe";
-                return (false, mensaje);
-            }
-            evaluacion.Fecha = evaluacionDTO.Fecha;
-            await _context.SaveChangesAsync();
-            await ActualizarRespuesta(evaluacionDTO.Respuestas, evaluacion.EvaluacionId);
-            await _context.SaveChangesAsync();
-
-            return (true, "Evaluacion actualizada correctamente");
+            return await _context.paciente.AnyAsync(p => p.PacienteId == pacienteId);
         }
 
-
-        private async Task ActualizarRespuesta(ICollection<RespuestasDTO> nuevasRespuestas, int evaluacionId)
+//////////////////////
+        private async Task<bool> EvaluacionExist(int pacienteId)
         {
-            var listaRespuestas = await _context.respuestas
-                .Where(r => r.EvaluacionId == evaluacionId)
-                .ToListAsync();
-
-            foreach (var nuevaRespuesta in nuevasRespuestas)
-            {
-                var respuestaActual = listaRespuestas
-                    .FirstOrDefault(r => r.PreguntaId == nuevaRespuesta.PreguntaId);
-
-                if (!EsNulo(respuestaActual))
-                {
-                    respuestaActual.Respuesta = nuevaRespuesta.Respuesta;
-                    _context.respuestas.Update(respuestaActual);
-                }
-            }
-        }
-
-        public async Task<(bool, string)> DeleteEvaluacionAsync(int pacienteId)
-        {
-
-            var evaluacion = await _context.evaluacion.FirstOrDefaultAsync(e => e.PacienteId == pacienteId);
-            if (EsNulo(evaluacion))
-            {
-                var mensaje = "La evaluacion no exite";
-                return (false, mensaje);
-            }
-
-            var respuestas = await _context.respuestas
-                .Where(r => r.EvaluacionId == evaluacion.EvaluacionId)
-                .ToListAsync();
-
-            _context.respuestas.RemoveRange(respuestas);
-
-            _context.evaluacion.Remove(evaluacion);
-
-            await _context.SaveChangesAsync();
-
-            return (true, "Evaluacion borrado correctamente");
+            return await _context.evaluacion.AnyAsync(e => e.PacienteId == pacienteId);
         }
 
 
-        public bool EsNulo(object? objeto)
+
+//////////////////////
+        private bool IsNull(object? objeto)
         {
             if (objeto == null)
             {
@@ -242,15 +290,16 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
             return false;
         }
 
-        public async Task<bool> PacienteExiste(int pacienteId)
+//////////////////////
+        public bool ValidateDataEvaluacion(EvaluacionDto evaluacionDto)
         {
-            return await _context.paciente.AnyAsync(p => p.PacienteId == pacienteId);
+            if (IsNull(evaluacionDto)
+                || IsNull(evaluacionDto.Respuestas)
+)
+            {
+                return true;
+            }
+            return false;
         }
-
-        public async Task<bool> EvaluacionExiste(int pacienteId)
-        {
-            return await _context.evaluacion.AnyAsync(e => e.PacienteId == pacienteId);
-        }
-
     }
 }

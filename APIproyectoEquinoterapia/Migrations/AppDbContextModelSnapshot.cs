@@ -42,7 +42,7 @@ namespace APIproyectoEquinoterapia.Migrations
 
                     b.Property<int>("TipoId")
                         .HasColumnType("int")
-                        .HasColumnName("tipo_archivo_id");
+                        .HasColumnName("archivo_permitido_id");
 
                     b.HasKey("ArchivoId");
 
@@ -58,7 +58,7 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.Property<int>("TipoId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasColumnName("tipo_archivo_id");
+                        .HasColumnName("tipo_id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TipoId"));
 
@@ -74,48 +74,48 @@ namespace APIproyectoEquinoterapia.Migrations
 
                     b.HasKey("TipoId");
 
-                    b.ToTable("tipo_archivo", (string)null);
+                    b.ToTable("tipos_archivos", (string)null);
 
                     b.HasData(
                         new
                         {
-                            TipoArchivoId = 1,
+                            TipoId = 1,
                             Extension = ".pdf",
                             Nombre = "DiagnosticoMedico"
                         },
                         new
                         {
-                            TipoArchivoId = 2,
+                            TipoId = 2,
                             Extension = ".pdf",
                             Nombre = "CertificadoMedico"
                         },
                         new
                         {
-                            TipoArchivoId = 3,
+                            TipoId = 3,
                             Extension = ".pdf",
                             Nombre = "ActaNacimiento"
                         },
                         new
                         {
-                            TipoArchivoId = 4,
+                            TipoId = 4,
                             Extension = ".pdf",
                             Nombre = "Curp"
                         },
                         new
                         {
-                            TipoArchivoId = 5,
+                            TipoId = 5,
                             Extension = ".pdf",
                             Nombre = "ComprobanteDomicilio"
                         },
                         new
                         {
-                            TipoArchivoId = 6,
+                            TipoId = 6,
                             Extension = ".pdf",
                             Nombre = "IneTutor"
                         },
                         new
                         {
-                            TipoArchivoId = 7,
+                            TipoId = 7,
                             Extension = ".jpg",
                             Nombre = "Fotografia"
                         });
@@ -534,7 +534,7 @@ namespace APIproyectoEquinoterapia.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("APIproyectoEquinoterapia.Data.Models.Archivo_.TipoArchivo", "TipoArchivo")
+                    b.HasOne("APIproyectoEquinoterapia.Data.Models.Archivo_.TipoArchivo", "TiposArchivo")
                         .WithMany("Archivos")
                         .HasForeignKey("TipoId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -542,7 +542,7 @@ namespace APIproyectoEquinoterapia.Migrations
 
                     b.Navigation("Paciente");
 
-                    b.Navigation("TipoArchivo");
+                    b.Navigation("TiposArchivo");
                 });
 
             modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Cita", b =>

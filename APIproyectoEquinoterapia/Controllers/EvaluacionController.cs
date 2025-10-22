@@ -1,5 +1,5 @@
 ﻿using APIproyectoEquinoterapia.Data.Services.Paciente_;
-using APIproyectoEquinoterapia.DTOs.Evaluacion_;
+using APIproyectoEquinoterapia.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,20 +23,22 @@ namespace APIproyectoEquinoterapia.Controllers
             _EvaluacionService = evaluacionService;
         }
 
+//////////////////////
         [HttpGet("obtener/{pacienteId}")]
-        public async Task<ActionResult<EvaluacionDTO>> GetEvaluacion(int pacienteId)
+        public async Task<ActionResult<EvaluacionDto>> Get(int pacienteId)
         {
-            var (evaluacion,mensaje) = await _EvaluacionService.GetEvaluacionAsync(pacienteId);
+            var (evaluacion,nombrePaciente,mensaje) = await _EvaluacionService.GetAsync(pacienteId);
             if (evaluacion == null)
             {
                 return BadRequest(mensaje);
             }
 
-            return Ok(new{mensaje, evaluacion});
+            return Ok(new{evaluacion, nombrePaciente, mensaje});
         }
 
+//////////////////////
         [HttpGet("obtener/preguntas")]
-        public async Task<ActionResult<PreguntasDTO>> GetPreguntas()
+        public async Task<ActionResult<PreguntasDto>> GetPreguntas()
         {
             var (preguntas,mensaje) = await _EvaluacionService.GetPreguntasAsync();
             if (!preguntas.Any())
@@ -47,23 +49,11 @@ namespace APIproyectoEquinoterapia.Controllers
             return Ok(new{mensaje, preguntas});
         }
 
-
-        [HttpPut("actualizar/{pacienteId}")]
-        public async Task<IActionResult> PutEvaluacion(EvaluacionDTO evaluacionDTO, int pacienteId)
-        {
-            var (exito,mensaje) = await _EvaluacionService.PutEvaluacionAsync(evaluacionDTO, pacienteId);
-            if (!exito)
-            {
-                return BadRequest(mensaje);
-            }
-
-            return Ok(mensaje);
-        }
-
+//////////////////////
         [HttpPost("agregar")]
-        public async Task<IActionResult> PostEvaluacion(EvaluacionDTO evaluacionDTO, int pacienteId)
+        public async Task<IActionResult> Add(EvaluacionDto evaluacionDto, int pacienteId)
         {
-            var (exito,mensaje) = await _EvaluacionService.PostEvaluacionAsync(evaluacionDTO, pacienteId);
+            var (exito,mensaje) = await _EvaluacionService.AddAsync(evaluacionDto, pacienteId);
             
             if (!exito)
             {
@@ -73,10 +63,24 @@ namespace APIproyectoEquinoterapia.Controllers
             return Ok(mensaje);
         }
 
+//////////////////////
+        [HttpPut("actualizar/{pacienteId}")]
+        public async Task<IActionResult> Update(EvaluacionDto evaluacionDto, int pacienteId)
+        {
+            var (exito, mensaje) = await _EvaluacionService.UpdateAsync(evaluacionDto, pacienteId);
+            if (!exito)
+            {
+                return Conflict(mensaje);
+            }
+
+            return Ok(mensaje);
+        }
+
+//////////////////////
         [HttpDelete("eliminar/{pacienteId}")]
         public async Task<IActionResult> DeleteEvaluacion(int pacienteId)
         {
-            var (exito,mensaje) = await _EvaluacionService.DeleteEvaluacionAsync(pacienteId);
+            var (exito,mensaje) = await _EvaluacionService.DeleteAsync(pacienteId);
             if (!exito)
             {
                 return BadRequest(mensaje);

@@ -65,9 +65,9 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
         }
 
 //////////////////////
-        public async Task<(bool, string)> CreateAsync(PacienteCreationDto pacienteCreationDto)
+        public async Task<(bool, string)> AddAsync(AddPacienteDto addPacienteDto)
         {
-            if (ValidatePacienteData(pacienteCreationDto))
+            if (ValidatePacienteData(addPacienteDto))
             {
                 var mensaje = "Datos incompletos para crear el paciente";
                 return (false, mensaje);
@@ -75,11 +75,11 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
 
             var nuevoPaciente = new Paciente
             {
-                Nombre = pacienteCreationDto.Nombre,
-                FechaNacimiento = pacienteCreationDto.FechaNacimiento,
-                Tutor = pacienteCreationDto.Tutor,
-                TelefonoTutor = pacienteCreationDto.TelefonoTutor,
-                Genero = GetGenero(pacienteCreationDto.Genero,Generos.NoBinario),
+                Nombre = addPacienteDto.Nombre,
+                FechaNacimiento = addPacienteDto.FechaNacimiento,
+                Tutor = addPacienteDto.Tutor,
+                TelefonoTutor = addPacienteDto.TelefonoTutor,
+                Genero = GetGenero(addPacienteDto.Genero,Generos.NoBinario),
                 Estado = EstadoPaciente.Activo,
                 FechaRegistro = DateTime.UtcNow
             };
@@ -342,13 +342,13 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
         }
 
 //////////////////////
-        private bool ValidatePacienteData(PacienteCreationDto pacienteCreationDto)
+        private bool ValidatePacienteData(AddPacienteDto AddpacienteDto)
         {
-            if(IsEmpty(pacienteCreationDto.Nombre)
-                || IsEmpty(pacienteCreationDto.Tutor)
-                || IsEmpty(pacienteCreationDto.TelefonoTutor)
-                || IsEmpty(pacienteCreationDto.Genero)
-                || IsNull(pacienteCreationDto.FechaNacimiento))
+            if(IsEmpty(AddpacienteDto.Nombre)
+                || IsEmpty(AddpacienteDto.Tutor)
+                || IsEmpty(AddpacienteDto.TelefonoTutor)
+                || IsEmpty(AddpacienteDto.Genero)
+                || IsNull(AddpacienteDto.FechaNacimiento))
             {
                 return true;
             }

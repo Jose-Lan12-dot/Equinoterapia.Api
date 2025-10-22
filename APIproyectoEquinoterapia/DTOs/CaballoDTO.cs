@@ -1,6 +1,6 @@
 ﻿namespace APIproyectoEquinoterapia.DTOs
 {
-    public class CaballoCreationDto
+    public class AddCaballoDto
     {
         public required string Placa { get; set; }
         public required string Nombre { get; set; }

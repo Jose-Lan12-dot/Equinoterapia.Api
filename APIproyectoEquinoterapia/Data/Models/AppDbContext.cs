@@ -236,7 +236,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("paciente_id");
 
             entity.Property(a => a.TipoId)
-                .HasColumnName("archivo_permitido_id");
+                .HasColumnName("tipo_id");
 
             entity.Property(a => a.Archivo).HasColumnName("archivo");
 

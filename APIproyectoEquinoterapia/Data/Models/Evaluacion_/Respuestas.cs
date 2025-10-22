@@ -6,9 +6,9 @@ namespace APIproyectoEquinoterapia.Data.Models.Evaluacion_
     public class Respuestas
     {
         public int RespuestaId { get; set; }
-        public int EvaluacionId { get; set; }
-        public int PreguntaId { get; set; }
-        public int Respuesta { get; set; }
+        public required int EvaluacionId { get; set; }
+        public required int PreguntaId { get; set; }
+        public required int Respuesta { get; set; }
 
         public virtual Evaluacion Evaluacion { get; set; } = null!;
         public virtual Preguntas Pregunta { get; set; } = null!;

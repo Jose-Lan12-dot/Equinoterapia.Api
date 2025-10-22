@@ -50,9 +50,9 @@ namespace APIproyectoEquinoterapia.Controllers
 
 //////////////////////
         [HttpPost("agregar")]
-        public async Task<ActionResult<ArchivoDto>> Create(PacienteCreationDto pacienteCreationDto)
+        public async Task<ActionResult<ArchivoDto>> Add(AddPacienteDto addPacienteDto)
         {
-            var (exito, mensaje) = await _pacienteService.CreateAsync(pacienteCreationDto);
+            var (exito, mensaje) = await _pacienteService.AddAsync(addPacienteDto);
             if (!exito)
                 return Conflict(mensaje);
 
