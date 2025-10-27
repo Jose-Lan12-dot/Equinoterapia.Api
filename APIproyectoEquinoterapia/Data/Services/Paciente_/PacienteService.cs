@@ -1,4 +1,5 @@
 using APIproyectoEquinoterapia.Data.Models;
+using APIproyectoEquinoterapia.Data.Models.Archivo_;
 using APIproyectoEquinoterapia.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,10 +9,12 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
     public class PacienteService
     {
         private readonly AppDbContext _context;
+        private readonly ArchivoService _archivoService;
 
-        public PacienteService(AppDbContext context)
+        public PacienteService(AppDbContext context, ArchivoService archivoService)
         {
             _context = context;
+            _archivoService = archivoService;
         }
 
 //////////////////////
@@ -65,21 +68,17 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
         }
 
 //////////////////////
-        public async Task<(bool, string)> AddAsync(AddPacienteDto addPacienteDto)
+        public async Task<(bool, string)> AddAsync(AddPacienteConArchivosDto addPaciente)
         {
-            if (ValidatePacienteData(addPacienteDto))
-            {
-                var mensaje = "Datos incompletos para crear el paciente";
-                return (false, mensaje);
-            }
-
+            var paciente = addPaciente.Paciente;
+            var archivos = addPaciente.Archivos;
             var nuevoPaciente = new Paciente
             {
-                Nombre = addPacienteDto.Nombre,
-                FechaNacimiento = addPacienteDto.FechaNacimiento,
-                Tutor = addPacienteDto.Tutor,
-                TelefonoTutor = addPacienteDto.TelefonoTutor,
-                Genero = GetGenero(addPacienteDto.Genero,Generos.NoBinario),
+                Nombre = paciente.Nombre,
+                FechaNacimiento = paciente.FechaNacimiento,
+                Tutor = paciente.Tutor,
+                TelefonoTutor = paciente.TelefonoTutor,
+                Genero = GetGenero(paciente.Genero,Generos.NoBinario),
                 Estado = EstadoPaciente.Activo,
                 FechaRegistro = DateTime.UtcNow
             };
@@ -87,7 +86,18 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
             try { 
                 _context.paciente.Add(nuevoPaciente);
                 await _context.SaveChangesAsync();
-                return (true, "Datos paciente agregado Correctamente");
+                
+                if (archivos.Count > 0)
+                {
+                    if (await AddArchivos(archivos,nuevoPaciente.PacienteId))
+                    {
+                        var mensajeCompleto = "Paciente creado, " +
+                            "pero hubo errores al agregar algunos archivos";
+                        return (true, mensajeCompleto);
+                    }
+                }
+
+                return (true, "Datos y archivos paciente agregado Correctamente");
             }
             catch (Exception ex)
             {
@@ -235,6 +245,17 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
 
 
 //////////////////////
+      
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         private async Task<List<string>> GetFileMissing(int pacienteId)
         {
             var archivosPaciente = await _context.archivo
@@ -279,7 +300,7 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
 //////////////////////
         private async Task<int> GetFaltas(int pacienteId)
         {
-            return await _context.cita
+            return await _context.Asistencia
                 .CountAsync(c => c.PacienteId == pacienteId && c.Asistio == false);
         }
 
@@ -388,6 +409,21 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
                 return estadoNuevo;
             }
             return estadoActual;
+        }
+
+//////////////////////
+        private async Task<bool> AddArchivos(List<ArchivoDto> archivos, int pacienteId)
+        {
+            var mensajesArchivos = new List<string>();
+            foreach (var archivo in archivos)
+            {
+                var (exito, mensaje) = await _archivoService.AddAsync(archivo, pacienteId);
+                if (!exito)
+                    mensajesArchivos.Add(mensaje);
+            }
+            if (mensajesArchivos.Count > 0)
+                return true;
+            return false;
         }
 
     }

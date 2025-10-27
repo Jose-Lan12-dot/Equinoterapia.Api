@@ -42,15 +42,15 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
         }
 
 //////////////////////
-        public async Task<(bool, string)> AddAsync(ArchivoDto archivoDto, int pacienteId)
+        public async Task<(bool, string)> AddAsync(ArchivoDto archivos, int pacienteId)
         {
-            if (ValidateFileData(archivoDto))
+            if (ValidateFileData(archivos))
             {
                 var mensaje = "Entrada no valida";
                 return (false, mensaje);
             }
 
-            var tipoId = await GetTipoId(archivoDto.Nombre!);
+            var tipoId = await GetTipoId(archivos.Nombre!);
             if (tipoId == 0)
             {
                 var mensaje = "Tipo de archivo no permitido";
@@ -73,14 +73,14 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
             {
                 PacienteId = pacienteId,
                 TipoId = tipoId,
-                Archivo = await FileToArrayAsync(archivoDto.Archivo!)
+                Archivo = await FileToArrayAsync(archivos.Archivo!)
             };
 
             try
             {
                 _context.archivo.Add(nuevoArchivo);
                 await _context.SaveChangesAsync();
-                return (true, archivoDto.Nombre + " Agregado correctamnete");
+                return (true, archivos.Nombre + " Agregado correctamnete");
             }
             catch (Exception ex)
             {

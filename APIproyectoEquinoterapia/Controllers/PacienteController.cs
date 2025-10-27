@@ -50,16 +50,16 @@ namespace APIproyectoEquinoterapia.Controllers
 
 //////////////////////
         [HttpPost("agregar")]
-        public async Task<ActionResult<ArchivoDto>> Add(AddPacienteDto addPacienteDto)
+        public async Task<ActionResult<ArchivoDto>> Add(AddPacienteConArchivosDto pacienteData)
         {
-            var (exito, mensaje) = await _pacienteService.AddAsync(addPacienteDto);
+            var (exito, mensaje) = await _pacienteService.AddAsync(pacienteData);
             if (!exito)
                 return Conflict(mensaje);
 
             return Ok(mensaje);
         }
 
-//////////////////////
+        //////////////////////
         [HttpPut("actualizar-todo/{pacienteId}")]
         public async Task<IActionResult> UpdateAll(PacienteDto pacienteDto, int pacienteId)
         {

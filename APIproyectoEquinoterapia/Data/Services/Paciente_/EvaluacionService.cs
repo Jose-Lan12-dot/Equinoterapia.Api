@@ -22,7 +22,7 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
         }
 
 //////////////////////
-        public async Task<(EvaluacionDto?,string,string)> GetAsync(int pacienteId)
+        public async Task<(EvaluacionDto?,string?,string)> GetAsync(int pacienteId)
         {
             var mensaje = "";
             if (!await PacienteExist(pacienteId))
@@ -258,7 +258,7 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
         }
 
 //////////////////////
-        private async Task<string> GetNombrePaciente(int pacienteId)
+        private async Task<string?> GetNombrePaciente(int pacienteId)
         {
             return await _context.paciente
                 .Where(p => p.PacienteId == pacienteId)
@@ -277,6 +277,7 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
         {
             return await _context.evaluacion.AnyAsync(e => e.PacienteId == pacienteId);
         }
+
 
 
 

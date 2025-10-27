@@ -1,11 +1,33 @@
+using APIproyectoEquinoterapia.Data.Models;
+using System.ComponentModel.DataAnnotations;
+
 namespace APIproyectoEquinoterapia.DTOs
 {
-    public class SesionDTO
+    public class SesionDto
     {
+        [Required]
         public int SesionId { get; set; }
-        public int InstructorId { get; set; }
-        public int CaballoId { get; set; }
-        public DateOnly Fecha { get; set; }
-        public TimeOnly Hora { get; set; }
+        [Required]
+        public required DateOnly Fecha { get; set; }
+        [Required]
+        public required TimeOnly Hora { get; set; }
+        [Required]
+        public required int InstructorId { get; set; }
+        [Required]
+        public required int CaballoId { get; set; }
     }
+
+    public class AddSesionDto
+    {
+        [Required]
+        public DateOnly Fecha { get; set; }
+        [Required]
+        public TimeOnly Hora { get; set; }
+        [Required]
+        public int InstructorId { get; set; }
+        [Required]
+        public int CaballoId { get; set; }
+        public List<int>? PacienteIds { get; set; }
+    }
+
 }

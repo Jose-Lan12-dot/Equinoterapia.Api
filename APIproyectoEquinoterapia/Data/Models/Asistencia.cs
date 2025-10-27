@@ -3,15 +3,15 @@ using System.Collections.Generic;
 
 namespace APIproyectoEquinoterapia.Data.Models;
 
-public partial class Cita
+public partial class Asistencia
 {
-    public int CitaId { get; set; }
+    public int AsistenciaId { get; set; }
 
-    public int SesionId { get; set; }
+    public required int SesionId { get; set; }
 
-    public int PacienteId { get; set; }
+    public required int PacienteId { get; set; }
 
-    public bool? Asistio { get; set; }
+    public required bool Asistio { get; set; }
 
     public virtual Paciente Paciente { get; set; } = null!;
 

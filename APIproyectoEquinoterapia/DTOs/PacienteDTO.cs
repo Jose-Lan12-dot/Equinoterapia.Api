@@ -1,4 +1,5 @@
 using APIproyectoEquinoterapia.DTOs;
+using System.ComponentModel.DataAnnotations;
 
 public class PacienteDto
 {
@@ -25,10 +26,30 @@ public class AllPacienteDto
 
 public class AddPacienteDto
 {
-    public required string Nombre { get; set; }
-    public required DateOnly FechaNacimiento { get; set; }
-    public required string Tutor { get; set; }
-    public required string TelefonoTutor { get; set; }
-    public required string Genero { get; set; }
+    [Required]
+    [MinLength(3)]
+    [RegularExpression(@"\S+")]
+    public string Nombre { get; set; } = string.Empty;
+    [Required]
+    public DateOnly FechaNacimiento { get; set; }
+    [Required]
+    [MinLength(3)]
+    [RegularExpression(@"\S+")]
+    public  string Tutor { get; set; } = string.Empty;
+    [Required]
+    [MinLength(3)]
+    [RegularExpression(@"\S+")]
+    public string TelefonoTutor { get; set; } = string.Empty;
+    [Required]
+    [MinLength(3)]
+    [RegularExpression(@"\S+")]
+    public string Genero { get; set; } = string.Empty;
+}
+
+public class AddPacienteConArchivosDto
+{
+    [Required]
+    public AddPacienteDto Paciente { get; set; } = new();
+    public List<ArchivoDto>? Archivos { get; set; }
 }
 

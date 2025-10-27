@@ -2,14 +2,12 @@
 using APIproyectoEquinoterapia.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace APIproyectoEquinoterapia.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class SesionController : ControllerBase
@@ -21,52 +19,58 @@ namespace APIproyectoEquinoterapia.Controllers
             _sesionService = sesionService;
         }
 
-        [HttpGet("obtener")]
-        public async Task<ActionResult<IEnumerable<SesionDTO>>> GetSesiones()
+        [HttpGet("obtener-todas")]
+        public async Task<IActionResult> GetAll()
         {
-            var sesiones = await _sesionService.GetSesionesAsync();
-            if (sesiones == null || !sesiones.Any())
-                return NotFound("No hay sesiones registradas.");
-            return Ok(sesiones);
+            var (sesiones, mensaje) = await _sesionService.GetAllAsync();
+            if (!sesiones.Any())
+                return NotFound(mensaje);
+            return Ok(new { mensaje, sesiones });
+        }
+
+        [HttpGet("obtener-por-semana")]
+        public async Task<IActionResult> GetByWeek([FromQuery] DateOnly startOfWeek)
+        {
+            var (sesiones, mensaje) = await _sesionService.GetByWeekAsync(startOfWeek);
+            if (!sesiones.Any())
+                return NotFound(mensaje);
+            return Ok(new { mensaje, sesiones });
         }
 
         [HttpGet("obtener/{id}")]
-        public async Task<ActionResult<SesionDTO>> GetSesion(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var sesion = await _sesionService.GetSesionAsync(id);
+            var (sesion, mensaje) = await _sesionService.GetByIdAsync(id);
             if (sesion == null)
-                return NotFound("Sesión no encontrada.");
-            return Ok(sesion);
+                return NotFound(mensaje);
+            return Ok(new { mensaje, sesion });
         }
 
         [HttpPost("agregar")]
-        public async Task<ActionResult<SesionDTO>> PostSesion(SesionDTO sesionDTO)
+        public async Task<IActionResult> Add([FromBody] AddSesionDto addSesionDto)
         {
-            await _sesionService.PostSesionAsync(sesionDTO);
-            return Ok(sesionDTO);
+            var (exito, mensaje) = await _sesionService.AddAsync(addSesionDto);
+            if (!exito)
+                return Conflict(mensaje);
+            return Ok(mensaje);
         }
 
         [HttpPut("actualizar/{id}")]
-        public async Task<IActionResult> PutSesion(int id, SesionDTO sesionDTO)
+        public async Task<IActionResult> Update(int id, [FromBody] SesionDto sesionDto)
         {
-            if (id != sesionDTO.SesionId)
-                return BadRequest("El ID de la sesión no coincide.");
-
-            var actualizado = await _sesionService.PutSesionAsync(id, sesionDTO);
-            if (!actualizado)
-                return NotFound("Sesión no encontrada.");
-
-            return Ok("Sesión actualizada correctamente.");
+            var (exito, mensaje) = await _sesionService.UpdateAsync(sesionDto, id);
+            if (!exito)
+                return NotFound(mensaje);
+            return Ok(mensaje);
         }
 
         [HttpDelete("eliminar/{id}")]
-        public async Task<IActionResult> DeleteSesion(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var eliminado = await _sesionService.DeleteSesionAsync(id);
-            if (!eliminado)
-                return NotFound("Sesión no encontrada.");
-
-            return Ok("Sesión eliminada correctamente.");
+            var (exito, mensaje) = await _sesionService.DeleteAsync(id);
+            if (!exito)
+                return NotFound(mensaje);
+            return Ok(mensaje);
         }
     }
 }

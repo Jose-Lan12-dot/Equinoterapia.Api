@@ -15,7 +15,7 @@ public partial class Sesion
 
     public TimeOnly Hora { get; set; }
 
-    public virtual ICollection<Cita> Cita { get; set; } = new List<Cita>();
+    public virtual ICollection<Asistencia> Asistencia { get; set; } = new List<Asistencia>();
 
     public virtual Instructor Instructor { get; set; } = null!;
 

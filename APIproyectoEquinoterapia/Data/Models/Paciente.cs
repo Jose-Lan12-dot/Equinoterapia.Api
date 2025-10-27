@@ -40,7 +40,7 @@ namespace APIproyectoEquinoterapia.Data.Models
 
 
 
-        public virtual ICollection<Cita> Cita { get; set; } = new List<Cita>();
+        public virtual ICollection<Asistencia> Asistencia { get; set; } = new List<Asistencia>();
         public virtual ICollection<Archivos> Archivos { get; set; } = new List<Archivos>();
         public virtual Evaluacion? Evaluacion { get; set; }
 

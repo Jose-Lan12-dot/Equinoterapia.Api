@@ -21,7 +21,7 @@ public partial class AppDbContext : DbContext
     }
 
     public virtual DbSet<Caballo> caballo { get; set; }
-    public virtual DbSet<Cita> cita { get; set; }
+    public virtual DbSet<Asistencia> Asistencia { get; set; }
     public virtual DbSet<Instructor> instructor { get; set; }
     public virtual DbSet<Paciente> paciente { get; set; }
     public virtual DbSet<Sesion> sesion { get; set; }
@@ -62,23 +62,29 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("padecimientos");
         });
 
-        modelBuilder.Entity<Cita>(entity =>
+        modelBuilder.Entity<Asistencia>(entity =>
         {
-            entity.ToTable("cita");
-            entity.HasKey(c => c.CitaId);
+            entity.ToTable("Asistencia");
+            entity.HasKey(a => a.AsistenciaId);
 
-            entity.Property(c => c.CitaId).HasColumnName("cita_id");
-            entity.Property(c => c.Asistio).HasColumnName("asistio");
-            entity.Property(c => c.PacienteId).HasColumnName("paciente_id");
-            entity.Property(c => c.SesionId).HasColumnName("sesion_id");
+            entity.Property(a => a.AsistenciaId)
+            .HasColumnName("aistencia_id");
+            entity.Property(a => a.PacienteId)
+            .HasColumnName("paciente_id");
+            entity.Property(a => a.SesionId).
+            HasColumnName("sesion_id");
+            entity.Property(a => a.Asistio)
+            .HasColumnName("asistio");
 
-            entity.HasOne(c => c.Paciente)
-                .WithMany(p => p.Cita)
-                .HasForeignKey(c => c.PacienteId);
 
-            entity.HasOne(c => c.Sesion)
-                .WithMany(c => c.Cita)
-                .HasForeignKey(d => d.SesionId);
+
+            entity.HasOne(asistencia => asistencia.Paciente)
+                .WithMany(paciente => paciente.Asistencia)
+                .HasForeignKey(asistencia => asistencia.PacienteId);
+
+            entity.HasOne(asistencia => asistencia.Sesion)
+                .WithMany(sesion => sesion.Asistencia)
+                .HasForeignKey(asistencia => asistencia.SesionId);
         });
 
         modelBuilder.Entity<Instructor>(entity =>
@@ -141,7 +147,6 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("sesion");
             entity.HasKey(e => e.SesionId);
-
             entity.Property(e => e.SesionId)
                 .HasColumnName("sesion_id");
             entity.Property(e => e.Fecha)
