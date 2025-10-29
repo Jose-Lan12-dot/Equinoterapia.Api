@@ -125,12 +125,12 @@ namespace APIproyectoEquinoterapia.Data.Services
             var sesion = await _context.sesion.FindAsync(sesionId);
             if (sesion == null)
                 return (false, "Sesión no encontrada.");
-            var asistencias = await _context.Asistencia
+            var asistencias = await _context.asistencia
                 .Where(a => a.SesionId == sesionId)
                 .ToListAsync();
             try
             {
-                _context.Asistencia.RemoveRange(asistencias);
+                _context.asistencia.RemoveRange(asistencias);
                 _context.sesion.Remove(sesion);
                 await _context.SaveChangesAsync();
                 return (true, "Sesión eliminada correctamente.");

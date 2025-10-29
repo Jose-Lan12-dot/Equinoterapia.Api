@@ -18,7 +18,7 @@ namespace APIproyectoEquinoterapia.Data.Services
         {
             var asistencias = new List<AsistenciaDto>();
             
-            if (await SesionesExist(sesionId))
+            if (!await SesionesExist(sesionId))
             {
                 return (asistencias,
                     "La sesion especificada no existe",
@@ -77,7 +77,7 @@ namespace APIproyectoEquinoterapia.Data.Services
 
                 foreach (var asistenciaItem in asitenciasExistentes)
                 {
-                    var asistencia = await _context.Asistencia.FindAsync(asistenciaItem.AsistenciasId);
+                    var asistencia = await _context.asistencia.FindAsync(asistenciaItem.AsistenciasId);
                     if (asistencia != null)
                     {
                         asistencia.Asistio = asistenciaItem.Asistio;
@@ -104,10 +104,10 @@ namespace APIproyectoEquinoterapia.Data.Services
             {
                 foreach (var id in asistenciaId)
                 {
-                    var asistencia = await _context.Asistencia.FindAsync(id);
+                    var asistencia = await _context.asistencia.FindAsync(id);
                     if (asistencia != null)
                     {
-                        _context.Asistencia.Remove(asistencia);
+                        _context.asistencia.Remove(asistencia);
                     }
                 }
                 await _context.SaveChangesAsync();
@@ -139,14 +139,14 @@ namespace APIproyectoEquinoterapia.Data.Services
                         PacienteId = pacienteId,
                         Asistio = false
                     };
-                    _context.Asistencia.Add(nuevaAsitencia);
+                    _context.asistencia.Add(nuevaAsitencia);
             }
             await _context.SaveChangesAsync();
         }
 
         private async Task<List<AsistenciaDto>> GetAsistencias(int sesionId)
         {
-            var consulta = await _context.Asistencia
+            var consulta = await _context.asistencia
                 .Where(a => a.SesionId == sesionId)
                 .ToListAsync();
 
@@ -195,7 +195,7 @@ namespace APIproyectoEquinoterapia.Data.Services
         private async Task<List<AsistenciaUpdateItemDto>> GetAsistenciasExistentes(List<AsistenciaUpdateItemDto> asistencias)
         {
             var asistenciasIds = asistencias.Select(a => a.AsistenciasId).ToList();
-            var consulta = await _context.Asistencia
+            var consulta = await _context.asistencia
                 .Where(p => asistenciasIds.Contains(p.AsistenciaId))
                 .Select(a => a.AsistenciaId)
                 .ToListAsync();

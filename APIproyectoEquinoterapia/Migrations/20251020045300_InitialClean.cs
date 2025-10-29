@@ -184,7 +184,7 @@ namespace APIproyectoEquinoterapia.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Asistencia",
+                name: "asistencia",
                 columns: table => new
                 {
                     cita_id = table.Column<int>(type: "int", nullable: false)
@@ -290,12 +290,12 @@ namespace APIproyectoEquinoterapia.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_cita_paciente_id",
-                table: "Asistencia",
+                table: "asistencia",
                 column: "paciente_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_cita_sesion_id",
-                table: "Asistencia",
+                table: "asistencia",
                 column: "sesion_id");
 
             migrationBuilder.CreateIndex(
@@ -332,7 +332,7 @@ namespace APIproyectoEquinoterapia.Migrations
                 name: "archivos");
 
             migrationBuilder.DropTable(
-                name: "Asistencia");
+                name: "asistencia");
 
             migrationBuilder.DropTable(
                 name: "inicioSesion");

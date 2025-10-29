@@ -169,7 +169,7 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.ToTable("caballo", (string)null);
                 });
 
-            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Asistencia", b =>
+            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.asistencia", b =>
                 {
                     b.Property<int>("AsistenciaId")
                         .ValueGeneratedOnAdd()
@@ -196,7 +196,7 @@ namespace APIproyectoEquinoterapia.Migrations
 
                     b.HasIndex("SesionId");
 
-                    b.ToTable("Asistencia", (string)null);
+                    b.ToTable("asistencia", (string)null);
                 });
 
             modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Evaluacion_.Evaluacion", b =>
@@ -548,16 +548,16 @@ namespace APIproyectoEquinoterapia.Migrations
                     b.Navigation("TiposArchivo");
                 });
 
-            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Asistencia", b =>
+            modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.asistencia", b =>
                 {
                     b.HasOne("APIproyectoEquinoterapia.Data.Models.Paciente", "Paciente")
-                        .WithMany("Asistencia")
+                        .WithMany("asistencia")
                         .HasForeignKey("PacientesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("APIproyectoEquinoterapia.Data.Models.Sesion", "Sesion")
-                        .WithMany("Asistencia")
+                        .WithMany("asistencia")
                         .HasForeignKey("SesionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -645,14 +645,14 @@ namespace APIproyectoEquinoterapia.Migrations
                 {
                     b.Navigation("Archivos");
 
-                    b.Navigation("Asistencia");
+                    b.Navigation("asistencia");
 
                     b.Navigation("Evaluacion");
                 });
 
             modelBuilder.Entity("APIproyectoEquinoterapia.Data.Models.Sesion", b =>
                 {
-                    b.Navigation("Asistencia");
+                    b.Navigation("asistencia");
                 });
 #pragma warning restore 612, 618
         }

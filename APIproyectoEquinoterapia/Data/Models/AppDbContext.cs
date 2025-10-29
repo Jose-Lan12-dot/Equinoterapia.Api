@@ -21,7 +21,7 @@ public partial class AppDbContext : DbContext
     }
 
     public virtual DbSet<Caballo> caballo { get; set; }
-    public virtual DbSet<Asistencia> Asistencia { get; set; }
+    public virtual DbSet<Asistencia> asistencia { get; set; }
     public virtual DbSet<Instructor> instructor { get; set; }
     public virtual DbSet<Paciente> paciente { get; set; }
     public virtual DbSet<Sesion> sesion { get; set; }
@@ -64,7 +64,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Asistencia>(entity =>
         {
-            entity.ToTable("Asistencia");
+            entity.ToTable("asistencia");
             entity.HasKey(a => a.AsistenciaId);
 
             entity.Property(a => a.AsistenciaId)
@@ -302,7 +302,7 @@ public partial class AppDbContext : DbContext
         new Preguntas { PreguntaId = 20, Pregunta = "NIVEL DE IMPULSIVIDAD"}
         );
 
-
+        radzen
         modelBuilder.Entity<TipoArchivo>().HasData(
             new TipoArchivo { TipoId = 1, Nombre = "DiagnosticoMedico", Extension = ".pdf" },
             new TipoArchivo { TipoId = 2, Nombre = "CertificadoMedico", Extension = ".pdf" },

@@ -87,7 +87,7 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
                 _context.paciente.Add(nuevoPaciente);
                 await _context.SaveChangesAsync();
                 
-                if (archivos.Count > 0)
+                if (!IsNull(archivos) && archivos.Count > 0)
                 {
                     if (await AddArchivos(archivos,nuevoPaciente.PacienteId))
                     {
@@ -300,7 +300,7 @@ namespace APIproyectoEquinoterapia.Data.Services.Paciente_
 //////////////////////
         private async Task<int> GetFaltas(int pacienteId)
         {
-            return await _context.Asistencia
+            return await _context.asistencia
                 .CountAsync(c => c.PacienteId == pacienteId && c.Asistio == false);
         }
 

@@ -22,8 +22,8 @@ namespace APIproyectoEquinoterapia.Controllers
 
 
 //////////////////////
-        [HttpGet("obtener-todos")]
-        public async Task<ActionResult<IEnumerable<PacienteDto>>> GetAll()
+        [HttpGet("obtener_todos")]
+        public async Task<ActionResult<IEnumerable<AllPacienteDto>>> GetAll()
         {
             var (pacientes,mensaje) = await _pacienteService.GetAllAsync();
             if (pacientes == null || !pacientes.Any())

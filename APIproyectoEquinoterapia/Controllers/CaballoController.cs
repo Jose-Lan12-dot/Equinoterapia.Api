@@ -20,7 +20,7 @@ namespace APIproyectoEquinoterapia.Controllers
         }
 
 //////////////////////
-        [HttpGet("obtener-todos")]
+        [HttpGet("obtener/todos")]
         public async Task<ActionResult<IEnumerable<CaballoDto>>> GetAll()
         {
             var (caballos, mensaje) = await _caballoService.GetAllAsync();
@@ -33,7 +33,7 @@ namespace APIproyectoEquinoterapia.Controllers
         }
 
  //////////////////////
-        [HttpGet("obtener-por-id/{caballoId}")]
+        [HttpGet("obtener/por/{caballoId}")]
         public async Task<ActionResult<CaballoDto>> GetById(int caballoId)
         {
             var (caballo, mensaje) = await _caballoService.GetByIdAsync(caballoId);
@@ -61,18 +61,18 @@ namespace APIproyectoEquinoterapia.Controllers
         }
 
 //////////////////////
-        [HttpPut("actualizar-todo/{caballoId}")]
-        public async Task<ActionResult<CaballoDto>> UpdateAll(CaballoDto caballoDto, int caballoId)
-        {
+        //[HttpPut("actualizar-todo/{caballoId}")]
+        //public async Task<ActionResult<CaballoDto>> UpdateAll(CaballoDto caballoDto, int caballoId)
+        //{
 
-            var (exito, mensaje) = await _caballoService.UpdateAllAsync(caballoDto,caballoId);
-            if (!exito)
-            {
-                return NotFound(mensaje);
-            }
+        //    var (exito, mensaje) = await _caballoService.UpdateAllAsync(caballoDto,caballoId);
+        //    if (!exito)
+        //    {
+        //        return NotFound(mensaje);
+        //    }
 
-            return Ok(mensaje);
-        }
+        //    return Ok(mensaje);
+        //}
 
 //////////////////////
         [HttpPatch("actualizar-parcialmente/{caballoId}")]

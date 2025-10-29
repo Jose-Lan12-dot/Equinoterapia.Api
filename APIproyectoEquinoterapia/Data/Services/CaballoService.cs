@@ -2,6 +2,7 @@
 using APIproyectoEquinoterapia.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Numerics;
 
 namespace APIproyectoEquinoterapia.Data.Services
@@ -67,11 +68,12 @@ namespace APIproyectoEquinoterapia.Data.Services
 ////////////////////
         public async Task<(bool, string)> AddAsync(AddCaballoDto addCaballoDto)
         {
-            if (ValidateCaballoData(addCaballoDto))
+            if (IsNull(addCaballoDto) || IsNull(addCaballoDto.FechaHerraje))
             {
-                var mensaje = "Datos del Caballo incompletos";
+                var mensaje = "Datos del Caballo no aceptados";
                 return (false, mensaje);
             }
+
 
 
             var nuevoCaballo = new Caballo
@@ -79,7 +81,7 @@ namespace APIproyectoEquinoterapia.Data.Services
                 Placa = addCaballoDto.Placa,
                 Nombre = addCaballoDto.Nombre,
                 Estado = EstadoCaballo.Disponible,
-                FechaHerraje = addCaballoDto.FechaHerraje,
+                FechaHerraje = addCaballoDto.FechaHerraje!.Value,
                 Padecimiento = addCaballoDto.Padecimiento,
             };
 
@@ -99,48 +101,54 @@ namespace APIproyectoEquinoterapia.Data.Services
         }
 
 //////////////////////
-        public async Task<(bool, string)> UpdateAllAsync(CaballoDto caballoDto, int caballoId)
-        {
-            if(caballoDto.CaballoId != caballoId) { 
-                var mensaje = "El ID del caballo no coincide";
-                return (false, mensaje);
-            }
+        //public async Task<(bool, string)> UpdateAllAsync(CaballoDto caballoDto, int caballoId)
+        //{
+        //    if(caballoDto.CaballoId != caballoId) { 
+        //        var mensaje = "El ID del caballo no coincide";
+        //        return (false, mensaje);
+        //    }
 
-            if (ValidateCaballoData(caballoDto))
-            {
-                var mensaje = "Datos del caballo incompletos";
-                return (false, mensaje);
-            }
+        //    if (ValidateCaballoData(caballoDto))
+        //    {
+        //        var mensaje = "Datos del caballo incompletos";
+        //        return (false, mensaje);
+        //    }
 
-            var caballo = await GetCaballoById(caballoId);
-            if (IsNull(caballo))
-            {
-                var mensaje = "Caballo no encontrado";
-                return (false, mensaje);
-            }
+        //    var caballo = await GetCaballoById(caballoId);
+        //    if (IsNull(caballo))
+        //    {
+        //        var mensaje = "Caballo no encontrado";
+        //        return (false, mensaje);
+        //    }
 
 
-            caballo!.Placa = caballoDto.Placa!;
-            caballo.Nombre = caballoDto.Nombre!;
-            caballo.Estado = GetEstado(caballoDto.Estado!, caballo!.Estado);
-            caballo.FechaHerraje = caballoDto.FechaHerraje!.Value;
-            caballo.Padecimiento = caballoDto.Padecimiento!;
+        //    caballo!.Placa = caballoDto.Placa!;
+        //    caballo.Nombre = caballoDto.Nombre!;
+        //    caballo.Estado = GetEstado(caballoDto.Estado!, caballo!.Estado);
+        //    caballo.FechaHerraje = caballoDto.FechaHerraje!.Value;
+        //    caballo.Padecimiento = caballoDto.Padecimiento!;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-                return (true, "Caballo actualizado correctamente");
-            }
-            catch (Exception ex)
-            {
-                var mensaje = $"Error al actualizar el caballo: {ex.Message}";
-                return (false, mensaje);
-            }
-        }
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //        return (true, "Caballo actualizado correctamente");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        var mensaje = $"Error al actualizar el caballo: {ex.Message}";
+        //        return (false, mensaje);
+        //    }
+        //}
 
 //////////////////////
         public async Task<(bool, string)> UpdatePartialAsync(CaballoDto caballoDto, int caballoId)
         {
+            if (IsNull(caballoDto)) 
+            { 
+                var mensaje = "Datos del Caballo no aceptados";
+                return (false, mensaje);
+            }
+            
             if(caballoDto.CaballoId != caballoId) { 
                 var mensaje = "El ID del caballo no coincide";
                 return (false, mensaje);
@@ -185,7 +193,7 @@ namespace APIproyectoEquinoterapia.Data.Services
             }
         }
 
-//////////////////////
+        //////////////////////
         public async Task<(bool, string)> DeleteAsync(int caballoId)
         {
             var caballo = await GetCaballoById(caballoId);
@@ -278,40 +286,11 @@ namespace APIproyectoEquinoterapia.Data.Services
             };
         }
 
-//////////////////////
-        private bool IsEmpty(string? str)
-        {
 
+        public bool IsEmpty(string? str)
+        {
             return string.IsNullOrWhiteSpace(str);
         }
-
-//////////////////////
-        private bool ValidateCaballoData(AddCaballoDto addCaballoDto)
-        {
-            if (IsEmpty(addCaballoDto.Placa)
-                || IsEmpty(addCaballoDto.Nombre)
-                || IsEmpty(addCaballoDto.Padecimiento)
-                || IsNull(addCaballoDto.FechaHerraje))
-            {
-                return true;
-            }
-            return false;
-        }
-
-//////////////////////
-        private bool ValidateCaballoData(CaballoDto caballoDto)
-        {
-            if (IsEmpty(caballoDto.Placa)
-                || IsEmpty(caballoDto.Nombre)
-                || IsEmpty(caballoDto.Padecimiento)
-                || IsNull(caballoDto.FechaHerraje)
-                || IsEmpty(caballoDto.Estado))
-            {
-                return true;
-            }
-            return false;
-        }
-
 //////////////////////
         private EstadoCaballo GetEstado (string estado,EstadoCaballo estadoActual)
         {
