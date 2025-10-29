@@ -1,4 +1,4 @@
-﻿namespace Equinoterapia2.models
+﻿namespace Fnamespace Equinoterapia2.modelsRONTproyectoEquinoterapia.models
 {
     public class inicio
     {
