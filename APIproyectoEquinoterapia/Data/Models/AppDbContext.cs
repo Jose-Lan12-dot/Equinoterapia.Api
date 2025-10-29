@@ -302,7 +302,7 @@ public partial class AppDbContext : DbContext
         new Preguntas { PreguntaId = 20, Pregunta = "NIVEL DE IMPULSIVIDAD"}
         );
 
-        radzen
+        
         modelBuilder.Entity<TipoArchivo>().HasData(
             new TipoArchivo { TipoId = 1, Nombre = "DiagnosticoMedico", Extension = ".pdf" },
             new TipoArchivo { TipoId = 2, Nombre = "CertificadoMedico", Extension = ".pdf" },
