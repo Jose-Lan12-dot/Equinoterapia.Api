@@ -1,4 +1,4 @@
-﻿using APIproyectoEquinoterapia.Data.Services.Paciente_;
+﻿using APIproyectoEquinoterapia.Data.Services;
 using APIproyectoEquinoterapia.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

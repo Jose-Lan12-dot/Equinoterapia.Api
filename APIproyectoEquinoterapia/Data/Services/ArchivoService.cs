@@ -4,7 +4,7 @@ using APIproyectoEquinoterapia.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System.Security.AccessControl;
 
-namespace APIproyectoEquinoterapia.Data.Services.Paciente_
+namespace APIproyectoEquinoterapia.Data.Services
 {
     public class ArchivoService
     {

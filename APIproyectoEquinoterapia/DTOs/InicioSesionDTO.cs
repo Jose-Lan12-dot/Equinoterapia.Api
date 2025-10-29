@@ -1,4 +1,6 @@
-﻿namespace APIproyectoEquinoterapia.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace APIproyectoEquinoterapia.DTOs
 {
     public class InicioSesionDto
     {
@@ -15,7 +17,9 @@
 
     public class InicioSesionDataDto
     {
-        public required string Usuario { get; set; }
-        public required string contrasena { get; set; }
+        [Required]
+        public string Usuario { get; set; } = string.Empty;
+        [Required]
+        public string contrasena { get; set; } = string.Empty;
     }
 }

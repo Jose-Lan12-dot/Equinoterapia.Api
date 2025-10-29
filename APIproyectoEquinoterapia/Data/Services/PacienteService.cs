@@ -4,7 +4,7 @@ using APIproyectoEquinoterapia.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace APIproyectoEquinoterapia.Data.Services.Paciente_
+namespace APIproyectoEquinoterapia.Data.Services
 {
     public class PacienteService
     {

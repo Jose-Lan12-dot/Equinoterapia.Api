@@ -75,7 +75,7 @@ namespace APIproyectoEquinoterapia.Controllers
         //}
 
 //////////////////////
-        [HttpPatch("actualizar-parcialmente/{caballoId}")]
+        [HttpPatch("actualizar/{caballoId}")]
         public async Task<ActionResult<CaballoDto>> UpdatePartial(CaballoDto caballoDto, int caballoId)
         {
 

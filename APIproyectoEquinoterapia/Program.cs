@@ -1,6 +1,5 @@
 using APIproyectoEquinoterapia.Data.Models;
 using APIproyectoEquinoterapia.Data.Services;
-using APIproyectoEquinoterapia.Data.Services.Paciente_;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

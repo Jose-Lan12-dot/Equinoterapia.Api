@@ -20,7 +20,7 @@ namespace APIproyectoEquinoterapia.Controllers
         }
 
         [HttpPost("acceso")]
-        public async Task<IActionResult> PostInicioSesion(InicioSesionDataDto inicioSesionDataDto)
+        public async Task<IActionResult> Login(InicioSesionDataDto inicioSesionDataDto)
         {
             var (exito,mensaje,token) =  await _inicioSesionService.LoginAsync(inicioSesionDataDto);
 

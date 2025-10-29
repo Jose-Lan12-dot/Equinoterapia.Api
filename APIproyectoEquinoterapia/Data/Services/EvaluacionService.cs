@@ -7,7 +7,7 @@ using Microsoft.Identity.Client;
 using Newtonsoft.Json.Bson;
 using System.Threading.Tasks;
 
-namespace APIproyectoEquinoterapia.Data.Services.Paciente_
+namespace APIproyectoEquinoterapia.Data.Services
 {
     public class EvaluacionService
     {
