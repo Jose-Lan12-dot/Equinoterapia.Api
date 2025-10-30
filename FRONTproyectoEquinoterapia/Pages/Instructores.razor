@@ -1,0 +1,130 @@
+﻿@* @page "/instructores"
+@using Radzen
+@using Radzen.Blazor
+@using FrontEquinoterapia.Data.Models
+@using FrontEquinoterapia.Data.Services
+@inject InstructoresService InstructoresService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Instructores</PageTitle>
+
+<!-- Encabezado -->
+<header style="
+    width:100%;
+    background:linear-gradient(90deg,#A0102C 0%,#B81131 40%,#c61f68 100%);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    box-shadow:0 4px 15px rgba(0,0,0,0.15);
+">
+    <img src="images/banner_gobierno.png" alt="Gobierno de Chiapas"
+         style="width:auto; max-height:70px; padding:12px 0;" />
+</header>
+
+<!-- Contenido principal -->
+<main style="
+    min-height:calc(100vh - 70px);
+    background:linear-gradient(135deg,#f6f8fb 0%,#eef1f6 100%);
+    font-family:'Montserrat','Roboto',sans-serif;
+    padding:30px;
+">
+    <RadzenCard Style="border-radius:16px; background:white; box-shadow:0 12px 40px rgba(0,0,0,0.1); padding:32px;">
+        <div style="display:flex; flex-direction:column; gap:20px;">
+
+            <!-- Título -->
+            <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:15px;">
+                <RadzenHeading Size="5" Style="font-weight:700; color:#B81131;">
+                    Lista de Instructores
+                </RadzenHeading>
+            </div>
+
+            <RadzenDataGrid TItem="InstructorModel" Data="@instructoresFiltrados" RowSelect="@VerDetalles" 
+                            Style="border-radius:12px; box-shadow:none;" 
+                            ShowPagingSummary="false" AllowPaging="false" AllowFiltering="false" AllowSorting="false"
+                            Responsive="true" Class="rz-datatable-striped rz-datatable-hoverable">
+                <Columns>
+                    <RadzenDataGridColumn TItem="InstructorModel" Property="instructorId" Title="ID" />
+                    <RadzenDataGridColumn TItem="InstructorModel" Property="nombre" Title="Nombre" />
+                    <RadzenDataGridColumn TItem="InstructorModel" Property="telefono" Title="Teléfono" />
+                    <RadzenDataGridColumn TItem="InstructorModel" Property="estado" Title="Estado">
+                        <Template Context="data">
+                            @FormatearEstado(data.estado)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="InstructorModel" Title="Acciones" Width="160px">
+                        <Template Context="data">
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Medium"
+                                          Style="margin-right:6px;" Click="@(args => EditarInstructor(data.instructorId))" />
+                            <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium"
+                                          Style="margin-right:6px;" Click="@(args => EliminarInstructor(data.instructorId))" />
+                            <RadzenButton Icon="info" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Medium"
+                                          Click="@(args => VerDetalles(data.instructorId))" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+                @* <Empty>
+                    <div style="padding:20px; text-align:center; color:#888;">
+                        No se encontraron instructores con los criterios seleccionados.
+                    </div>
+                </Empty> *@
+@*             </RadzenDataGrid>
+        </div>
+    </RadzenCard>
+</main>
+
+@code {
+    private List<InstructorModel> instructores = new();
+    private List<InstructorModel> instructoresFiltrados = new();
+    private string searchString = string.Empty;
+    private string selectedEstado = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        instructores = await InstructoresService.GetInstructoresAsync();
+        instructoresFiltrados = instructores;
+    }
+
+    private void OnSearchChanged(KeyboardEventArgs e)
+    {
+        Filtrar();
+    }
+
+    private void Filtrar()
+    {
+        instructoresFiltrados = instructores
+            .Where(i =>
+                (string.IsNullOrWhiteSpace(searchString) ||
+                 i.nombre.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                 i.telefono.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                &&
+                (string.IsNullOrWhiteSpace(selectedEstado) ||
+                 FormatearEstado(i.estado) == selectedEstado)
+            ).ToList();
+    }
+
+    private string FormatearEstado(string estado)
+    {
+        return estado switch
+        {
+            "EnTratamiento" => "En tratamiento",
+            "Disponible" => "Disponible",
+            "Inactivo" => "Inactivo",
+            _ => estado
+        };
+    }
+
+    private void EditarInstructor(int id)
+    {
+        NavigationManager.NavigateTo($"/instructores/editar/{id}");
+    }
+
+    private void VerDetalles(int id)
+    {
+        NavigationManager.NavigateTo($"/instructores/detalles/{id}");
+    }
+
+    private void EliminarInstructor(int id)
+    {
+        // Aquí podrías abrir un diálogo de confirmación usando RadzenDialog
+@*     }
+} *@

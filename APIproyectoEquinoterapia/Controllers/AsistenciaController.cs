@@ -18,8 +18,8 @@ namespace APIproyectoEquinoterapia.Controllers
         [HttpGet("obtener-por-sesion/{sesionId}")]
         public async Task<IActionResult> GetBySesion(int sesionId)
         {
-            var (asistencias, mensaje, exito) = await _asistenciaService.GetAsync(sesionId);
-            if (!exito)
+            var (asistencias, mensaje) = await _asistenciaService.GetAsync(sesionId);
+            if (asistencias.Count() == 0)
                 return NotFound(mensaje);
 
             return Ok(new { mensaje, asistencias });

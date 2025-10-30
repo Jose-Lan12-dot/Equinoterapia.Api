@@ -14,15 +14,14 @@ namespace APIproyectoEquinoterapia.Data.Services
         }
 
 
-        public async Task<(IEnumerable<AsistenciaDto>,string,bool)> GetAsync(int sesionId)
+        public async Task<(IEnumerable<AsistenciaDto>,string)> GetAsync(int sesionId)
         {
             var asistencias = new List<AsistenciaDto>();
             
             if (!await SesionesExist(sesionId))
             {
                 return (asistencias,
-                    "La sesion especificada no existe",
-                    false);
+                    "La sesion especificada no existe");
             }
 
             try
@@ -32,18 +31,16 @@ namespace APIproyectoEquinoterapia.Data.Services
             catch (Exception ex)
             {
                 return (asistencias,
-                    $"Error al obtener los pacientes participantes: {ex.Message}",
-                    false);
+                    $"Error al obtener los pacientes participantes: {ex.Message}");
             }
 
             if (asistencias.Count == 0)
             {
                 return (asistencias,
-                    "No se encontraron pacientes para la sesion especificada",
-                    false);
+                    "No se encontraron pacientes para la sesion especificada");
             }
 
-            return (asistencias, "Participantes devueltos correctamente",true);
+            return (asistencias, "Participantes devueltos correctamente");
         }
 
         public async Task<( string, bool)> AddAsync(AsistenciaAddDto asistenciaAdd)

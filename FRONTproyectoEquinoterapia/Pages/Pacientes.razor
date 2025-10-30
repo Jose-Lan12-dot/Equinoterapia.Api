@@ -5,7 +5,7 @@
 
 <h3>Lista de Pacientes</h3>
 
-<RadzenDataGrid Data="@pacientes" TItem="Paciente" ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" AllowSorting="true">
+@* <RadzenDataGrid Data="@pacientes" TItem="Paciente" ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" AllowSorting="true">
     <Columns>
         <RadzenDataGridColumn TItem="Paciente" Property="Id" Title="ID" />
         <RadzenDataGridColumn TItem="Paciente" Property="Nombre" Title="Nombre" />
@@ -19,7 +19,7 @@
             </Template>
         </RadzenDataGridColumn>
     </Columns>
-</RadzenDataGrid>
+</RadzenDataGrid> *@
 
 @code {
     List<Paciente> pacientes = new List<Paciente>();

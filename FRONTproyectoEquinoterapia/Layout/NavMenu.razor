@@ -1,30 +1,45 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">FRONTproyectoEquinoterapia</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
+﻿@* NavMenu.razor *@
+@using Radzen.Blazor
+
+<div class="nav-header">
+    <img src="images/banner_gobierno.png" alt="Gobierno de Chiapas" />
+    <h1 class="nav-title">Sistema de Equinoterapia</h1>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
+<div class="nav-links">
+
+    <NavLink href="/home" Match="NavLinkMatch.All" class="nav-link">
+        <RadzenIcon Icon="home" class="nav-icon" />
+        <span>Inicio</span>
+    </NavLink>
+
+    <NavLink href="/pacientes" class="nav-link">
+        <RadzenIcon Icon="groups" class="nav-icon" />
+        <span>Pacientes</span>
+    </NavLink>
+
+    <NavLink href="/agenda" class="nav-link">
+        <RadzenIcon Icon="calendar_today" class="nav-icon" />
+        <span>Agenda</span>
+    </NavLink>
+
+    <NavLink href="/terapeutas" class="nav-link">
+        <RadzenIcon Icon="assignment_ind" class="nav-icon" />
+        <span>Terapeutas</span>
+    </NavLink>
+
+    <NavLink href="/reportes" class="nav-link">
+        <RadzenIcon Icon="assessment" class="nav-icon" />
+        <span>Reportes</span>
+    </NavLink>
+
+</div>
+
+<div class="nav-footer">
+    <NavLink href="/logout" class="nav-link nav-link-logout">
+        <RadzenIcon Icon="logout" class="nav-icon" />
+        <span>Cerrar Sesión</span>
+    </NavLink>
 </div>
 
 @code {
