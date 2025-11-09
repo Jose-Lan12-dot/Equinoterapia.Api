@@ -5,7 +5,13 @@ VisualStudioVersion = 17.14.36429.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRONTproyectoEquinoterapia", "FRONTproyectoEquinoterapia\FRONTproyectoEquinoterapia.csproj", "{3142BAFC-8B72-472B-8A49-34CCE45AB633}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APIproyectoEquinoterapia", "APIproyectoEquinoterapia\APIproyectoEquinoterapia.csproj", "{1E96F3E9-5727-4A2E-BA09-F511A660FEF5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Equinoterapia.Api", "APIproyectoEquinoterapia\Equinoterapia.Api.csproj", "{1E96F3E9-5727-4A2E-BA09-F511A660FEF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Equinoterapia.Domain", "Equinoterapia.Domain\Equinoterapia.Domain.csproj", "{D2B9CFE0-A012-443D-B8FA-C27FEC8E49FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Equinoterapia.Application", "Equinoterapia.Application\Equinoterapia.Application.csproj", "{F9125444-D271-4724-8DF9-97590A9DF512}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Equinoterapia.Infrastructure", "Equinoterapia.Infrastructure\Equinoterapia.Infrastructure.csproj", "{61C3D9F2-83BF-43EC-9F3E-C58E19488DBD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{1E96F3E9-5727-4A2E-BA09-F511A660FEF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E96F3E9-5727-4A2E-BA09-F511A660FEF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E96F3E9-5727-4A2E-BA09-F511A660FEF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2B9CFE0-A012-443D-B8FA-C27FEC8E49FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2B9CFE0-A012-443D-B8FA-C27FEC8E49FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2B9CFE0-A012-443D-B8FA-C27FEC8E49FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2B9CFE0-A012-443D-B8FA-C27FEC8E49FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9125444-D271-4724-8DF9-97590A9DF512}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9125444-D271-4724-8DF9-97590A9DF512}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9125444-D271-4724-8DF9-97590A9DF512}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9125444-D271-4724-8DF9-97590A9DF512}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61C3D9F2-83BF-43EC-9F3E-C58E19488DBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61C3D9F2-83BF-43EC-9F3E-C58E19488DBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61C3D9F2-83BF-43EC-9F3E-C58E19488DBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61C3D9F2-83BF-43EC-9F3E-C58E19488DBD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

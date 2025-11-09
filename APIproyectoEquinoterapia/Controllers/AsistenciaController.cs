@@ -1,58 +1,76 @@
-﻿using APIproyectoEquinoterapia.Data.Services;
-using APIproyectoEquinoterapia.DTOs;
+﻿using Equinoterapia.Application.DTOs;
+using Equinoterapia.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace APIproyectoEquinoterapia.Controllers
+namespace Equinoterapia.Api.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class AsistenciaController : ControllerBase
+    [Route("api/asistencias")] 
+    public class AsistenciasController : ControllerBase
     {
-        private readonly AsistenciaService _asistenciaService;
+        private readonly IAsistenciaService _asistenciaService;
 
-        public AsistenciaController(AsistenciaService asistenciaService)
+        public AsistenciasController(IAsistenciaService asistenciaService)
         {
             _asistenciaService = asistenciaService;
         }
 
-        [HttpGet("obtener-por-sesion/{sesionId}")]
-        public async Task<IActionResult> GetBySesion(int sesionId)
+        [HttpGet]
+        public async Task<IActionResult> GetAsistenciasPorSesion([FromQuery] int sesionId)
         {
             var (asistencias, mensaje) = await _asistenciaService.GetAsync(sesionId);
-            if (asistencias.Count() == 0)
-                return NotFound(mensaje);
 
-            return Ok(new { mensaje, asistencias });
+            if (!asistencias.Any() && mensaje.Contains("No se encontraron"))
+            {
+                return Ok(asistencias); 
+            }
+            if (!asistencias.Any())
+            {
+                return NotFound(new { Mensaje = mensaje }); 
+            }
+
+            return Ok(asistencias);
         }
 
-        [HttpPost("agregar")]
-        public async Task<IActionResult> Add(AsistenciaAddDto asistenciaAddDto)
+
+        [HttpPost]
+        public async Task<IActionResult> CreateAsistencias([FromBody] AsistenciaAddDto asistenciaDto)
         {
-            var (mensaje, exito) = await _asistenciaService.AddAsync(asistenciaAddDto);
-            if (!exito)
-                return Conflict(mensaje);
+            var (exito, mensaje) = await _asistenciaService.AddAsync(asistenciaDto);
 
-            return Ok(mensaje);
+            if (!exito)
+            {
+                return BadRequest(new { Mensaje = mensaje });
+            }
+
+            return Ok(new { Mensaje = mensaje }); 
         }
 
-        [HttpPut("actualizar")]
-        public async Task<IActionResult> Update(AsistenciaUpdateDto asistenciaUpdateDto)
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateAsistencias([FromBody] AsistenciaUpdateDto asistenciaUpdateDto)
         {
             var (mensaje, exito) = await _asistenciaService.UpdateAsync(asistenciaUpdateDto);
-            if (!exito)
-                return NotFound(mensaje);
 
-            return Ok(mensaje);
+            if (!exito)
+            {
+                return BadRequest(new { Mensaje = mensaje }); 
+            }
+            return Ok(new { Mensaje = mensaje }); 
         }
 
-        [HttpDelete("eliminar")]
-        public async Task<IActionResult> Delete(List<int> asistenciaIds)
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAsistencias([FromBody] List<int> asistenciaIds)
         {
-            var (mensaje, exito) = await _asistenciaService.DelateAsync(asistenciaIds);
-            if (!exito)
-                return NotFound(mensaje);
+            var (mensaje, exito) = await _asistenciaService.DeleteAsync(asistenciaIds);
 
-            return Ok(mensaje);
+            if (!exito)
+            {
+                return BadRequest(new { Mensaje = mensaje });
+            }
+            return Ok(new { Mensaje = mensaje }); 
         }
+
     }
 }

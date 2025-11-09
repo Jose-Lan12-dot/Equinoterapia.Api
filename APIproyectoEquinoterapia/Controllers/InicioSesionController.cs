@@ -1,36 +1,34 @@
-﻿using APIproyectoEquinoterapia.Data.Services;
-using APIproyectoEquinoterapia.DTOs;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity.Data;
+﻿using Equinoterapia.Application.DTOs;
+using Equinoterapia.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization; 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NuGet.Common;
 
-namespace APIproyectoEquinoterapia.Controllers
+namespace Equinoterapia.Api.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class InicioSesionController : ControllerBase
+    [Route("api/[controller]")]
+    public class AuthController : ControllerBase
     {
-        private readonly InicioSesionService _inicioSesionService;
+        private readonly IInicioSesionService _inicioSesionService;
 
-        public InicioSesionController (InicioSesionService inicioSesionService)
+        public AuthController(IInicioSesionService inicioSesionService)
         {
-            _inicioSesionService = inicioSesionService;  
+            _inicioSesionService = inicioSesionService;
         }
 
-        [HttpPost("acceso")]
-        public async Task<IActionResult> Login(InicioSesionDataDto inicioSesionDataDto)
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Login([FromBody] InicioSesionDataDto inicioSesionDataDto)
         {
-            var (exito,mensaje,token) =  await _inicioSesionService.LoginAsync(inicioSesionDataDto);
+
+            var (exito, mensaje, token) = await _inicioSesionService.LoginAsync(inicioSesionDataDto);
 
             if (!exito)
-                return BadRequest(mensaje);
+            {
+                return Unauthorized(new { Mensaje = mensaje });
+            }
 
-            return Ok(new{token,mensaje});
+            return Ok(new { Token = token, Mensaje = mensaje });
         }
-
-
-
     }
 }

@@ -1,93 +1,97 @@
-﻿using APIproyectoEquinoterapia.Data.Services;
-using APIproyectoEquinoterapia.DTOs;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Equinoterapia.Application.DTOs;
+using Equinoterapia.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace APIproyectoEquinoterapia.Controllers
+namespace Equinoterapia.Api.Controllers
 {
-    //[Authorize]
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/pacientes/{pacienteId}/evaluacion")]
     public class EvaluacionController : ControllerBase
     {
-        private readonly EvaluacionService _EvaluacionService;
+        private readonly IEvaluacionService _evaluacionService;
 
-        public EvaluacionController(EvaluacionService evaluacionService)
+        public EvaluacionController(IEvaluacionService evaluacionService)
         {
-            _EvaluacionService = evaluacionService;
+            _evaluacionService = evaluacionService;
         }
 
-//////////////////////
-        [HttpGet("obtener/{pacienteId}")]
-        public async Task<ActionResult<EvaluacionDto>> Get(int pacienteId)
+        [HttpGet]
+        public async Task<IActionResult> GetEvaluacion(int pacienteId)
         {
-            var (evaluacion,nombrePaciente,mensaje) = await _EvaluacionService.GetAsync(pacienteId);
+            var (evaluacion, nombrePaciente, mensaje) = await _evaluacionService.GetAsync(pacienteId);
+
             if (evaluacion == null)
             {
-                return BadRequest(mensaje);
+                return NotFound(new { Mensaje = mensaje }); // 404
             }
 
-            return Ok(new{evaluacion, nombrePaciente, mensaje});
-        }
-
-//////////////////////
-        [HttpGet("obtener/preguntas")]
-        public async Task<ActionResult<PreguntasDto>> GetPreguntas()
-        {
-            var (preguntas,mensaje) = await _EvaluacionService.GetPreguntasAsync();
-            if (!preguntas.Any())
+            // Devolvemos un objeto anónimo con todo
+            return Ok(new
             {
-                return BadRequest(mensaje);
-            }
-
-            return Ok(new{mensaje, preguntas});
+                NombrePaciente = nombrePaciente,
+                evaluacion.Fecha,
+                evaluacion.Preguntas,
+                evaluacion.Respuestas
+            });
         }
 
-//////////////////////
-        [HttpPost("agregar")]
-        public async Task<IActionResult> Add(EvaluacionDto evaluacionDto, int pacienteId)
+        [HttpPost]
+        public async Task<IActionResult> CreateEvaluacion(int pacienteId, [FromBody] EvaluacionDto evaluacionDto)
         {
-            var (exito,mensaje) = await _EvaluacionService.AddAsync(evaluacionDto, pacienteId);
-            
+            // [ApiController] ya valida el ModelState
+
+            var (exito, mensaje) = await _evaluacionService.AddAsync(evaluacionDto, pacienteId);
+
             if (!exito)
             {
-                return BadRequest(mensaje);
+                // 400 Bad Request (lógica fallida, paciente no existe, etc.)
+                return BadRequest(new { Mensaje = mensaje });
             }
 
-            return Ok(mensaje);
+            // Idealmente, aquí se devolvería un 201 CreatedAtAction
+            return Ok(new { Mensaje = mensaje }); // 200
         }
 
-//////////////////////
-        [HttpPut("actualizar/{pacienteId}")]
-        public async Task<IActionResult> Update(EvaluacionDto evaluacionDto, int pacienteId)
+        [HttpPut]
+        public async Task<IActionResult> UpdateEvaluacion(int pacienteId, [FromBody] EvaluacionDto evaluacionDto)
         {
-            var (exito, mensaje) = await _EvaluacionService.UpdateAsync(evaluacionDto, pacienteId);
+            var (exito, mensaje) = await _evaluacionService.UpdateAsync(evaluacionDto, pacienteId);
+
             if (!exito)
             {
-                return Conflict(mensaje);
+                // 404 si no encontró al paciente o la evaluación
+                return NotFound(new { Mensaje = mensaje });
             }
 
-            return Ok(mensaje);
+            return NoContent(); // 204 (Éxito en actualización)
         }
 
-//////////////////////
-        [HttpDelete("eliminar/{pacienteId}")]
+        [HttpDelete]
         public async Task<IActionResult> DeleteEvaluacion(int pacienteId)
         {
-            var (exito,mensaje) = await _EvaluacionService.DeleteAsync(pacienteId);
+            var (exito, mensaje) = await _evaluacionService.DeleteAsync(pacienteId);
+
             if (!exito)
             {
-                return BadRequest(mensaje);
+                return NotFound(new { Mensaje = mensaje }); // 404
             }
-            return Ok(mensaje);
+
+            return NoContent(); // 204
         }
 
 
+        [HttpGet]
+        [Route("/api/preguntas")] // Ruta raíz
+        public async Task<IActionResult> GetPreguntas()
+        {
+            var (preguntas, mensaje) = await _evaluacionService.GetPreguntasAsync();
+
+            if (!preguntas.Any())
+            {
+                return NotFound(new { Mensaje = mensaje }); // 404
+            }
+
+            return Ok(preguntas);
+        }
     }
 }

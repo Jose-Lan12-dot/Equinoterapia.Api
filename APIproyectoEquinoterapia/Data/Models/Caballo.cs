@@ -1,31 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
+﻿//using System;
+//using System.Collections.Generic;
 
-namespace APIproyectoEquinoterapia.Data.Models;
-
-
-public enum EstadoCaballo
-{
-    Disponible,
-    EnTratamiento,
-    Descansando,
-    Retirado
-}
+//namespace APIproyectoEquinoterapia.Data.Models;
 
 
-public partial class Caballo
-{
-    public int CaballoId { get; set; }
-    public required string Placa { get; set; } = null!;
+//public enum EstadoCaballo
+//{
+//    Disponible,
+//    EnTratamiento,
+//    Descansando,
+//    Retirado
+//}
 
-    public required string Nombre { get; set; } = null!;
 
-    public required EstadoCaballo Estado { get; set; }
+//public partial class Caballo
+//{
+//    public int CaballoId { get; set; }
+//    public required string Placa { get; set; } = null!;
 
-    public required DateOnly FechaHerraje { get; set; }
+//    public required string Nombre { get; set; } = null!;
 
-    public required string Padecimiento { get; set; }
+//    public required EstadoCaballo Estado { get; set; }
 
-    public virtual ICollection<Sesion> Sesions { get; set; } = new List<Sesion>();
+//    public required DateOnly FechaHerraje { get; set; }
 
-}
+//    public required string Padecimiento { get; set; }
+
+//    public virtual ICollection<Sesion> Sesions { get; set; } = new List<Sesion>();
+
+//}

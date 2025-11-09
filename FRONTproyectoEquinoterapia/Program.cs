@@ -1,6 +1,7 @@
 using Blazored.LocalStorage;
 using FrontEquinoterapia.Data.Services;
 using FRONTproyectoEquinoterapia;
+using FRONTproyectoEquinoterapia.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Radzen;
@@ -11,6 +12,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddRadzenComponents();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<InicioSesionService>();
+builder.Services.AddScoped<ISesionService, SesionService>();
 
 
 

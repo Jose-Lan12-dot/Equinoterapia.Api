@@ -1,0 +1,77 @@
+﻿using Equinoterapia.Application.DTOs;
+using Equinoterapia.Domain.Entities;
+using Equinoterapia.Domain.Interfaces;
+using Equinoterapia.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Equinoterapia.Application.Interfaces;
+
+namespace Equinoterapia.Infrastructure.Repositories
+{
+    public class EvaluacionRepository : IEvaluacionRepository, IEvaluacionQueryRepository
+    {
+        private readonly AppDbContext _context;
+
+        public EvaluacionRepository(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        // --- Lectura ---
+        public async Task<bool> PacienteExistsAsync(int pacienteId)
+        {
+            return await _context.paciente.AnyAsync(p => p.PacienteId == pacienteId);
+        }
+
+        public async Task<Evaluacion?> GetEvaluacionByPacienteIdAsync(int pacienteId)
+        {
+            return await _context.evaluacion
+                .FirstOrDefaultAsync(e => e.PacienteId == pacienteId);
+        }
+
+        public async Task<string?> GetPacienteNombreAsync(int pacienteId)
+        {
+            return await _context.paciente
+                .Where(p => p.PacienteId == pacienteId)
+                .Select(p => p.Nombre)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<PreguntasDto>> GetPreguntasDtoAsync()
+        {
+            return await _context.preguntas
+                .OrderBy(p => p.PreguntaId)
+                .Select(p => new PreguntasDto
+                {
+                    Orden = p.PreguntaId,
+                    Pregunta = p.Pregunta,
+                })
+                .ToListAsync();
+        }
+
+        public async Task<int> GetPreguntasCountAsync()
+        {
+            return await _context.preguntas.CountAsync();
+        }
+
+        public async Task<bool> EvaluacionExistsAsync(int pacienteId)
+        {
+            return await _context.evaluacion.AnyAsync(e => e.PacienteId == pacienteId);
+        }
+
+        // --- Escritura ---
+        public void Add(Evaluacion evaluacion)
+        {
+            _context.evaluacion.Add(evaluacion);
+        }
+
+        public void Delete(Evaluacion evaluacion)
+        {
+            _context.evaluacion.Remove(evaluacion);
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+            return await _context.SaveChangesAsync() > 0;
+        }
+    }
+}

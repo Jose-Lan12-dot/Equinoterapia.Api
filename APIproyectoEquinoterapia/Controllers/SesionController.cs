@@ -1,76 +1,110 @@
-﻿using APIproyectoEquinoterapia.Data.Services;
-using APIproyectoEquinoterapia.DTOs;
-using Microsoft.AspNetCore.Authorization;
+﻿using Equinoterapia.Application.DTOs;
+using Equinoterapia.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace APIproyectoEquinoterapia.Controllers
+namespace Equinoterapia.Api.Controllers
 {
-    //[Authorize]
-    [Route("api/[controller]")]
     [ApiController]
-    public class SesionController : ControllerBase
+    [Route("api/[controller]")] 
+    public class SesionesController : ControllerBase
     {
-        private readonly SesionService _sesionService;
+        private readonly ISesionService _sesionService;
 
-        public SesionController(SesionService sesionService)
+        public SesionesController(ISesionService sesionService)
         {
             _sesionService = sesionService;
         }
 
-        [HttpGet("obtener-todas")]
+        [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var (sesiones, mensaje) = await _sesionService.GetAllAsync();
             if (!sesiones.Any())
-                return NotFound(mensaje);
-            return Ok(new { mensaje, sesiones });
+            {
+                return NotFound(new { Mensaje = mensaje }); 
+            }
+            return Ok(sesiones); 
         }
 
-        [HttpGet("obtener-por-semana")]
+
+        [HttpGet("by-week")]
         public async Task<IActionResult> GetByWeek([FromQuery] DateOnly startOfWeek)
         {
             var (sesiones, mensaje) = await _sesionService.GetByWeekAsync(startOfWeek);
             if (!sesiones.Any())
-                return NotFound(mensaje);
-            return Ok(new { mensaje, sesiones });
+            {
+                return NotFound(new { Mensaje = mensaje }); 
+            }
+            return Ok(sesiones); 
         }
 
-        [HttpGet("obtener/{id}")]
+
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var (sesion, mensaje) = await _sesionService.GetByIdAsync(id);
             if (sesion == null)
-                return NotFound(mensaje);
-            return Ok(new { mensaje, sesion });
+            {
+                return NotFound(new { Mensaje = mensaje }); 
+            }
+            return Ok(sesion); 
         }
 
-        [HttpPost("agregar")]
-        public async Task<IActionResult> Add([FromBody] AddSesionDto addSesionDto)
+        [HttpGet("form-data")]
+        public async Task<IActionResult> GetFormData()
+        {
+            var formData = await _sesionService.GetFormDataAsync();
+
+            return Ok(formData);
+        }
+
+        [HttpGet("horarios-ocupados")]
+        public async Task<IActionResult> GetHorariosOcupados([FromQuery] DateOnly fecha)
+        {
+            var horarios = await _sesionService.GetHorariosOcupadosAsync(fecha);
+
+            return Ok(horarios);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] AddSesionDto addSesionDto)
         {
             var (exito, mensaje) = await _sesionService.AddAsync(addSesionDto);
             if (!exito)
-                return Conflict(mensaje);
-            return Ok(mensaje);
+            {
+                return BadRequest(new { Mensaje = mensaje }); // 400
+            }
+            return Ok(new { Mensaje = mensaje });
         }
 
-        [HttpPut("actualizar/{id}")]
+
+        [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] SesionDto sesionDto)
         {
+            if (id != sesionDto.SesionId)
+            {
+                return BadRequest("El ID de la ruta no coincide con el ID del cuerpo.");
+            }
+
             var (exito, mensaje) = await _sesionService.UpdateAsync(sesionDto, id);
             if (!exito)
-                return NotFound(mensaje);
-            return Ok(mensaje);
+            {
+                return NotFound(new { Mensaje = mensaje }); 
+            }
+            return NoContent(); 
         }
 
-        [HttpDelete("eliminar/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var (exito, mensaje) = await _sesionService.DeleteAsync(id);
             if (!exito)
-                return NotFound(mensaje);
-            return Ok(mensaje);
+            {
+                return NotFound(new { Mensaje = mensaje });
+            }
+            return NoContent(); 
         }
+
+
     }
 }
