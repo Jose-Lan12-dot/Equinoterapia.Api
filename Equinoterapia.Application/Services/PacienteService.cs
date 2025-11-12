@@ -1,7 +1,9 @@
 using Equinoterapia.Domain.Entities;
 using Equinoterapia.Domain.Interfaces;
-using Equinoterapia.Application.DTOs;
+using Equinoterapia.Application.DTOs.Pacientes;
+using Equinoterapia.Application.DTOs.Archivos;
 using Equinoterapia.Application.Interfaces;
+
 
 namespace Equinoterapia.Application.Services
 {
@@ -37,7 +39,7 @@ namespace Equinoterapia.Application.Services
             _respuestaRepository = respuestaRepository;
         }
 
-        public async Task<(IEnumerable<AllPacienteDto>, string)> GetAllAsync()
+        public async Task<(IEnumerable<GetAllPacienteDto>, string)> GetAllAsync()
         {
 
 
@@ -45,51 +47,43 @@ namespace Equinoterapia.Application.Services
 
             if (!pacientes.Any())
             {
-                return (Enumerable.Empty<AllPacienteDto>(), "No se encontro ningun paciente");
+                return (Enumerable.Empty<GetAllPacienteDto>(), "No se encontro ningun paciente");
             }
 
 
             return (pacientes, "Pacientes devueltos con exito");
         }
 
-        public async Task<(PacienteDto?, int, bool, List<string>?, string)> GetByIdAsync(int pacienteId)
+        public async Task<(PacienteDetailsDto?, string)> GetByIdAsync(int pacienteId)
         {
 
             var paciente = await _pacienteRepository.GetByIdAsync(pacienteId);
 
             if (paciente == null)
             {
-                return (null, 0, false, null, "Paciente no encontrado");
+                return (null,"Paciente no encontrado");
             }
 
 
             var numeroFaltas = await _pacienteRepository.GetFaltasCountAsync(pacienteId);
-            var faltaEvaluacion = !await _pacienteRepository.HasEvaluacionAsync(pacienteId); // Tu código original decía faltaEvaluacion, así que asumo que 'true' es si falta
+            var faltaEvaluacion = !await _pacienteRepository.HasEvaluacionAsync(pacienteId); 
             List<string> archivosPendientes = await _pacienteRepository.GetMissingFileTypesAsync(pacienteId);
 
-            return (MapToDto(paciente), numeroFaltas, faltaEvaluacion, archivosPendientes, "Paciente encontrado");
+            return (MapToDto(paciente, numeroFaltas, faltaEvaluacion, archivosPendientes), "Paciente encontrado");
         }
 
         public async Task<(bool, string)> AddAsync(AddPacienteConArchivosDto addPaciente)
         {
-            var pacienteDto = addPaciente.Paciente;
+            var paciente = addPaciente.Paciente;
             var archivos = addPaciente.Archivos;
-
-            // La validación de DTOs (como ValidatePacienteData)
-            // la moveremos a 'FluentValidation' después. Por ahora la dejamos.
-            if (ValidatePacienteData(pacienteDto))
-            {
-                return (false, "Datos incompletos");
-            }
-
 
             var nuevoPaciente = new Paciente
             {
-                Nombre = pacienteDto.Nombre,
-                FechaNacimiento = pacienteDto.FechaNacimiento,
-                Tutor = pacienteDto.Tutor,
-                TelefonoTutor = pacienteDto.TelefonoTutor,
-                Genero = GetGenero(pacienteDto.Genero, Generos.NoBinario),
+                Nombre = paciente.Nombre,
+                FechaNacimiento = paciente.FechaNacimiento,
+                Tutor = paciente.Tutor,
+                TelefonoTutor = paciente.TelefonoTutor,
+                Genero = GetGenero(paciente.Genero, Generos.NoBinario),
                 Estado = EstadoPaciente.Activo,
                 FechaRegistro = DateTime.UtcNow
             };
@@ -105,8 +99,9 @@ namespace Equinoterapia.Application.Services
                     {
                         return (true, "Paciente creado, pero hubo errores al agregar algunos archivos");
                     }
+                    return (true, "Datos y archivos del paciente agregado Correctamente");
                 }
-                return (true, "Datos y archivos paciente agregado Correctamente");
+                return (true, "Paciente agregado Correctamente");
             }
             catch (Exception ex)
             {
@@ -114,46 +109,8 @@ namespace Equinoterapia.Application.Services
             }
         }
 
-        public async Task<(bool, string)> UpdateAllAsync(PacienteDto pacienteDto, int pacienteId)
-        {
-            if (pacienteDto.PacienteId != pacienteId)
-            {
-                return (false, "El ID del paciente no coincide con el ID de la ruta");
-            }
 
-            if (ValidatePacienteData(pacienteDto))
-            {
-                return (false, "Datos incompletos para actualizar el paciente");
-            }
-
-            // Obtenemos la entidad usando el repositorio
-            var paciente = await _pacienteRepository.GetByIdAsync(pacienteId);
-            if (paciente == null)
-            {
-                return (false, "Paciente no encontrado");
-            }
-
-            // Lógica de mapeo
-            paciente.Nombre = pacienteDto.Nombre!;
-            paciente.FechaNacimiento = pacienteDto.FechaNacimiento!.Value;
-            paciente.Tutor = pacienteDto.Tutor!;
-            paciente.TelefonoTutor = pacienteDto.TelefonoTutor!;
-            paciente.Estado = GetEstado(pacienteDto.Estado!, paciente.Estado);
-            paciente.Genero = GetGenero(pacienteDto.Genero!, paciente.Genero);
-
-            try
-            {
-                // Solo guardamos. EF Core rastrea los cambios
-                await _pacienteRepository.SaveChangesAsync();
-                return (true, "Paciente actualizado de forma exitosa");
-            }
-            catch (Exception ex)
-            {
-                return (false, $"Error al actualizar el paciente: {ex.Message}");
-            }
-        }
-
-        public async Task<(bool, string)> UpdatePartialAsync(PacienteDto pacienteDto, int pacienteId)
+        public async Task<(bool, string)> UpdateAsync(UpdatePacienteDto pacienteDto, int pacienteId)
         {
             if (pacienteDto.PacienteId != pacienteId)
             {
@@ -173,7 +130,7 @@ namespace Equinoterapia.Application.Services
                 paciente!.Nombre = pacienteDto.Nombre!;
             }
 
-            if (!IsNull(pacienteDto.FechaNacimiento))
+            if (pacienteDto.FechaNacimiento.HasValue)
             {
                 paciente!.FechaNacimiento = pacienteDto.FechaNacimiento!.Value;
             }
@@ -222,35 +179,28 @@ namespace Equinoterapia.Application.Services
 
             try
             {
-                //Encontrar y borrar hijos (Asistencias)
                 var asistencias = await _asistenciaRepository.GetByPacienteIdAsync(pacienteId);
                 if (asistencias.Any())
                 {
                     _asistenciaRepository.RemoveRange(asistencias);
                 }
 
-                //Encontrar y borrar hijos (Archivos)
                 var archivos = await _archivoRepository.GetByPacienteIdAsync(pacienteId);
                 if (archivos.Any())
                 {
                     _archivoRepository.RemoveRange(archivos);
                 }
 
-                //Encontrar y borrar hijos (Evaluacion y sus hijos Respuestas)
                 var evaluacion = await _evaluacionRepository.GetEvaluacionByPacienteIdAsync(pacienteId);
                 if (evaluacion != null)
                 {
-                    //Borrar nietos (Respuestas)
                     var respuestas = await _respuestaRepository.GetRespuestasByEvaluacionIdAsync(evaluacion.EvaluacionId);
                     if (respuestas.Any())
                     {
                         _respuestaRepository.RemoveRange(respuestas);
                     }
-                    //Borrar hijo (Evaluacion)
                     _evaluacionRepository.Delete(evaluacion);
                 }
-
-                //Borrar la entidad principal (Paciente)
                 _pacienteRepository.Delete(paciente);
 
 
@@ -272,16 +222,21 @@ namespace Equinoterapia.Application.Services
 
 
 
+
+
+
+
+
+
         // --- MÉTODOS PRIVADOS (Helper) ---
 
 
 
-        private async Task<bool> AddArchivos(List<ArchivoDto> archivos, int pacienteId)
+        private async Task<bool> AddArchivos(List<AddArchivoDto> archivos, int pacienteId)
         {
             var mensajesArchivos = new List<string>();
             foreach (var archivo in archivos)
             {
-                // TODO: Refactorizar _archivoService para que use IArchivoService
                 var (exito, mensaje) = await _archivoService.AddAsync(archivo, pacienteId);
                 if (!exito)
                     mensajesArchivos.Add(mensaje);
@@ -292,9 +247,9 @@ namespace Equinoterapia.Application.Services
         private bool IsNull(object? obj) => obj == null;
         private bool IsEmpty(string? str) => string.IsNullOrWhiteSpace(str);
 
-        private PacienteDto MapToDto(Paciente paciente)
+        private PacienteDetailsDto MapToDto(Paciente paciente, int numeroFaltas, bool faltaEvaluacion, List<string> archivosPendientes)
         {
-            return new PacienteDto
+            return new PacienteDetailsDto
             {
                 PacienteId = paciente.PacienteId,
                 Nombre = paciente.Nombre,
@@ -302,40 +257,14 @@ namespace Equinoterapia.Application.Services
                 Tutor = paciente.Tutor,
                 TelefonoTutor = paciente.TelefonoTutor,
                 Estado = paciente.Estado.ToString(),
-                Genero = paciente.Genero.ToString()
+                Genero = paciente.Genero.ToString(),
+                NumeroFaltas = numeroFaltas,
+                FaltaEvaluacion = faltaEvaluacion,
+                ArchivosPendientes = archivosPendientes
             };
         }
 
 
-
-        //////////////////////
-        private bool ValidatePacienteData(AddPacienteDto AddpacienteDto)
-        {
-            if (IsEmpty(AddpacienteDto.Nombre)
-                || IsEmpty(AddpacienteDto.Tutor)
-                || IsEmpty(AddpacienteDto.TelefonoTutor)
-                || IsEmpty(AddpacienteDto.Genero)
-                || IsNull(AddpacienteDto.FechaNacimiento))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        //////////////////////
-        private bool ValidatePacienteData(PacienteDto pacienteDto)
-        {
-            if (IsEmpty(pacienteDto.Nombre)
-                || IsEmpty(pacienteDto.Tutor)
-                || IsEmpty(pacienteDto.TelefonoTutor)
-                || IsEmpty(pacienteDto.Estado)
-                || IsEmpty(pacienteDto.Genero)
-                || IsNull(pacienteDto.FechaNacimiento))
-            {
-                return true;
-            }
-            return false;
-        }//
 
         //////////////////////
         private Generos GetGenero(string genero, Generos generoActual)
@@ -345,7 +274,7 @@ namespace Equinoterapia.Application.Services
                 return generoValido;
             }
             return generoActual;
-        }//
+        }
 
         //////////////////////
         private EstadoPaciente GetEstado(string estado, EstadoPaciente estadoActual)
@@ -355,7 +284,7 @@ namespace Equinoterapia.Application.Services
                 return estadoNuevo;
             }
             return estadoActual;
-        }//
+        }
     }
 }
 

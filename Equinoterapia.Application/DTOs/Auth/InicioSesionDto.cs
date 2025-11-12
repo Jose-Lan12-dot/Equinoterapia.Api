@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Equinoterapia.Application.DTOs
+namespace Equinoterapia.Application.DTOs.Auth
 {
     public class InicioSesionDto
     {

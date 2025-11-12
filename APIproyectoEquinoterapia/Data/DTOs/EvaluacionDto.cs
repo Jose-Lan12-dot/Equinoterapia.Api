@@ -1,6 +1,6 @@
 ﻿//namespace APIproyectoEquinoterapia.DTOs
 //{
-//    public class EvaluacionDto
+//    public class GetEvaluacionDto
 //    {
 //        public required DateOnly Fecha { get; set; }
 //        public IEnumerable<PreguntasDto>? Preguntas { get; set; }

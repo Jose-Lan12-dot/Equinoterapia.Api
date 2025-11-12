@@ -10,11 +10,21 @@
 	</ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.1.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.10" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Equinoterapia.Domain\Equinoterapia.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Validators\Asistencias\" />
+    <Folder Include="Validators\Auth\" />
+    <Folder Include="Validators\Caballos\" />
+    <Folder Include="Validators\Instructores\" />
+    <Folder Include="Validators\Sesiones\" />
   </ItemGroup>
 
 </Project>

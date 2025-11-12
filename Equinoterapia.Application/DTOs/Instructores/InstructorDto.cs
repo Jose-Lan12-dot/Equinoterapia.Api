@@ -1,5 +1,4 @@
-
-namespace Equinoterapia.Application.DTOs
+namespace Equinoterapia.Application.DTOs.Instructores
 {
     public class AddInstructorDto
     {

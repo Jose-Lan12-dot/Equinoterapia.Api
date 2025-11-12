@@ -18,9 +18,9 @@
 //        }
 
 ////////////////////////
-//        public async Task<(IEnumerable<AllPacienteDto>,string)> GetAllAsync()
+//        public async Task<(IEnumerable<GetAllPacienteDto>,string)> GetAllAsync()
 //        {
-//            var pacientes = new List<AllPacienteDto>();
+//            var pacientes = new List<GetAllPacienteDto>();
 //            try
 //            {
 //                pacientes = await GetAllPacientes();
@@ -28,21 +28,21 @@
 //            catch (Exception ex)
 //            {
 //                var mensaje = $"Error al obtener los pacientes: {ex.Message}";
-//                return (Enumerable.Empty<AllPacienteDto>(), mensaje);
+//                return (Enumerable.Empty<GetAllPacienteDto>(), mensaje);
 //            }
 
 
 //            if (pacientes.Count == 0)
 //            {
 //                var mensaje = "No se encontro ningun paciente";
-//                return (Enumerable.Empty<AllPacienteDto>(), mensaje);
+//                return (Enumerable.Empty<GetAllPacienteDto>(), mensaje);
 //            }
 
 //            return (pacientes, "Pacientes devueltos con exito");
 //        }
 
 ////////////////////////
-//        public async Task<(PacienteDto?,int,bool,List<string>?,string)> GetByIdAsync(int pacienteId)
+//        public async Task<(UpdatePacienteDto?,int,bool,List<string>?,string)> GetByIdAsync(int pacienteId)
 //        {
 //            var paciente = null as Paciente;
 //            try
@@ -108,7 +108,7 @@
 //        }
 
 ////////////////////////
-//        public async Task<(bool, string)> UpdateAllAsync(PacienteDto pacienteDto, int pacienteId)
+//        public async Task<(bool, string)> UpdateAllAsync(UpdatePacienteDto pacienteDto, int pacienteId)
 //        {
 //            if (pacienteDto.PacienteId != pacienteId)
 //            {
@@ -149,7 +149,7 @@
 //        }
 
 ////////////////////////
-//        public async Task<(bool, string)> UpdatePartialAsync(PacienteDto pacienteDto, int pacienteId)
+//        public async Task<(bool, string)> UpdateAsync(UpdatePacienteDto pacienteDto, int pacienteId)
 //        {
 //            if (pacienteDto.PacienteId != pacienteId)
 //            {
@@ -273,15 +273,15 @@
 //        }
 
 ////////////////////////
-//        private async Task<List<AllPacienteDto>> GetAllPacientes()
+//        private async Task<List<GetAllPacienteDto>> GetAllPacientes()
 //        {
 //            var pacientes = await _context.paciente.ToListAsync();
-//            var listaDto = new List<AllPacienteDto>();
+//            var listaDto = new List<GetAllPacienteDto>();
 //            var numeroArchivosRequeridos = await _context.tipoArchivo.CountAsync();
 
 //            foreach (var p in pacientes)
 //            {
-//                var dto = new AllPacienteDto
+//                var dto = new GetAllPacienteDto
 //                {
 //                    PacienteId = p.PacienteId,
 //                    Nombre = p.Nombre,
@@ -348,9 +348,9 @@
 //        }//
 
 ////////////////////////
-//        private PacienteDto MapToDto(Paciente paciente)
+//        private UpdatePacienteDto MapToDto(Paciente paciente)
 //        {
-//            return new PacienteDto
+//            return new UpdatePacienteDto
 //            {
 //                PacienteId = paciente.PacienteId,
 //                Nombre = paciente.Nombre,
@@ -377,7 +377,7 @@
 //        }
 
 ////////////////////////
-//        private bool ValidatePacienteData(PacienteDto pacienteDto)
+//        private bool ValidatePacienteData(UpdatePacienteDto pacienteDto)
 //        {
 //            if(IsEmpty(pacienteDto.Nombre)
 //                || IsEmpty(pacienteDto.Tutor)
@@ -412,7 +412,7 @@
 //        }//
 
 ////////////////////////
-//        private async Task<bool> AddArchivos(List<ArchivoDto> archivos, int pacienteId)
+//        private async Task<bool> AddArchivos(List<UpdateArchivoDto> archivos, int pacienteId)
 //        {
 //            var mensajesArchivos = new List<string>();
 //            foreach (var archivo in archivos)

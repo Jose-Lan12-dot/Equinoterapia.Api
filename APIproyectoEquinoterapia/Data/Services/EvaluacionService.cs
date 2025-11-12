@@ -22,7 +22,7 @@
 //        }
 
 //        //////////////////////
-//        public async Task<(EvaluacionDto?, string?, string)> GetAsync(int pacienteId)
+//        public async Task<(GetEvaluacionDto?, string?, string)> GetAsync(int pacienteId)
 //        {
 //            var mensaje = "";
 //            if (!await PacienteExist(pacienteId))
@@ -55,7 +55,7 @@
 //            }
 
 
-//            return (new EvaluacionDto
+//            return (new GetEvaluacionDto
 //            {
 //                Fecha = evaluacion.Fecha,
 //                Preguntas = preguntas,
@@ -65,7 +65,7 @@
 //        }
 
 //        //////////////////////
-//        public async Task<(bool, string)> AddAsync(EvaluacionDto evaluacionDto, int pacienteId)
+//        public async Task<(bool, string)> AddAsync(GetEvaluacionDto evaluacionDto, int pacienteId)
 //        {
 
 //            var mensaje = "";
@@ -125,7 +125,7 @@
 //        }
 
 //        //////////////////////
-//        public async Task<(bool, string)> UpdateAsync(EvaluacionDto evaluacionDto, int pacienteId)
+//        public async Task<(bool, string)> UpdateAsync(GetEvaluacionDto evaluacionDto, int pacienteId)
 //        {
 //            var mensaje = "";
 //            if (!await PacienteExist(pacienteId))
@@ -292,7 +292,7 @@
 //        }
 
 //        //////////////////////
-//        public bool ValidateDataEvaluacion(EvaluacionDto evaluacionDto)
+//        public bool ValidateDataEvaluacion(GetEvaluacionDto evaluacionDto)
 //        {
 //            if (IsNull(evaluacionDto)
 //                || IsNull(evaluacionDto.Respuestas)

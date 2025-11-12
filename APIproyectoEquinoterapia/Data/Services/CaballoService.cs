@@ -141,7 +141,7 @@
 //        //}
 
 //        //////////////////////
-//        public async Task<(bool, string)> UpdatePartialAsync(CaballoDto caballoDto, int caballoId)
+//        public async Task<(bool, string)> UpdateAsync(CaballoDto caballoDto, int caballoId)
 //        {
 //            if (IsNull(caballoDto))
 //            {

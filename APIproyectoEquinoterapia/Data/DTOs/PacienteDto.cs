@@ -1,7 +1,7 @@
 //using APIproyectoEquinoterapia.DTOs;
 //using System.ComponentModel.DataAnnotations;
 
-////public class PacienteDto
+////public class UpdatePacienteDto
 ////{
 ////    public int PacienteId { get; set; }
 ////    public string? Nombre { get; set; }
@@ -12,7 +12,7 @@
 ////    public string? Genero { get; set; }
 ////}
 
-//public class AllPacienteDto
+//public class GetAllPacienteDto
 //{
 //    public int PacienteId { get; set; }
 //    public required string Nombre { get; set; }
@@ -50,6 +50,6 @@
 ////{
 ////    [Required]
 ////    public AddPacienteDto Paciente { get; set; } = new();
-////    public List<ArchivoDto>? Archivos { get; set; }
+////    public List<UpdateArchivoDto>? Archivos { get; set; }
 ////}
 

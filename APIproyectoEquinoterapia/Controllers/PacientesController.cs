@@ -1,4 +1,4 @@
-﻿using Equinoterapia.Application.DTOs; 
+﻿using Equinoterapia.Application.DTOs.Pacientes; 
 using Equinoterapia.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,21 +35,14 @@ namespace Equinoterapia.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var (paciente, faltas, eval, archivos, mensaje) = await _pacienteService.GetByIdAsync(id);
+            var (datosPaciente, mensaje) = await _pacienteService.GetByIdAsync(id);
 
-            if (paciente == null)
+            if (datosPaciente == null)
             {
                 return NotFound(mensaje);
             }
-            var datos = new
-            {
-                paciente,
-                numeroFaltas = faltas,
-                faltaEvaluacion = eval,
-                archivosPendientes = archivos
-            };
 
-            return Ok(new { Message = mensaje, Data = datos });
+            return Ok(new { Message = mensaje, Data = datosPaciente });
         }
 
 
@@ -71,38 +64,16 @@ namespace Equinoterapia.Api.Controllers
             return Ok(new { Mensaje = mensaje });
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] PacienteDto pacienteDto)
-        {
-            if (id != pacienteDto.PacienteId)
-            {
-                return BadRequest("El ID de la ruta no coincide con el ID del cuerpo.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var (exito, mensaje) = await _pacienteService.UpdateAllAsync(pacienteDto, id);
-
-            if (!exito)
-            {
-                return NotFound(mensaje); 
-            }
-
-            return NoContent(); 
-        }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdatePartial(int id, [FromBody] PacienteDto pacienteDto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdatePacienteDto pacienteDto)
         {
             if (id != pacienteDto.PacienteId)
             {
                 return BadRequest("El ID de la ruta no coincide con el ID del cuerpo.");
             }
 
-            var (exito, mensaje) = await _pacienteService.UpdatePartialAsync(pacienteDto, id);
+            var (exito, mensaje) = await _pacienteService.UpdateAsync(pacienteDto, id);
 
             if (!exito)
             {

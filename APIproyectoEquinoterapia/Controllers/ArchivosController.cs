@@ -1,4 +1,4 @@
-﻿using Equinoterapia.Application.DTOs;
+﻿using Equinoterapia.Application.DTOs.Archivos;
 using Equinoterapia.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,7 +30,7 @@ namespace Equinoterapia.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SubirArchivo(int pacienteId, [FromForm] ArchivoDto archivoDto)
+        public async Task<IActionResult> SubirArchivo(int pacienteId, [FromForm] AddArchivoDto archivoDto)
         {
 
             if (!ModelState.IsValid)
@@ -49,7 +49,7 @@ namespace Equinoterapia.Api.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> ActualizarArchivo(int pacienteId, [FromForm] ArchivoDto archivoDto)
+        public async Task<IActionResult> ActualizarArchivo(int pacienteId, [FromForm] UpdateArchivoDto archivoDto)
         {
             if (!ModelState.IsValid)
             {

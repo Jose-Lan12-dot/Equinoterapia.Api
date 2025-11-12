@@ -1,0 +1,9 @@
+﻿namespace Equinoterapia.Application.DTOs.Shared
+{
+    public class DropdownItemDto
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
+
+}

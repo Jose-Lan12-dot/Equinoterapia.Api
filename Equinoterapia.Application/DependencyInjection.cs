@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Equinoterapia.Application.Interfaces;
 using Equinoterapia.Application.Services;
-using Equinoterapia.Application.Interfaces;
+using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 
 
@@ -19,10 +21,10 @@ namespace Equinoterapia.Application
             services.AddScoped<ISesionService, SesionService>();
             services.AddScoped<IAsistenciaService, AsistenciaService>();
             services.AddScoped<IEvaluacionService, EvaluacionService>();
-
             services.AddScoped<IRespuestasService, RespuestasService>();
 
-            // Aquí registraremos AutoMapper, MediatR, etc. en el futuro
+
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
             return services;
         }

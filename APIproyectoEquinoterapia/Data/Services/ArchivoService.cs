@@ -41,7 +41,7 @@
 //        }
 
 ////////////////////////
-//        public async Task<(bool, string)> AddAsync(ArchivoDto archivos, int pacienteId)
+//        public async Task<(bool, string)> AddAsync(UpdateArchivoDto archivos, int pacienteId)
 //        {
 //            if (ValidateFileData(archivos))
 //            {
@@ -89,7 +89,7 @@
 //        }
 
 ////////////////////////
-//        public async Task<(bool,string)> UpdateAsync(ArchivoDto archivoDto, int pacienteId)
+//        public async Task<(bool,string)> UpdateAsync(UpdateArchivoDto archivoDto, int pacienteId)
 //        {
 //            if (ValidateFileData(archivoDto))
 //            {
@@ -207,7 +207,7 @@
 
 
 ////////////////////////
-//        private bool ValidateFileData(ArchivoDto? archivoDto)
+//        private bool ValidateFileData(UpdateArchivoDto? archivoDto)
 //        {
 //            if (IsNull(archivoDto)
 //                ||IsEmpty(archivoDto!.Nombre)

@@ -1,4 +1,4 @@
-﻿using Equinoterapia.Application.DTOs;
+﻿using Equinoterapia.Application.DTOs.Asistencias;
 using Equinoterapia.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 

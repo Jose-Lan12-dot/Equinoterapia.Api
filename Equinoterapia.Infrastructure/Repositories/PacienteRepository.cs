@@ -1,9 +1,10 @@
-﻿using Equinoterapia.Application.DTOs;
+﻿using Equinoterapia.Application.DTOs.Pacientes;
 using Equinoterapia.Domain.Entities;
 using Equinoterapia.Domain.Interfaces;
 using Equinoterapia.Infrastructure.Persistence; // El 'using' para tu AppDbContext
 using Microsoft.EntityFrameworkCore;
 using Equinoterapia.Application.Interfaces;
+using Equinoterapia.Application.DTOs.Shared;
 
 
 namespace Equinoterapia.Infrastructure.Repositories
@@ -78,14 +79,14 @@ namespace Equinoterapia.Infrastructure.Repositories
             return archivosFaltantes;
         }
 
-        public async Task<List<AllPacienteDto>> GetAllAsync()
+        public async Task<List<GetAllPacienteDto>> GetAllAsync()
         {
             var numeroArchivosRequeridos = await _context.tipoArchivo.CountAsync();
 
             // Esta es la query optimizada
             return await _context.paciente
                 .AsNoTracking() // Mejora rendimiento, no necesitamos "vigilar" estos datos
-                .Select(p => new AllPacienteDto
+                .Select(p => new GetAllPacienteDto
                 {
                     // Mapeo directo
                     PacienteId = p.PacienteId,

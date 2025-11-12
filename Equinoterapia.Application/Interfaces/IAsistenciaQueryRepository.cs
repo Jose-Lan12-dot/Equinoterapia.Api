@@ -1,4 +1,4 @@
-﻿using Equinoterapia.Application.DTOs;
+﻿using Equinoterapia.Application.DTOs.Asistencias;
 
 namespace Equinoterapia.Application.Interfaces
 {

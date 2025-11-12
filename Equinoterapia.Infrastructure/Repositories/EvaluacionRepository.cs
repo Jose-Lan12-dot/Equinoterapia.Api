@@ -1,9 +1,9 @@
-﻿using Equinoterapia.Application.DTOs;
-using Equinoterapia.Domain.Entities;
+﻿using Equinoterapia.Domain.Entities;
 using Equinoterapia.Domain.Interfaces;
 using Equinoterapia.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Equinoterapia.Application.Interfaces;
+using Equinoterapia.Application.DTOs.Evaluaciones;
 
 namespace Equinoterapia.Infrastructure.Repositories
 {
@@ -36,7 +36,7 @@ namespace Equinoterapia.Infrastructure.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<PreguntasDto>> GetPreguntasDtoAsync()
+        public async Task<List<PreguntasDto>> GetPreguntasDtoAsync()
         {
             return await _context.preguntas
                 .OrderBy(p => p.PreguntaId)

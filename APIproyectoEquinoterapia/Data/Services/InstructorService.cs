@@ -130,7 +130,7 @@
 //        }
 
 ////////////////////////
-//        public async Task<(bool, string)> UpdatePartialAsync(InstructorDto instructorDto, int instructorId)
+//        public async Task<(bool, string)> UpdateAsync(InstructorDto instructorDto, int instructorId)
 //        {
 //            if (instructorDto.InstructorId != instructorId)
 //            {

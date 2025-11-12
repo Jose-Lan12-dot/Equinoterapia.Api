@@ -1,9 +1,9 @@
-﻿using Equinoterapia.Application.DTOs;
+﻿using Equinoterapia.Application.DTOs.Evaluaciones;
 
 namespace Equinoterapia.Application.Interfaces
 {
     public interface IEvaluacionQueryRepository
     {
-        Task<IEnumerable<PreguntasDto>> GetPreguntasDtoAsync();
+        Task<List<PreguntasDto>> GetPreguntasDtoAsync();
     }
 }

@@ -1,13 +1,13 @@
-﻿using Equinoterapia.Application.DTOs;
+﻿using Equinoterapia.Application.DTOs.Evaluaciones;
 
 namespace Equinoterapia.Application.Interfaces
 {
     public interface IEvaluacionService
     {
-        Task<(EvaluacionDto?, string?, string)> GetAsync(int pacienteId);
-        Task<(bool, string)> AddAsync(EvaluacionDto evaluacionDto, int pacienteId);
-        Task<(bool, string)> UpdateAsync(EvaluacionDto evaluacionDto, int pacienteId);
+        Task<(GetEvaluacionDto?, string)> GetAsync(int pacienteId);
+        Task<(bool, string)> AddAsync(AddEvaluacionDto evaluacionDto, int pacienteId);
+        Task<(bool, string)> UpdateAsync(UpdateEvaluacionDto evaluacionDto, int pacienteId);
         Task<(bool, string)> DeleteAsync(int pacienteId);
-        Task<(IEnumerable<PreguntasDto>, string)> GetPreguntasAsync();
+        Task<(List<PreguntasDto>, string)> GetPreguntasAsync();
     }
 }

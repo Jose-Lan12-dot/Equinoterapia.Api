@@ -1,4 +1,4 @@
-﻿using Equinoterapia.Application.DTOs;
+﻿using Equinoterapia.Application.DTOs.Auth;
 using Equinoterapia.Application.Interfaces;
 using Equinoterapia.Domain.Entities;
 using Equinoterapia.Domain.Interfaces;

@@ -1,7 +1,7 @@
-﻿using Equinoterapia.Application.DTOs;
-using Equinoterapia.Application.Interfaces; 
+﻿using Equinoterapia.Application.DTOs.Evaluaciones;
+using Equinoterapia.Application.Interfaces;
 using Equinoterapia.Domain.Entities;
-using Equinoterapia.Domain.Interfaces; 
+using Equinoterapia.Domain.Interfaces;
 namespace Equinoterapia.Application.Services 
 {
     public class RespuestasService : IRespuestasService
@@ -13,20 +13,20 @@ namespace Equinoterapia.Application.Services
             _respuestaRepository = respuestaRepository;
         }
 
-        public async Task<(IEnumerable<RespuestasDto>, string)> Get(int evaluacionId)
+        public async Task<(List<RespuestasDto>, string)> Get(int evaluacionId)
         {
             try
             {
                 var respuestas = await _respuestaRepository.GetRespuestasByEvaluacionIdAsync(evaluacionId);
                 if (!respuestas.Any())
                 {
-                    return (Enumerable.Empty<RespuestasDto>(), "Respuestas no encontradas");
+                    return (new List<RespuestasDto>(), "Respuestas no encontradas");
                 }
                 return (MapToDto(respuestas), "Respuestas encontradas");
             }
             catch (Exception ex)
             {
-                return (Enumerable.Empty<RespuestasDto>(), $"Error al obtener las respuestas: {ex.Message}");
+                return (new List<RespuestasDto>(), $"Error al obtener las respuestas: {ex.Message}");
             }
         }
 
@@ -57,7 +57,7 @@ namespace Equinoterapia.Application.Services
         //evaluacionId = 1
         //preguntaId = 1
         //respueta = 9
-        public async Task<(bool, string)> Update(IEnumerable<RespuestasDto> respuestasNuevas, int evaluacionId)
+        public async Task<(bool, string)> Update(List<RespuestasDto> respuestasNuevas, int evaluacionId)
         {
             try
             {
