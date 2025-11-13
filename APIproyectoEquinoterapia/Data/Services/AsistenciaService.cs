@@ -14,9 +14,9 @@
 //        }
 
 
-//        public async Task<(IEnumerable<AsistenciaDto>,string)> GetAsync(int sesionId)
+//        public async Task<(IEnumerable<GetAsistenciaDto>,string)> GetAsync(int sesionId)
 //        {
-//            var asistencias = new List<AsistenciaDto>();
+//            var asistencias = new List<GetAsistenciaDto>();
             
 //            if (!await SesionesExist(sesionId))
 //            {
@@ -43,7 +43,7 @@
 //            return (asistencias, "Participantes devueltos correctamente");
 //        }
 
-//        public async Task<( string, bool)> AddAsync(AsistenciaAddDto asistenciaAdd)
+//        public async Task<( string, bool)> AddAsync(AddAsistenciaDto asistenciaAdd)
 //        {
 //            var sesionId = asistenciaAdd.SesionId;
 //            var pacientesIds = asistenciaAdd.PacientesId;
@@ -66,7 +66,7 @@
 
 //        }
 
-//        public async Task<(string, bool)> UpdateAsync(AsistenciaUpdateDto asistenciaUpdate)
+//        public async Task<(string, bool)> UpdateAsync(UpdateAsistenciaDto asistenciaUpdate)
 //        {
 //            try
 //            {
@@ -141,7 +141,7 @@
 //            await _context.SaveChangesAsync();
 //        }
 
-//        private async Task<List<AsistenciaDto>> GetAsistencias(int sesionId)
+//        private async Task<List<GetAsistenciaDto>> GetAsistencias(int sesionId)
 //        {
 //            var consulta = await _context.asistencia
 //                .Where(a => a.SesionId == sesionId)
@@ -150,14 +150,14 @@
 //            return await MapToDto(consulta);
 //        }
 
-//        private async Task<List<AsistenciaDto>> MapToDto(List<Asistencia> asistencias)
+//        private async Task<List<GetAsistenciaDto>> MapToDto(List<Asistencia> asistencias)
 //        {
 
-//            var lista = new List<AsistenciaDto>();
+//            var lista = new List<GetAsistenciaDto>();
 //            foreach (var asistencia in asistencias)
 //            {
 //                var nombrePaciente = await GetNombrePaciente(asistencia.PacienteId);
-//                lista.Add(new AsistenciaDto
+//                lista.Add(new GetAsistenciaDto
 //                {
 //                    AsistenciaId = asistencia.AsistenciaId,
 //                    nombre = nombrePaciente ?? string.Empty,
@@ -189,7 +189,7 @@
 //                .ToListAsync();
 //        }
 
-//        private async Task<List<AsistenciaUpdateItemDto>> GetAsistenciasExistentes(List<AsistenciaUpdateItemDto> asistencias)
+//        private async Task<List<UpdateAsistenciaItemDto>> GetAsistenciasExistentes(List<UpdateAsistenciaItemDto> asistencias)
 //        {
 //            var asistenciasIds = asistencias.Select(a => a.AsistenciasId).ToList();
 //            var consulta = await _context.asistencia

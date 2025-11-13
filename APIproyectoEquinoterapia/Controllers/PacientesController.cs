@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Equinoterapia.Api.Controllers
 {
+    // [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    // [Authorize] 
     public class PacientesController : ControllerBase
     {
         private readonly IPacienteService _pacienteService;

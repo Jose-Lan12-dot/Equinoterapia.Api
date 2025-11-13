@@ -5,7 +5,7 @@ namespace Equinoterapia.Application.Interfaces
 {
     public interface IInstructorQueryRepository
     {
-        Task<List<InstructorDto>> GetAllDtosAsync();
+        Task<List<GetInstructorDto>> GetAllDtosAsync();
         Task<List<DropdownItemDto>> GetActivosAsync();
     }
 }

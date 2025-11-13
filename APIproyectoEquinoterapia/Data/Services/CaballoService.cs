@@ -21,9 +21,9 @@
 //        }
 
 //        //////////////////////
-//        public async Task<(IEnumerable<CaballoDto>, string)> GetAllAsync()
+//        public async Task<(IEnumerable<UpdateCaballoDto>, string)> GetAllAsync()
 //        {
-//            var caballos = new List<CaballoDto>();
+//            var caballos = new List<UpdateCaballoDto>();
 //            try
 //            {
 //                caballos = await GetAllCaballos();
@@ -31,20 +31,20 @@
 //            catch (Exception ex)
 //            {
 //                var mensaje = $"Error al obtener los caballos: {ex.Message}";
-//                return (Enumerable.Empty<CaballoDto>(), mensaje);
+//                return (Enumerable.Empty<UpdateCaballoDto>(), mensaje);
 //            }
 
 //            if (caballos.Count == 0)
 //            {
 //                var mensaje = "No se encontro ningun caballoId";
-//                return (Enumerable.Empty<CaballoDto>(), mensaje);
+//                return (Enumerable.Empty<UpdateCaballoDto>(), mensaje);
 //            }
 
 //            return (caballos, "Lista de caballos devulelta satisfactoriamente");
 //        }
 
 //        //////////////////////
-//        public async Task<(CaballoDto?, string)> GetByIdAsync(int caballoId)
+//        public async Task<(UpdateCaballoDto?, string)> GetByIdAsync(int caballoId)
 //        {
 //            var caballo = null as Caballo;
 //            try
@@ -101,7 +101,7 @@
 //        }
 
 //        //////////////////////
-//        //public async Task<(bool, string)> UpdateAllAsync(CaballoDto caballoDto, int caballoId)
+//        //public async Task<(bool, string)> UpdateAllAsync(UpdateCaballoDto caballoDto, int caballoId)
 //        //{
 //        //    if(caballoDto.CaballoId != caballoId) { 
 //        //        var mensaje = "El ID del caballo no coincide";
@@ -141,7 +141,7 @@
 //        //}
 
 //        //////////////////////
-//        public async Task<(bool, string)> UpdateAsync(CaballoDto caballoDto, int caballoId)
+//        public async Task<(bool, string)> UpdateAsync(UpdateCaballoDto caballoDto, int caballoId)
 //        {
 //            if (IsNull(caballoDto))
 //            {
@@ -235,10 +235,10 @@
 
 
 //        //////////////////////
-//        private async Task<List<CaballoDto>> GetAllCaballos()
+//        private async Task<List<UpdateCaballoDto>> GetAllCaballos()
 //        {
 //            return await _context.caballo
-//                    .Select(c => new CaballoDto
+//                    .Select(c => new UpdateCaballoDto
 //                    {
 //                        CaballoId = c.CaballoId,
 //                        Placa = c.Placa,
@@ -278,10 +278,10 @@
 //        }
 
 //        //////////////////////
-//        private CaballoDto MapToCaballoDto(Caballo caballo)
+//        private UpdateCaballoDto MapToCaballoDto(Caballo caballo)
 
 //        {
-//            return new CaballoDto
+//            return new UpdateCaballoDto
 //            {
 //                CaballoId = caballo.CaballoId,
 //                Placa = caballo.Placa,

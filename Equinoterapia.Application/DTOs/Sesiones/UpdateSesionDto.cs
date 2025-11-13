@@ -1,0 +1,13 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace Equinoterapia.Application.DTOs.Sesiones
+{
+    public class UpdateSesionDto
+    {
+        public DateOnly? Fecha { get; set; }
+        public TimeOnly? Hora { get; set; }
+        public int? InstructorId { get; set; }
+        public int? CaballoId { get; set; }
+    }
+
+}

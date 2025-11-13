@@ -27,7 +27,7 @@ namespace Equinoterapia.Infrastructure.Repositories
             _context.respuestas.AddRange(respuestas);
         }
 
-        public void RemoveRange(IEnumerable<Respuestas> respuestas)
+        public void RemoveRange(List<Respuestas> respuestas)
         {
             _context.respuestas.RemoveRange(respuestas);
         }

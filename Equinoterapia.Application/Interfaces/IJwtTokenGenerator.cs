@@ -4,6 +4,6 @@ namespace Equinoterapia.Application.Interfaces
 {
     public interface IJwtTokenGenerator
     {
-        string GenerateToken(InicioSesionDto inicioSesionDto);
+        string GenerateToken(GetDataUsuarioDto inicioSesionDto);
     }
 }

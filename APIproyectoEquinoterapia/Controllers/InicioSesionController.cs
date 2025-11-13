@@ -18,7 +18,7 @@ namespace Equinoterapia.Api.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login([FromBody] InicioSesionDataDto inicioSesionDataDto)
+        public async Task<IActionResult> Login([FromBody] CredencialesDto inicioSesionDataDto)
         {
 
             var (exito, mensaje, token) = await _inicioSesionService.LoginAsync(inicioSesionDataDto);

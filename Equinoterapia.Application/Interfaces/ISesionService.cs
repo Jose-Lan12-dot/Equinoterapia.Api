@@ -5,12 +5,12 @@ namespace Equinoterapia.Application.Interfaces
 {
     public interface ISesionService
     {
-        Task<(IEnumerable<SesionDto>, string)> GetAllAsync();
-        Task<(SesionDto?, string)> GetByIdAsync(int sesionId);
+        Task<(IEnumerable<GetAllSesionDto>, string)> GetAllAsync();
+        Task<(GetOneSesionDto?, string)> GetByIdAsync(int sesionId);
         Task<(bool, string)> AddAsync(AddSesionDto addSesionDto);
-        Task<(bool, string)> UpdateAsync(SesionDto sesionDto, int sesionId);
+        Task<(bool, string)> UpdateAsync(UpdateSesionDto sesionDto, int sesionId);
         Task<(bool, string)> DeleteAsync(int sesionId);
-        Task<(IEnumerable<SesionDto>, string)> GetByWeekAsync(DateOnly startOfWeek);
+        Task<(IEnumerable<GetAllSesionDto>, string)> GetByWeekAsync(DateOnly startOfWeek);
         Task<SesionFormDataDto> GetFormDataAsync();
         Task<List<HorarioOcupadoDto>> GetHorariosOcupadosAsync(DateOnly fecha);
     }

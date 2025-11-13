@@ -31,18 +31,16 @@ namespace Equinoterapia.Infrastructure.Repositories
         {
             return await _context.SaveChangesAsync() > 0;
         }
-        public async Task<List<CaballoDto>> GetAllDtosAsync()
+        public async Task<List<GetAllCaballoDto>> GetAllDtosAsync()
         {
             return await _context.caballo
                    .AsNoTracking()
-                   .Select(c => new CaballoDto
+                   .Select(c => new GetAllCaballoDto
                    {
                        CaballoId = c.CaballoId,
-                       Placa = c.Placa,
                        Nombre = c.Nombre,
                        Estado = c.Estado.ToString(),
                        FechaHerraje = c.FechaHerraje,
-                       Padecimiento = c.Padecimiento,
                    })
                    .ToListAsync();
         }

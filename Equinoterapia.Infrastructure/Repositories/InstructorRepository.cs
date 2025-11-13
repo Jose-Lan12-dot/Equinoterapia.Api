@@ -33,11 +33,11 @@ namespace Equinoterapia.Infrastructure.Repositories
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<List<InstructorDto>> GetAllDtosAsync()
+        public async Task<List<GetInstructorDto>> GetAllDtosAsync()
         {
             return await _context.instructor
                 .AsNoTracking()
-                .Select(i => new InstructorDto
+                .Select(i => new GetInstructorDto
                 {
                     InstructorId = i.InstructorId,
                     Nombre = i.Nombre,

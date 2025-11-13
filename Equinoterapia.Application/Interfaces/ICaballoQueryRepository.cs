@@ -5,7 +5,7 @@ namespace Equinoterapia.Application.Interfaces
 {
     public interface ICaballoQueryRepository
     {
-        Task<List<CaballoDto>> GetAllDtosAsync();
+        Task<List<GetAllCaballoDto>> GetAllDtosAsync();
         Task<List<DropdownItemDto>> GetDisponiblesAsync();
     }
 }

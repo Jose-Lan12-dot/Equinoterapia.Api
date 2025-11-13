@@ -1,9 +1,11 @@
 ﻿using Equinoterapia.Application.DTOs.Asistencias;
 using Equinoterapia.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Equinoterapia.Api.Controllers
 {
+    //[Authorize]
     [ApiController]
     [Route("api/asistencias")] 
     public class AsistenciasController : ControllerBase
@@ -34,7 +36,7 @@ namespace Equinoterapia.Api.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsistencias([FromBody] AsistenciaAddDto asistenciaDto)
+        public async Task<IActionResult> CreateAsistencias([FromBody] AddAsistenciaDto asistenciaDto)
         {
             var (exito, mensaje) = await _asistenciaService.AddAsync(asistenciaDto);
 
@@ -47,8 +49,8 @@ namespace Equinoterapia.Api.Controllers
         }
 
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateAsistencias([FromBody] AsistenciaUpdateDto asistenciaUpdateDto)
+        [HttpPatch]
+        public async Task<IActionResult> UpdateAsistencias([FromBody] UpdateAsistenciaDto asistenciaUpdateDto)
         {
             var (mensaje, exito) = await _asistenciaService.UpdateAsync(asistenciaUpdateDto);
 

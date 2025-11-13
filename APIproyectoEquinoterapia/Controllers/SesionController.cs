@@ -1,9 +1,11 @@
 ﻿using Equinoterapia.Application.DTOs.Sesiones;
 using Equinoterapia.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Equinoterapia.Api.Controllers
 {
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]")] 
     public class SesionesController : ControllerBase
@@ -72,19 +74,15 @@ namespace Equinoterapia.Api.Controllers
             var (exito, mensaje) = await _sesionService.AddAsync(addSesionDto);
             if (!exito)
             {
-                return BadRequest(new { Mensaje = mensaje }); // 400
+                return BadRequest(new { Mensaje = mensaje }); 
             }
             return Ok(new { Mensaje = mensaje });
         }
 
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] SesionDto sesionDto)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateSesionDto sesionDto)
         {
-            if (id != sesionDto.SesionId)
-            {
-                return BadRequest("El ID de la ruta no coincide con el ID del cuerpo.");
-            }
 
             var (exito, mensaje) = await _sesionService.UpdateAsync(sesionDto, id);
             if (!exito)

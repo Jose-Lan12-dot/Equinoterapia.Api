@@ -1,9 +1,11 @@
 ﻿using Equinoterapia.Application.DTOs.Archivos;
 using Equinoterapia.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Equinoterapia.Api.Controllers
 {
+    //[Authorize]
     [ApiController]
     [Route("api/pacientes/{pacienteId}/archivos")]
     public class ArchivosController : ControllerBase

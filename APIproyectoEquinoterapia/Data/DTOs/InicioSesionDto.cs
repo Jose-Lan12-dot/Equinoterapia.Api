@@ -2,7 +2,7 @@
 
 //namespace APIproyectoEquinoterapia.DTOs
 //{
-//    public class InicioSesionDto
+//    public class GetDataUsuarioDto
 //    {
 //        public int IdUsuario { get; set; }
 //        public int IdKronos { get; set; }
@@ -15,7 +15,7 @@
 //    }
 
 
-//    public class InicioSesionDataDto
+//    public class CredencialesDto
 //    {
 //        [Required]
 //        public string Usuario { get; set; } = string.Empty;

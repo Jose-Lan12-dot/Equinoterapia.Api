@@ -15,9 +15,9 @@
 //        }
 
 ////////////////////////
-//        public async Task<(IEnumerable<InstructorDto>, string)> GetAllAsync()
+//        public async Task<(IEnumerable<UpdateInstructorDto>, string)> GetAllAsync()
 //        {
-//            var instructores = new List<InstructorDto>();
+//            var instructores = new List<UpdateInstructorDto>();
 //            try
 //            {
 //                instructores = await GetAllInstructores();
@@ -25,20 +25,20 @@
 //            catch (Exception ex)
 //            {
 //                var mensaje = $"Error al obtener los instructores: {ex.Message}";
-//                return (Enumerable.Empty<InstructorDto>(), mensaje);
+//                return (Enumerable.Empty<UpdateInstructorDto>(), mensaje);
 //            }
 
 //            if (instructores.Count == 0)
 //            {
 //                var mensaje = "No se encontraron instructores";
-//                return (Enumerable.Empty<InstructorDto>(), mensaje);
+//                return (Enumerable.Empty<UpdateInstructorDto>(), mensaje);
 //            }
 
 //            return (instructores, "Instructores devueltos con éxito");
 //        }
 
 ////////////////////////
-//        public async Task<(InstructorDto?, string)> GetByIdAsync(int instructorId)
+//        public async Task<(UpdateInstructorDto?, string)> GetByIdAsync(int instructorId)
 //        {
 //            var instructor = null as Instructor;
 //            try
@@ -90,7 +90,7 @@
 //        }
 
 ////////////////////////
-//        public async Task<(bool, string)> UpdateAllAsync(InstructorDto instructorDto, int instructorId)
+//        public async Task<(bool, string)> UpdateAllAsync(UpdateInstructorDto instructorDto, int instructorId)
 //        {
            
 //            if(instructorDto.InstructorId != instructorId)
@@ -130,7 +130,7 @@
 //        }
 
 ////////////////////////
-//        public async Task<(bool, string)> UpdateAsync(InstructorDto instructorDto, int instructorId)
+//        public async Task<(bool, string)> UpdateAsync(UpdateInstructorDto instructorDto, int instructorId)
 //        {
 //            if (instructorDto.InstructorId != instructorId)
 //            {
@@ -209,10 +209,10 @@
 
 
 ////////////////////////
-//        private async Task<List<InstructorDto>> GetAllInstructores()
+//        private async Task<List<UpdateInstructorDto>> GetAllInstructores()
 //        {
 //            return await _context.instructor
-//                    .Select(i => new InstructorDto
+//                    .Select(i => new UpdateInstructorDto
 //                    {
 //                        InstructorId = i.InstructorId,
 //                        Nombre = i.Nombre,
@@ -238,9 +238,9 @@
 
 
 ////////////////////////
-//        private InstructorDto MapToInstructorDto(Instructor instructor)
+//        private UpdateInstructorDto MapToInstructorDto(Instructor instructor)
 //        {
-//            return new InstructorDto
+//            return new UpdateInstructorDto
 //            {
 //                InstructorId = instructor.InstructorId,
 //                Nombre = instructor.Nombre,
@@ -261,7 +261,7 @@
 //        }
 
 ////////////////////////
-//        private bool ValidateInstructorData(InstructorDto instructorDto)
+//        private bool ValidateInstructorData(UpdateInstructorDto instructorDto)
 //        {
 //            if (IsEmpty(instructorDto.Telefono)
 //                || IsEmpty(instructorDto.Nombre)

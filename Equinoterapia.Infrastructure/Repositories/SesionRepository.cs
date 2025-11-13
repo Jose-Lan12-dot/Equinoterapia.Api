@@ -51,34 +51,30 @@ namespace Equinoterapia.Infrastructure.Repositories
 
 
 
-        public async Task<List<SesionDto>> GetAllDtosAsync()
+        public async Task<List<GetAllSesionDto>> GetAllDtosAsync()
         {
             return await _context.sesion
                 .AsNoTracking()
-                .Select(s => new SesionDto
+                .Select(s => new GetAllSesionDto
                 {
                     SesionId = s.SesionId,
                     Fecha = s.Fecha,
                     Hora = s.Hora,
-                    InstructorId = s.InstructorId,
-                    CaballoId = s.CaballoId
                 })
                 .ToListAsync();
         }
 
-        public async Task<List<SesionDto>> GetByWeekDtosAsync(DateOnly startOfWeek)
+        public async Task<List<GetAllSesionDto>> GetByWeekDtosAsync(DateOnly startOfWeek)
         {
             var endOfWeek = startOfWeek.AddDays(6);
             return await _context.sesion
                 .AsNoTracking()
                 .Where(s => s.Fecha >= startOfWeek && s.Fecha <= endOfWeek)
-                .Select(s => new SesionDto
+                .Select(s => new GetAllSesionDto
                 {
                     SesionId = s.SesionId,
                     Fecha = s.Fecha,
                     Hora = s.Hora,
-                    InstructorId = s.InstructorId,
-                    CaballoId = s.CaballoId
                 })
                 .ToListAsync();
         }

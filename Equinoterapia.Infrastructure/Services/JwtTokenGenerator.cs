@@ -18,7 +18,7 @@ namespace Equinoterapia.Infrastructure.Services
         }
 
 
-        public string GenerateToken(InicioSesionDto inicioSesionDto)
+        public string GenerateToken(GetDataUsuarioDto inicioSesionDto)
         {
             var claims = new[]
             {

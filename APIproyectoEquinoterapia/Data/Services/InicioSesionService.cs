@@ -24,7 +24,7 @@
 //        }
 
 ////////////////////////
-//        public async Task <(bool,string,string)> LoginAsync(InicioSesionDataDto inicioSesionDataDto)
+//        public async Task <(bool,string,string)> LoginAsync(CredencialesDto inicioSesionDataDto)
 //        {
 //            if (ValidateData(inicioSesionDataDto))
 //                return (false,"Datos de usuario incompletos","");
@@ -66,7 +66,7 @@
 //        }
 
 ////////////////////////
-//        private bool ValidateData(InicioSesionDataDto inicioSesionDataDto)
+//        private bool ValidateData(CredencialesDto inicioSesionDataDto)
 //        {
 //            if (IsEmpty(inicioSesionDataDto.Usuario)
 //                || IsEmpty(inicioSesionDataDto.contrasena))
@@ -100,7 +100,7 @@
 //        }
 
 ////////////////////////
-//        private async Task <InicioSesionDto?> ValidateAccesoInDb(InicioSesionDataDto inicioSesionDataDto, int idUsuario)
+//        private async Task <GetDataUsuarioDto?> ValidateAccesoInDb(CredencialesDto inicioSesionDataDto, int idUsuario)
 //        {
 //            var resultados = await _context.inicioSesion
 //                .FromSqlInterpolated($@"
@@ -121,10 +121,10 @@
 //        }
 
 ////////////////////////
-//        private InicioSesionDto MapToDto (InicioSesion usuario)
+//        private GetDataUsuarioDto MapToDto (InicioSesion usuario)
 //        {
 
-//            return new InicioSesionDto
+//            return new GetDataUsuarioDto
 //            {
 //                IdUsuario = usuario.IdUsuario,
 //                IdKronos = usuario.IdKronos,
@@ -138,7 +138,7 @@
 //        }
 
 ////////////////////////
-//        public string GetToken(InicioSesionDto inicioSesionDto)
+//        public string GetToken(GetDataUsuarioDto inicioSesionDto)
 //        {
 //            var claims = new[]
 //            {

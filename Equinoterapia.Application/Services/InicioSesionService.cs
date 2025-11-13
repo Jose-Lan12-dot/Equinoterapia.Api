@@ -21,21 +21,15 @@ namespace Equinoterapia.Application.Services
             _tokenGenerator = tokenGenerator;
         }
 
-        public async Task<(bool, string, string)> LoginAsync(InicioSesionDataDto inicioSesionDataDto)
+        public async Task<(bool, string, string)> LoginAsync(CredencialesDto inicioSesionDataDto)
         {
-            if (ValidateData(inicioSesionDataDto))
-                return (false, "Datos de usuario incompletos", "");
-
-            // 1. Validar Usuario (Acción 1)
             var usuario = await _authRepository.ValidateUserAsync(inicioSesionDataDto.Usuario);
             if (IsNull(usuario) || IsNull(usuario.IdUsuario) || usuario.IdUsuario == 0)
                 return (false, "Usuario no encontrado", "");
 
-            // 2. Cifrar Contraseña (cuando esté listo)
             // string encryptedPassword = _encryptionService.EncryptPassword(inicioSesionDataDto.contrasena);
             string encryptedPassword = inicioSesionDataDto.contrasena; 
 
-            // 3. Validar Acceso (Acción 2)
             var acceso = await _authRepository.ValidateAccessAsync(
                                     inicioSesionDataDto.Usuario,
                                     encryptedPassword,
@@ -52,21 +46,15 @@ namespace Equinoterapia.Application.Services
         }
 
 
-        // --- MÉTODOS PRIVADOS (Helper) ---
 
-        private bool IsEmpty(string? str) => string.IsNullOrWhiteSpace(str);
+
+
+        // --- MÉTODOS PRIVADOS (Helper) ---
         private bool IsNull(object? obj) => obj is null;
 
-        private bool ValidateData(InicioSesionDataDto inicioSesionDataDto)
+        private GetDataUsuarioDto MapToDto(InicioSesion usuario)
         {
-            if (IsEmpty(inicioSesionDataDto.Usuario) || IsEmpty(inicioSesionDataDto.contrasena))
-                return true;
-            return false;
-        }
-
-        private InicioSesionDto MapToDto(InicioSesion usuario)
-        {
-            return new InicioSesionDto
+            return new GetDataUsuarioDto
             {
                 IdUsuario = usuario.IdUsuario,
                 IdKronos = usuario.IdKronos,

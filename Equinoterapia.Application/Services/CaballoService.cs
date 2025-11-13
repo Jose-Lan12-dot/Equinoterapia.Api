@@ -26,28 +26,28 @@ namespace Equinoterapia.Application.Services
             _asistenciaRepository = asistenciaRepository;
         }
 
-        public async Task<(IEnumerable<CaballoDto>, string)> GetAllAsync()
+        public async Task<(IEnumerable<GetAllCaballoDto>, string)> GetAllAsync()
         {
-            var caballos = new List<CaballoDto>();
+            var caballos = new List<GetAllCaballoDto>();
             try
             {
-                // Usamos el repositorio de consulta optimizado
+                
                 caballos = await _caballoQueryRepository.GetAllDtosAsync();
             }
             catch (Exception ex)
             {
-                return (Enumerable.Empty<CaballoDto>(), $"Error al obtener los caballos: {ex.Message}");
+                return (Enumerable.Empty<GetAllCaballoDto>(), $"Error al obtener los caballos: {ex.Message}");
             }
 
             if (!caballos.Any())
             {
-                return (Enumerable.Empty<CaballoDto>(), "No se encontro ningun caballo");
+                return (Enumerable.Empty<GetAllCaballoDto>(), "No se encontro ningun caballo");
             }
 
             return (caballos, "Lista de caballos devuelta satisfactoriamente");
         }
 
-        public async Task<(CaballoDto?, string)> GetByIdAsync(int caballoId)
+        public async Task<(GetCaballoDto?, string)> GetByIdAsync(int caballoId)
         {
             Caballo? caballo;
             try
@@ -69,17 +69,13 @@ namespace Equinoterapia.Application.Services
 
         public async Task<(bool, string)> AddAsync(AddCaballoDto addCaballoDto)
         {
-            if (IsNull(addCaballoDto) || IsNull(addCaballoDto.FechaHerraje))
-            {
-                return (false, "Datos del Caballo no aceptados");
-            }
 
             var nuevoCaballo = new Caballo
             {
                 Placa = addCaballoDto.Placa,
                 Nombre = addCaballoDto.Nombre,
                 Estado = EstadoCaballo.Disponible,
-                FechaHerraje = addCaballoDto.FechaHerraje!.Value,
+                FechaHerraje = addCaballoDto.FechaHerraje!,
                 Padecimiento = addCaballoDto.Padecimiento,
             };
 
@@ -95,16 +91,8 @@ namespace Equinoterapia.Application.Services
             }
         }
 
-        public async Task<(bool, string)> UpdatePartialAsync(CaballoDto caballoDto, int caballoId)
+        public async Task<(bool, string)> UpdatelAsync(UpdateCaballoDto caballoDto, int caballoId)
         {
-            if (IsNull(caballoDto))
-            {
-                return (false, "Datos del Caballo no aceptados");
-            }
-            if (caballoDto.CaballoId != caballoId)
-            {
-                return (false, "El ID del caballo no coincide");
-            }
 
             var caballo = await _caballoRepository.GetByIdAsync(caballoId);
             if (IsNull(caballo))
@@ -135,7 +123,7 @@ namespace Equinoterapia.Application.Services
 
             try
             {
-                // Usamos el repositorio
+                
                 await _caballoRepository.SaveChangesAsync();
                 return (true, "Caballo actualizado correctamente");
             }
@@ -145,12 +133,9 @@ namespace Equinoterapia.Application.Services
             }
         }
 
-
-
-
         public async Task<(bool, string)> DeleteAsync(int caballoId)
         {
-            // 1. Obtener la entidad principal (Caballo)
+            
             var caballo = await _caballoRepository.GetByIdAsync(caballoId);
             if (IsNull(caballo))
             {
@@ -159,11 +144,11 @@ namespace Equinoterapia.Application.Services
 
             try
             {
-                // 2. Encontrar hijos (Sesiones)
+                
                 var sesiones = await _sesionRepository.GetByCaballoIdAsync(caballoId);
                 if (sesiones.Any())
                 {
-                    // 3. Encontrar nietos (Asistencias)
+                    
                     var sesionIds = sesiones.Select(s => s.SesionId).ToList();
                     var asistencias = await _asistenciaRepository.GetBySesionIdsAsync(sesionIds);
 
@@ -172,14 +157,14 @@ namespace Equinoterapia.Application.Services
                         _asistenciaRepository.RemoveRange(asistencias);
                     }
 
-                    // 4. Borrar hijos (Sesiones)
+               
                     _sesionRepository.RemoveRange(sesiones);
                 }
 
-                // 5. Borrar la entidad principal (Caballo)
+                
                 _caballoRepository.Delete(caballo);
 
-                // 6. ¡GUARDAR TODO EN UNA SOLA TRANSACCIÓN!
+                
                 await _caballoRepository.SaveChangesAsync();
 
                 return (true, "Caballo y sus sesiones/asistencias asociadas eliminados correctamente.");
@@ -192,13 +177,19 @@ namespace Equinoterapia.Application.Services
 
 
 
+
+
+
+
+
+
         // --- MÉTODOS PRIVADOS (Helper) ---
 
         private bool IsNull(object? objeto) => objeto is null;
 
-        private CaballoDto MapToCaballoDto(Caballo caballo)
+        private GetCaballoDto MapToCaballoDto(Caballo caballo)
         {
-            return new CaballoDto
+            return new GetCaballoDto
             {
                 CaballoId = caballo.CaballoId,
                 Placa = caballo.Placa,

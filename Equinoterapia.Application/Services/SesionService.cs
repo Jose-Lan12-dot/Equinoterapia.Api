@@ -35,7 +35,7 @@ namespace Equinoterapia.Application.Services
             _caballoQueryRepository = caballoQueryRepository;
         }
 
-        public async Task<(IEnumerable<SesionDto>, string)> GetAllAsync()
+        public async Task<(IEnumerable<GetAllSesionDto>, string)> GetAllAsync()
         {
             try
             {
@@ -46,11 +46,26 @@ namespace Equinoterapia.Application.Services
             }
             catch (Exception ex)
             {
-                return (Enumerable.Empty<SesionDto>(), $"Error al obtener sesiones: {ex.Message}");
+                return (Enumerable.Empty<GetAllSesionDto>(), $"Error al obtener sesiones: {ex.Message}");
             }
         }
 
-        public async Task<(SesionDto?, string)> GetByIdAsync(int sesionId)
+        public async Task<(IEnumerable<GetAllSesionDto>, string)> GetByWeekAsync(DateOnly startOfWeek)
+        {
+            try
+            {
+                var sesiones = await _sesionQueryRepository.GetByWeekDtosAsync(startOfWeek);
+                if (!sesiones.Any())
+                    return (sesiones, "No se encontraron sesiones para la semana.");
+                return (sesiones, "Sesiones de la semana obtenidas correctamente.");
+            }
+            catch (Exception ex)
+            {
+                return (Enumerable.Empty<GetAllSesionDto>(), $"Error al obtener sesiones: {ex.Message}");
+            }
+        }
+
+        public async Task<(GetOneSesionDto?, string)> GetByIdAsync(int sesionId)
         {
             try
             {
@@ -58,7 +73,7 @@ namespace Equinoterapia.Application.Services
                 if (sesion == null)
                     return (null, "Sesión no encontrada.");
 
-                var dto = new SesionDto
+                var dto = new GetOneSesionDto
                 {
                     SesionId = sesion.SesionId,
                     Fecha = sesion.Fecha,
@@ -109,11 +124,16 @@ namespace Equinoterapia.Application.Services
 
                 if (addSesionDto.PacienteIds != null && addSesionDto.PacienteIds.Any())
                 {
-                    var (exito, mensaje) = await _asistenciaService.AddAsync(new AsistenciaAddDto
+                    var (exito, mensaje) = await _asistenciaService.AddAsync(new AddAsistenciaDto
                     {
                         SesionId = nuevaSesion.SesionId,
                         PacientesId = addSesionDto.PacienteIds
                     });
+
+                    if (!exito)
+                    {
+                        return (true, $"Sesión creada, pero error al agregar asistencias: {mensaje}");
+                    }
                 }
                 return (true, "Sesión agregada correctamente.");
             }
@@ -123,19 +143,48 @@ namespace Equinoterapia.Application.Services
             }
         }
 
-        public async Task<(bool, string)> UpdateAsync(SesionDto sesionDto, int sesionId)
+        public async Task<(bool, string)> UpdateAsync(UpdateSesionDto sesionDto, int sesionId)
         {
-            if (sesionDto.SesionId != sesionId)
-                return (false, "El ID de la sesión no coincide.");
-
             var sesion = await _sesionRepository.GetByIdAsync(sesionId);
             if (sesion == null)
                 return (false, "Sesión no encontrada.");
 
-            sesion.Fecha = sesionDto.Fecha;
-            sesion.Hora = sesionDto.Hora;
-            sesion.InstructorId = sesionDto.InstructorId;
-            sesion.CaballoId = sesionDto.CaballoId;
+            if (sesionDto.Fecha.HasValue || sesionDto.Hora.HasValue)
+            {
+                const int duracionSesionMinutos = 20;
+                var nuevaHoraInicio =  sesionDto.Hora ?? sesion.Hora;
+                var nuevaHoraFin = nuevaHoraInicio.AddMinutes(duracionSesionMinutos);
+
+                var fechaNueva = sesionDto.Fecha ?? sesion.Fecha;
+
+                var sesionesDelDia = await _sesionRepository.GetByFechaAsync(fechaNueva);
+
+                foreach (var sesionExistente in sesionesDelDia)
+                {
+                    if (sesionExistente.SesionId == sesionId) continue;
+
+                    var dbHoraInicio = sesionExistente.Hora;
+                    var dbHoraFin = dbHoraInicio.AddMinutes(duracionSesionMinutos);
+
+                    if (nuevaHoraInicio < dbHoraFin && dbHoraInicio < nuevaHoraFin)
+                    {
+                        return (false, $"El nuevo horario choca con la sesión de {dbHoraInicio:HH:mm}.");
+                    }
+                }
+
+                sesion.Fecha = fechaNueva;
+                sesion.Hora = nuevaHoraInicio;
+            }
+
+            if (sesionDto.InstructorId.HasValue)
+            {
+                sesion.InstructorId = sesionDto.InstructorId.Value;
+            }
+
+            if (sesionDto.CaballoId.HasValue)
+            {
+                sesion.CaballoId = sesionDto.CaballoId.Value;
+            }
 
             try
             {
@@ -173,28 +222,19 @@ namespace Equinoterapia.Application.Services
             }
         }
 
-        public async Task<(IEnumerable<SesionDto>, string)> GetByWeekAsync(DateOnly startOfWeek)
-        {
-            try
-            {
-                var sesiones = await _sesionQueryRepository.GetByWeekDtosAsync(startOfWeek);
-                if (!sesiones.Any())
-                    return (sesiones, "No se encontraron sesiones para la semana.");
-                return (sesiones, "Sesiones de la semana obtenidas correctamente.");
-            }
-            catch (Exception ex)
-            {
-                return (Enumerable.Empty<SesionDto>(), $"Error al obtener sesiones: {ex.Message}");
-            }
-        }
+
+
+
+        //--- Métodos Adicionales ---
+
 
 
         public async Task<SesionFormDataDto> GetFormDataAsync()
         {
             return new SesionFormDataDto
             {
-                Pacientes = await _instructorQueryRepository.GetActivosAsync(),
-                Instructores = await _pacienteQueryRepository.GetActivosAsync(),
+                Pacientes = await _pacienteQueryRepository.GetActivosAsync(),
+                Instructores = await _instructorQueryRepository.GetActivosAsync(),
                 Caballos = await _caballoQueryRepository.GetDisponiblesAsync(),
             };
         }

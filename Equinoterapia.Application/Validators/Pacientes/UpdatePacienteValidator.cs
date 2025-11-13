@@ -25,9 +25,9 @@ namespace Equinoterapia.Application.Validators.Pacientes
 
             RuleFor(x => x.TelefonoTutor)
                 .NotEmpty().WithMessage("El teléfono no puede estar vacío.")
-                .Length(10).WithMessage("El teléfono debe tener exactamente 10 dígitos.")
-                .Matches(@"^\d$").WithMessage("El teléfono solo debe contener números.")
+                .Matches(@"^\d{10}$").WithMessage("El teléfono solo debe contener 10 digitos numericos.")
                 .When(x => x.TelefonoTutor is not null);
+
 
             RuleFor(x => x.Genero)
                 .NotEmpty().WithMessage("El género no puede estar vacío.")

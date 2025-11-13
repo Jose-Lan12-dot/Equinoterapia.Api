@@ -14,8 +14,7 @@ namespace Equinoterapia.Application.Validators.Evaluaciones
                 .When(x => x.Fecha.HasValue);
 
             RuleForEach(x => x.Respuestas)
-                .SetValidator(new RespuestasValidator())
-                .When(x => x.Respuestas is not null && x.Respuestas.Count > 0);
+                .SetValidator(new RespuestasValidator());
         }
     }
 }

@@ -3,7 +3,7 @@
 
 //namespace APIproyectoEquinoterapia.DTOs
 //{
-//    public class SesionDto
+//    public class UpdateSesionDto
 //    {
 //        [Required]
 //        public int SesionId { get; set; }

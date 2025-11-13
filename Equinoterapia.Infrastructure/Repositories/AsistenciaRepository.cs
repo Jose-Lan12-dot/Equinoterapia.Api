@@ -17,7 +17,7 @@ namespace Equinoterapia.Infrastructure.Repositories
         }
 
 
-        public async Task<List<AsistenciaDto>> GetAsistenciasBySesionIdAsync(int sesionId)
+        public async Task<List<GetAsistenciaDto>> GetAsistenciasBySesionIdAsync(int sesionId)
         {
 
             return await _context.asistencia
@@ -25,7 +25,7 @@ namespace Equinoterapia.Infrastructure.Repositories
                 .Join(_context.paciente,
                       asistencia => asistencia.PacienteId, 
                       paciente => paciente.PacienteId,    
-                      (asistencia, paciente) => new AsistenciaDto 
+                      (asistencia, paciente) => new GetAsistenciaDto 
                       {
                           AsistenciaId = asistencia.AsistenciaId,
                           nombre = paciente.Nombre, 

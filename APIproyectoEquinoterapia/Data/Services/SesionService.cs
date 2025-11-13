@@ -15,12 +15,12 @@
 //            _asistenciaService = asistenciaService;
 //        }
 
-//        public async Task<(IEnumerable<SesionDto>, string)> GetAllAsync()
+//        public async Task<(IEnumerable<UpdateSesionDto>, string)> GetAllAsync()
 //        {
 //            try
 //            {
 //                var sesiones = await _context.sesion
-//                    .Select(s => new SesionDto
+//                    .Select(s => new UpdateSesionDto
 //                    {
 //                        SesionId = s.SesionId,
 //                        Fecha = s.Fecha,
@@ -37,11 +37,11 @@
 //            }
 //            catch (Exception ex)
 //            {
-//                return (Enumerable.Empty<SesionDto>(), $"Error al obtener sesiones: {ex.Message}");
+//                return (Enumerable.Empty<UpdateSesionDto>(), $"Error al obtener sesiones: {ex.Message}");
 //            }
 //        }
 
-//        public async Task<(SesionDto?, string)> GetByIdAsync(int sesionId)
+//        public async Task<(UpdateSesionDto?, string)> GetByIdAsync(int sesionId)
 //        {
 //            try
 //            {
@@ -49,7 +49,7 @@
 //                if (sesion == null)
 //                    return (null, "Sesión no encontrada.");
 
-//                var dto = new SesionDto
+//                var dto = new UpdateSesionDto
 //                {
 //                    SesionId = sesion.SesionId,
 //                    Fecha = sesion.Fecha,
@@ -81,7 +81,7 @@
 //                await _context.SaveChangesAsync();
 //                if (addSesionDto.PacienteIds != null && addSesionDto.PacienteIds.Count > 0)
 //                {
-//                    await _asistenciaService.AddAsync(new AsistenciaAddDto
+//                    await _asistenciaService.AddAsync(new AddAsistenciaDto
 //                    {
 //                        SesionId = nuevaSesion.SesionId,
 //                        PacientesId = addSesionDto.PacienteIds
@@ -95,7 +95,7 @@
 //            }
 //        }
 
-//        public async Task<(bool, string)> UpdateAsync(SesionDto sesionDto, int sesionId)
+//        public async Task<(bool, string)> UpdateAsync(UpdateSesionDto sesionDto, int sesionId)
 //        {
 //            if (sesionDto.SesionId != sesionId)
 //                return (false, "El ID de la sesión no coincide.");
@@ -141,7 +141,7 @@
 //            }
 //        }
 
-//        public async Task<(IEnumerable<SesionDto>, string)> GetByWeekAsync(DateOnly startOfWeek)
+//        public async Task<(IEnumerable<UpdateSesionDto>, string)> GetByWeekAsync(DateOnly startOfWeek)
 //        {
 //            try
 //            {
@@ -150,7 +150,7 @@
 
 //                var sesiones = await _context.sesion
 //                    .Where(s => s.Fecha >= startOfWeek && s.Fecha <= endOfWeek)
-//                    .Select(s => new SesionDto
+//                    .Select(s => new UpdateSesionDto
 //                    {
 //                        SesionId = s.SesionId,
 //                        Fecha = s.Fecha,
@@ -167,7 +167,7 @@
 //            }
 //            catch (Exception ex)
 //            {
-//                return (Enumerable.Empty<SesionDto>(), $"Error al obtener sesiones: {ex.Message}");
+//                return (Enumerable.Empty<UpdateSesionDto>(), $"Error al obtener sesiones: {ex.Message}");
 //            }
 //        }
 //    }

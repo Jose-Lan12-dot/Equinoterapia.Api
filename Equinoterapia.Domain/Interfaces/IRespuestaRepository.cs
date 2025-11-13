@@ -9,7 +9,7 @@ namespace Equinoterapia.Domain.Interfaces
 
         // Métodos de Escritura
         void AddRange(IEnumerable<Respuestas> respuestas);
-        void RemoveRange(IEnumerable<Respuestas> respuestas);
+        void RemoveRange(List<Respuestas> respuestas);
         Task<bool> SaveChangesAsync();
     }
 }

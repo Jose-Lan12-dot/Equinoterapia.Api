@@ -1,9 +1,11 @@
 ﻿using Equinoterapia.Application.DTOs.Evaluaciones;
 using Equinoterapia.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Equinoterapia.Api.Controllers
 {
+    //[Authorize]
     [ApiController]
     [Route("api/pacientes/{pacienteId}/evaluacion")]
     public class EvaluacionController : ControllerBase
@@ -50,7 +52,7 @@ namespace Equinoterapia.Api.Controllers
             return Ok(new { Mensaje = mensaje }); 
         }
 
-        [HttpPut]
+        [HttpPatch]
         public async Task<IActionResult> UpdateEvaluacion([FromBody] UpdateEvaluacionDto evaluacionDto, int pacienteId)
         {
             var (exito, mensaje) = await _evaluacionService.UpdateAsync(evaluacionDto, pacienteId);

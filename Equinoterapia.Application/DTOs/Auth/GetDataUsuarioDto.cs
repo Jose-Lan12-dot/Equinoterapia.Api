@@ -2,7 +2,7 @@
 
 namespace Equinoterapia.Application.DTOs.Auth
 {
-    public class InicioSesionDto
+    public class GetDataUsuarioDto
     {
         public int IdUsuario { get; set; }
         public int IdKronos { get; set; }
@@ -12,14 +12,5 @@ namespace Equinoterapia.Application.DTOs.Auth
         public string? Foto { get; set; }
         public int IdPerfil { get; set; }
         public string? Perfil { get; set; }
-    }
-
-
-    public class InicioSesionDataDto
-    {
-        [Required]
-        public string Usuario { get; set; } = string.Empty;
-        [Required]
-        public string contrasena { get; set; } = string.Empty;
     }
 }

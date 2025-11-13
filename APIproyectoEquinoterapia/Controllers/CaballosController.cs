@@ -1,9 +1,11 @@
 ﻿using Equinoterapia.Application.DTOs.Caballos;
 using Equinoterapia.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Equinoterapia.Api.Controllers
 {
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class CaballosController : ControllerBase
@@ -56,14 +58,10 @@ namespace Equinoterapia.Api.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdatePartial(int id, [FromBody] CaballoDto caballoDto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateCaballoDto caballoDto)
         {
-            if (id != caballoDto.CaballoId)
-            {
-                return BadRequest("El ID de la ruta no coincide con el ID del cuerpo.");
-            }
 
-            var (exito, mensaje) = await _caballoService.UpdatePartialAsync(caballoDto, id);
+            var (exito, mensaje) = await _caballoService.UpdatelAsync(caballoDto, id);
 
             if (!exito)
             {

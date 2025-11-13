@@ -16,7 +16,7 @@
 //    }
 
 
-//    public class CaballoDto
+//    public class UpdateCaballoDto
 //    {
 //        [Required]
 //        public int CaballoId { get; set; }

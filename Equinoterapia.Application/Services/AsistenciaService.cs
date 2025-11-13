@@ -7,7 +7,7 @@ namespace Equinoterapia.Application.Services
 {
     public class AsistenciaService : IAsistenciaService 
     {
-        // --- ¡CAMBIO! ---
+
         private readonly IAsistenciaRepository _repository;
         private readonly IAsistenciaQueryRepository _queryRepository;
 
@@ -17,16 +17,16 @@ namespace Equinoterapia.Application.Services
             _queryRepository = queryRepository;
         }
 
-        public async Task<(IEnumerable<AsistenciaDto>, string)> GetAsync(int sesionId)
+        public async Task<(IEnumerable<GetAsistenciaDto>, string)> GetAsync(int sesionId)
         {
             if (!await _repository.SesionExistsAsync(sesionId))
             {
-                return (Enumerable.Empty<AsistenciaDto>(), "La sesion especificada no existe");
+                return (Enumerable.Empty<GetAsistenciaDto>(), "La sesion especificada no existe");
             }
 
             try
             {
-                // Usamos la consulta optimizada (N+1 resuelto)
+                
                 var asistencias = await _queryRepository.GetAsistenciasBySesionIdAsync(sesionId);
 
                 if (!asistencias.Any())
@@ -37,17 +37,15 @@ namespace Equinoterapia.Application.Services
             }
             catch (Exception ex)
             {
-                return (Enumerable.Empty<AsistenciaDto>(), $"Error al obtener los pacientes participantes: {ex.Message}");
+                return (Enumerable.Empty<GetAsistenciaDto>(), $"Error al obtener los pacientes participantes: {ex.Message}");
             }
         }
 
-        public async Task<(bool, string)> AddAsync(AsistenciaAddDto asistenciaAdd)
+        public async Task<(bool, string)> AddAsync(AddAsistenciaDto asistenciaAdd)
         {
             var sesionId = asistenciaAdd.SesionId;
             var pacientesIds = asistenciaAdd.PacientesId;
 
-            // Lógica de validación
-            // ¡Corregí tu bug! El 'if' estaba al revés.
             if (!await _repository.SesionExistsAsync(sesionId))
             {
                 return (false, "Sesion no existe");
@@ -55,7 +53,6 @@ namespace Equinoterapia.Application.Services
 
             try
             {
-                // Lógica de negocio: solo añade pacientes que sí existen
                 var pacientesExistentes = await _repository.GetExistingPacienteIdsAsync(pacientesIds);
 
                 var nuevasAsistencias = pacientesExistentes.Select(pacienteId => new Asistencia
@@ -76,18 +73,15 @@ namespace Equinoterapia.Application.Services
             }
         }
 
-        public async Task<(string, bool)> UpdateAsync(AsistenciaUpdateDto asistenciaUpdate)
+        public async Task<(string, bool)> UpdateAsync(UpdateAsistenciaDto asistenciaUpdate)
         {
             try
             {
-                // Creamos un diccionario para búsqueda rápida
                 var updatesDict = asistenciaUpdate.Asistencias.ToDictionary(a => a.AsistenciasId);
                 var asistenciaIds = updatesDict.Keys.ToList();
 
-                // Obtenemos las entidades de la BD
                 var asistenciasEnDb = await _repository.GetAsistenciasByIdsAsync(asistenciaIds);
 
-                // Aplicamos los cambios
                 foreach (var asistencia in asistenciasEnDb)
                 {
                     if (updatesDict.TryGetValue(asistencia.AsistenciaId, out var updateDto))
@@ -105,7 +99,7 @@ namespace Equinoterapia.Application.Services
             }
         }
 
-        // Corregido el error tipográfico "DelateAsync"
+
         public async Task<(string, bool)> DeleteAsync(List<int> asistenciaId)
         {
             if (asistenciaId == null || !asistenciaId.Any())

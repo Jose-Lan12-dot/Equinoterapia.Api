@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Equinoterapia.Api.Controllers
 {
+    //{Authorize}
     [ApiController]
     [Route("api/[controller]")]
     public class InstructoresController : ControllerBase
@@ -58,33 +59,12 @@ namespace Equinoterapia.Api.Controllers
         }
 
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAll(int id, [FromBody] InstructorDto instructorDto)
-        {
-            if (id != instructorDto.InstructorId)
-            {
-                return BadRequest("El ID de la ruta no coincide con el ID del cuerpo.");
-            }
-
-            var (exito, mensaje) = await _instructorService.UpdateAllAsync(instructorDto, id);
-
-            if (!exito)
-            {
-                return NotFound(new { Mensaje = mensaje }); 
-            }
-
-            return NoContent();
-        }
-
         [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdatePartial(int id, [FromBody] InstructorDto instructorDto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateInstructorDto instructorDto)
         {
-            if (id != instructorDto.InstructorId)
-            {
-                return BadRequest("El ID de la ruta no coincide con el ID del cuerpo.");
-            }
 
-            var (exito, mensaje) = await _instructorService.UpdatePartialAsync(instructorDto, id);
+
+            var (exito, mensaje) = await _instructorService.UpdateAsync(instructorDto, id);
 
             if (!exito)
                 return NotFound(new { Mensaje = mensaje });

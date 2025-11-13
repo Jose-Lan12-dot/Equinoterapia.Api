@@ -30,7 +30,8 @@ namespace Equinoterapia.Application.Services
             }
         }
 
-        public async Task<(bool, string)> Add(IEnumerable<RespuestasDto> respuestas, int evaluacionId)
+
+        public async Task<(bool, string)> Add(List<RespuestasDto> respuestas, int evaluacionId)
         {
             
             var nuevasRespuestas = respuestas.Select(respuesta => new Respuestas

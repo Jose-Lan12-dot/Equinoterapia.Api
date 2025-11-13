@@ -4,7 +4,7 @@ namespace Equinoterapia.Application.Interfaces
 {
     public interface ISesionQueryRepository
     {
-        Task<List<SesionDto>> GetAllDtosAsync();
-        Task<List<SesionDto>> GetByWeekDtosAsync(DateOnly startOfWeek);
+        Task<List<GetAllSesionDto>> GetAllDtosAsync();
+        Task<List<GetAllSesionDto>> GetByWeekDtosAsync(DateOnly startOfWeek);
     }
 }

@@ -4,7 +4,7 @@
 //    public required string Telefono { get; set; }
 //}
 
-//public class InstructorDto
+//public class UpdateInstructorDto
 //{
 //    public int InstructorId { get; set; }
 //    public string? Nombre { get; set; }

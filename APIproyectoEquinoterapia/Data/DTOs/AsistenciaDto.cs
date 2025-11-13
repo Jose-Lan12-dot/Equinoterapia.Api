@@ -2,14 +2,14 @@
 
 //namespace APIproyectoEquinoterapia.DTOs
 //{
-//    public class AsistenciaDto
+//    public class GetAsistenciaDto
 //    {
 //        public int AsistenciaId { get; set; }
 //        public string nombre { get; set; } = string.Empty;
 //        public bool Asistio { get; set; }
 //    }
 
-//    public class AsistenciaAddDto
+//    public class AddAsistenciaDto
 //    {
 //        [Required]
 //        public int SesionId { get; set; }
@@ -18,17 +18,17 @@
 //        public List<int> PacientesId { get; set; } = new ();
 //    }
 
-//    public class AsistenciaUpdateItemDto
+//    public class UpdateAsistenciaItemDto
 //    {
 //        [Required]
 //        public int AsistenciasId { get; set; }
 //        [Required]
 //        public bool Asistio { get; set; }
 //    }
-//    public class AsistenciaUpdateDto
+//    public class UpdateAsistenciaDto
 //    {
 //        [Required]
 //        [MinLength(1)]
-//        public List<AsistenciaUpdateItemDto> Asistencias { get; set; } = new ();
+//        public List<UpdateAsistenciaItemDto> Asistencias { get; set; } = new ();
 //    }
 //}
