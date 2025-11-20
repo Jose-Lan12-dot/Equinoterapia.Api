@@ -84,7 +84,7 @@
 //            };
 
 //            try { 
-//                _context.paciente.Add(nuevoPaciente);
+//                _context.paciente.AddInforme(nuevoPaciente);
 //                await _context.SaveChangesAsync();
                 
 //                if (!IsNull(archivos) && archivos.Count > 0)
@@ -291,7 +291,7 @@
 //                    FormularioHecho = await HasEvaluacion(p.PacienteId),
 //                    FaltanArchivos = await MissingFiles(p.PacienteId, numeroArchivosRequeridos)
 //                };
-//                listaDto.Add(dto);
+//                listaDto.AddInforme(dto);
 //            }
 
 //            return listaDto;
@@ -419,7 +419,7 @@
 //            {
 //                var (exito, mensaje) = await _archivoService.AddAsync(archivo, pacienteId);
 //                if (!exito)
-//                    mensajesArchivos.Add(mensaje);
+//                    mensajesArchivos.AddInforme(mensaje);
 //            }
 //            if (mensajesArchivos.Count > 0)
 //                return true;

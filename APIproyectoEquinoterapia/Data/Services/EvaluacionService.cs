@@ -102,14 +102,14 @@
 //                PacienteId = pacienteId,
 //                Fecha = evaluacionDto.Fecha
 //            };
-//            _context.evaluacion.Add(nuevaEvaluacion);
+//            _context.evaluacion.AddInforme(nuevaEvaluacion);
 
 
 //            try
 //            {
 //                await _context.SaveChangesAsync();
 //                var exito = false;
-//                (exito, mensaje) = await _respuestasService.Add(evaluacionDto.Respuestas, nuevaEvaluacion.EvaluacionId);
+//                (exito, mensaje) = await _respuestasService.AddInforme(evaluacionDto.Respuestas, nuevaEvaluacion.EvaluacionId);
 //                if (!exito)
 //                {
 //                    return (false, mensaje);

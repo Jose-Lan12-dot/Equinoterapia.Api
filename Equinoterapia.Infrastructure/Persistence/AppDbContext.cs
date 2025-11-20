@@ -26,6 +26,9 @@ public partial class AppDbContext : DbContext
     public DbSet<TipoArchivo> tipoArchivo { get; set; }
     public DbSet<InicioSesion> inicioSesion { get; set; }
 
+    public DbSet<InformeMensual> informeMensual { get; set; }
+    public DbSet<DetalleInforme> DetalleInforme { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Caballo>(entity =>
@@ -268,6 +271,58 @@ public partial class AppDbContext : DbContext
         });
 
         modelBuilder.Entity<InicioSesion>().HasNoKey();
+
+        modelBuilder.Entity<InformeMensual>(entity =>
+        {
+            entity.ToTable("informe_mensual");
+            entity.HasKey(im => im.InformeMensualId);
+
+            entity.Property(im => im.InformeMensualId)
+                .HasColumnName("informe_mensual_id");
+
+            entity.Property(im => im.Mes)
+                .HasColumnName("mes");
+
+            entity.Property(im => im.Anio)
+                .HasColumnName("anio");
+
+            entity.Property(im => im.FechaModificacion)
+                .HasColumnName("fecha_modificaccion");
+
+        });
+
+        modelBuilder.Entity<DetalleInforme>(entity =>
+        {
+            entity.ToTable("detalle_informe");
+            entity.HasKey(d => d.DetalleInformeId);
+
+            entity.Property(d => d.DetalleInformeId)
+                .HasColumnName("detalle_informe_id");
+
+            entity.Property(d => d.InformeMensualId)
+                .HasColumnName("informe_mensual_id");
+
+            entity.Property(d => d.Situacion)
+                .HasColumnName("situacion");
+
+            entity.Property(d => d.Acciones)
+                .HasColumnName("acciones");
+
+            entity.Property(d => d.Avances)
+                .HasColumnName("avances");
+
+            entity.Property(d => d.Tramite)
+                .HasColumnName("tramite");
+
+            entity.Property(d => d.Observaciones)
+                .HasColumnName("observaciones");
+
+            // Contrato #1: Relación entre informeMensual y DetalleInforme
+            entity.HasOne(detalles => detalles.Informe)
+                  .WithMany(informe => informe.Detalles)
+                  .HasForeignKey(detalles => detalles.InformeMensualId);
+
+        });
 
 
         modelBuilder.Entity<Preguntas>().HasData(

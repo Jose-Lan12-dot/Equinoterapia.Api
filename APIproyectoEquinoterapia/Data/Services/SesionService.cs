@@ -77,7 +77,7 @@
 
 //            try
 //            {
-//                _context.sesion.Add(nuevaSesion);
+//                _context.sesion.AddInforme(nuevaSesion);
 //                await _context.SaveChangesAsync();
 //                if (addSesionDto.PacienteIds != null && addSesionDto.PacienteIds.Count > 0)
 //                {

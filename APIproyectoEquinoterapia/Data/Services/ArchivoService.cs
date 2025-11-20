@@ -77,7 +77,7 @@
 
 //            try
 //            {
-//                _context.archivo.Add(nuevoArchivo);
+//                _context.archivo.AddInforme(nuevoArchivo);
 //                await _context.SaveChangesAsync();
 //                return (true, archivos.Nombre + " Agregado correctamnete");
 //            }

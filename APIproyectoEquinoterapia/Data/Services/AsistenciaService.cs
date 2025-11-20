@@ -136,7 +136,7 @@
 //                        PacienteId = pacienteId,
 //                        Asistio = false
 //                    };
-//                    _context.asistencia.Add(nuevaAsitencia);
+//                    _context.asistencia.AddInforme(nuevaAsitencia);
 //            }
 //            await _context.SaveChangesAsync();
 //        }
@@ -157,7 +157,7 @@
 //            foreach (var asistencia in asistencias)
 //            {
 //                var nombrePaciente = await GetNombrePaciente(asistencia.PacienteId);
-//                lista.Add(new GetAsistenciaDto
+//                lista.AddInforme(new GetAsistenciaDto
 //                {
 //                    AsistenciaId = asistencia.AsistenciaId,
 //                    nombre = nombrePaciente ?? string.Empty,

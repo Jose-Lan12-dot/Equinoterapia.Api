@@ -78,7 +78,7 @@
 
 //            try
 //            {
-//                _context.instructor.Add(nuevoInstructor);
+//                _context.instructor.AddInforme(nuevoInstructor);
 //                await _context.SaveChangesAsync();
 //                return (true, "Instructor agregado correctamente");
 //            }

@@ -36,7 +36,7 @@
 //        }
 
 ////////////////////////
-//        public async Task<(bool,string)> Add(IEnumerable<RespuestasDto> respuestas,int evaluacionId)
+//        public async Task<(bool,string)> AddInforme(IEnumerable<RespuestasDto> respuestas,int evaluacionId)
 //        {
 //            foreach (var respuesta in respuestas) 
 //            { 
@@ -46,7 +46,7 @@
 //                    PreguntaId = respuesta.PreguntaId,
 //                    Respuesta = respuesta.Respuesta
 //                };
-//                _context.respuestas.Add(nuevaRespuesta); 
+//                _context.respuestas.AddInforme(nuevaRespuesta); 
 //            }
 
 //            try

@@ -128,6 +128,54 @@ namespace Equinoterapia.Infrastructure.Migrations
                     b.ToTable("caballo", (string)null);
                 });
 
+            modelBuilder.Entity("Equinoterapia.Domain.Entities.DetalleInforme", b =>
+                {
+                    b.Property<int>("DetalleInformeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("detalle_informe_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DetalleInformeId"));
+
+                    b.Property<string>("Acciones")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("acciones");
+
+                    b.Property<string>("Avances")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("avances");
+
+                    b.Property<int>("InformeMensualId")
+                        .HasColumnType("int")
+                        .HasColumnName("informe_mensual_id");
+
+                    b.Property<int>("NumeroOrden")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Observaciones")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("observaciones");
+
+                    b.Property<string>("Situacion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("situacion");
+
+                    b.Property<string>("Tramite")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("tramite");
+
+                    b.HasKey("DetalleInformeId");
+
+                    b.HasIndex("InformeMensualId");
+
+                    b.ToTable("detalle_informe", (string)null);
+                });
+
             modelBuilder.Entity("Equinoterapia.Domain.Entities.Evaluacion", b =>
                 {
                     b.Property<int>("EvaluacionId")
@@ -151,6 +199,32 @@ namespace Equinoterapia.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("evaluacion", (string)null);
+                });
+
+            modelBuilder.Entity("Equinoterapia.Domain.Entities.InformeMensual", b =>
+                {
+                    b.Property<int>("InformeMensualId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("informe_mensual_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InformeMensualId"));
+
+                    b.Property<int>("Anio")
+                        .HasColumnType("int")
+                        .HasColumnName("anio");
+
+                    b.Property<DateTime>("FechaModificacion")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("fecha_modificaccion");
+
+                    b.Property<int>("Mes")
+                        .HasColumnType("int")
+                        .HasColumnName("mes");
+
+                    b.HasKey("InformeMensualId");
+
+                    b.ToTable("informe_mensual", (string)null);
                 });
 
             modelBuilder.Entity("Equinoterapia.Domain.Entities.InicioSesion", b =>
@@ -564,6 +638,17 @@ namespace Equinoterapia.Infrastructure.Migrations
                     b.Navigation("Sesion");
                 });
 
+            modelBuilder.Entity("Equinoterapia.Domain.Entities.DetalleInforme", b =>
+                {
+                    b.HasOne("Equinoterapia.Domain.Entities.InformeMensual", "Informe")
+                        .WithMany("Detalles")
+                        .HasForeignKey("InformeMensualId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Informe");
+                });
+
             modelBuilder.Entity("Equinoterapia.Domain.Entities.Evaluacion", b =>
                 {
                     b.HasOne("Equinoterapia.Domain.Entities.Paciente", "Paciente")
@@ -621,6 +706,11 @@ namespace Equinoterapia.Infrastructure.Migrations
             modelBuilder.Entity("Equinoterapia.Domain.Entities.Evaluacion", b =>
                 {
                     b.Navigation("Respuestas");
+                });
+
+            modelBuilder.Entity("Equinoterapia.Domain.Entities.InformeMensual", b =>
+                {
+                    b.Navigation("Detalles");
                 });
 
             modelBuilder.Entity("Equinoterapia.Domain.Entities.Instructor", b =>

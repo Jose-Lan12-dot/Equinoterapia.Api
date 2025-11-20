@@ -87,7 +87,7 @@
 
 //            try
 //            {
-//                _context.caballo.Add(nuevoCaballo);
+//                _context.caballo.AddInforme(nuevoCaballo);
 //                await _context.SaveChangesAsync();
 //                return (true, "Caballo agregado correctamente");
 //            }

@@ -28,7 +28,7 @@ namespace Equinoterapia.Application
             services.AddScoped<IAsistenciaService, AsistenciaService>();
             services.AddScoped<IEvaluacionService, EvaluacionService>();
             services.AddScoped<IRespuestasService, RespuestasService>();
-
+            services.AddScoped<IInformeService, InformeService>();
 
 
 

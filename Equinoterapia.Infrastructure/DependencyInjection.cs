@@ -84,7 +84,9 @@ namespace Equinoterapia.Infrastructure
 
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>(); 
-            services.AddSingleton<IEncryptionService, EncryptionService>(); 
+            services.AddSingleton<IEncryptionService, EncryptionService>();
+
+            services.AddScoped<IInformeRepository, InformeRepository>();
 
 
             return services;
