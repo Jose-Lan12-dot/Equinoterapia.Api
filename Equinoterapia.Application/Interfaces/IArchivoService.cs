@@ -9,5 +9,7 @@ namespace Equinoterapia.Application.Interfaces
         Task<(byte[]?, string, string)> GetAsync(string nombreArchivo, int pacienteId);
         Task<(bool, string)> UpdateAsync(UpdateArchivoDto archivoDto, int pacienteId);
         Task<(bool, string)> DeleteAsync(string nombreArchivo, int pacienteId);
+        Task<List<GetTipoArchivoDto>> GetTipoArchivo();
+
     }
 }

@@ -84,7 +84,7 @@ namespace Equinoterapia.Application.Services
                 Tutor = paciente.Tutor,
                 TelefonoTutor = paciente.TelefonoTutor,
                 Genero = GetGenero(paciente.Genero, Generos.NoBinario),
-                Estado = EstadoPaciente.Activo,
+                Estado = EstadoPaciente.EnTratamiento,
                 FechaRegistro = DateTime.UtcNow
             };
 

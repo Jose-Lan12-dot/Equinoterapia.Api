@@ -2,9 +2,8 @@
 {
     public enum EstadoPaciente
     {
-        Activo,
-        Baja,
-        TratamientoCompleto
+        EnTratamiento,
+        Baja
     }
 
     public enum Generos

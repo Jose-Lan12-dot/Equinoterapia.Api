@@ -64,6 +64,7 @@ namespace Equinoterapia.Infrastructure
             services.AddScoped<IPacienteRepository, PacienteRepository>();
             services.AddScoped<IPacienteQueryRepository, PacienteRepository>();
             services.AddScoped<IArchivoRepository, ArchivoRepository>();
+            services.AddScoped<IArchivoQueryRepository, ArchivoRepository>();
 
             services.AddScoped<IEvaluacionRepository, EvaluacionRepository>();
             services.AddScoped<IEvaluacionQueryRepository, EvaluacionRepository>();

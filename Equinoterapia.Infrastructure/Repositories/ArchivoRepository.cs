@@ -1,11 +1,13 @@
-﻿using Equinoterapia.Domain.Entities;
+﻿using Equinoterapia.Application.DTOs.Archivos;
+using Equinoterapia.Application.Interfaces;
+using Equinoterapia.Domain.Entities;
 using Equinoterapia.Domain.Interfaces;
 using Equinoterapia.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Equinoterapia.Infrastructure.Repositories
 {
-    public class ArchivoRepository : IArchivoRepository
+    public class ArchivoRepository : IArchivoRepository, IArchivoQueryRepository
     {
         private readonly AppDbContext _context;
 
@@ -47,6 +49,20 @@ namespace Equinoterapia.Infrastructure.Repositories
                 .Select(t => t.TipoId)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<List<GetTipoArchivoDto>> GetTiposArchivos()
+        {
+            return await _context.tipoArchivo
+                .AsNoTracking()
+                .Select(a => new GetTipoArchivoDto
+                {
+                    Nombre = a.Nombre,
+                    Extension = a.Extension
+                })
+                .ToListAsync();
+        }
+
+
 
         // --- Métodos de Escritura ---
 

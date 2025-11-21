@@ -11,6 +11,9 @@ namespace Equinoterapia.Domain.Interfaces
         Task<bool> ArchivoExistsAsync(int tipoId, int pacienteId);
         Task<int> GetTipoIdPorNombreAsync(string nombreArchivo);
 
+
+
+
         // --- Métodos de Escritura ---
         void Add(Archivos archivo);
         void Delete(Archivos archivo);

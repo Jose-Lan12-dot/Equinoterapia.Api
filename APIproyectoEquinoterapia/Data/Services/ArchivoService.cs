@@ -20,7 +20,7 @@
 ////////////////////////
 //        public async Task<(byte[]?,string,string)> Getsync(string nombreArchivo, int pacienteId)
 //        {
-//            var tipoArchivo = await GetTipoArchivo(nombreArchivo);
+//            var tipoArchivo = await GetTipoArchivoDto(nombreArchivo);
 
 //            if (IsNull(tipoArchivo))
 //            {
@@ -180,7 +180,7 @@
 //        }
 
 ////////////////////////
-//        private async Task<TipoArchivo?> GetTipoArchivo(string nombreArchivo)
+//        private async Task<TipoArchivo?> GetTipoArchivoDto(string nombreArchivo)
 //        {
 //            return await _context.tipoArchivo
 //                .FirstOrDefaultAsync(t => t.Nombre == nombreArchivo);

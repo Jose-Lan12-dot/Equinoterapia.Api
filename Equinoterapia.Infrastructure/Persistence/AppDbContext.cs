@@ -65,7 +65,7 @@ public partial class AppDbContext : DbContext
             entity.HasKey(a => a.AsistenciaId);
 
             entity.Property(a => a.AsistenciaId)
-            .HasColumnName("aistencia_id");
+            .HasColumnName("asistencia_id");
             entity.Property(a => a.PacienteId)
             .HasColumnName("paciente_id");
             entity.Property(a => a.SesionId).

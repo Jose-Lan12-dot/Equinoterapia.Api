@@ -31,6 +31,14 @@ namespace Equinoterapia.Api.Controllers
             return File(bytes, contentType, nombreArchivo + extension);
         }
 
+        [HttpGet("/obtener-tipoarchivo")]
+        public async Task<IActionResult> GetTipoArchivo()
+        {
+            var tiposArchivos = await _archivoService.GetTipoArchivo();
+
+            return Ok(tiposArchivos);
+        }
+
         [HttpPost]
         public async Task<IActionResult> SubirArchivo(int pacienteId, [FromForm] AddArchivoDto archivoDto)
         {

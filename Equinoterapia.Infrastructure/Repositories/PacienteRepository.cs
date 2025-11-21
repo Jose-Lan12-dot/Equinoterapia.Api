@@ -115,7 +115,7 @@ namespace Equinoterapia.Infrastructure.Repositories
         public async Task<List<DropdownItemDto>> GetActivosAsync()
         {
             return await _context.paciente
-                .Where(p => p.Estado == EstadoPaciente.Activo || p.Estado == EstadoPaciente.TratamientoCompleto)
+                .Where(p =>  p.Estado == EstadoPaciente.EnTratamiento)
                 .Select(p => new DropdownItemDto
                 {
                     Id = p.PacienteId,

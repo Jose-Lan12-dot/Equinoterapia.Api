@@ -9,10 +9,12 @@ namespace Equinoterapia.Application.Services
     public class ArchivoService : IArchivoService
     {
         private readonly IArchivoRepository _archivoRepository;
+        private readonly IArchivoQueryRepository _archivoQueryRepository;
 
-        public ArchivoService(IArchivoRepository archivoRepository)
+        public ArchivoService(IArchivoRepository archivoRepository, IArchivoQueryRepository archivoQueryRepository)
         {
             _archivoRepository = archivoRepository;
+            _archivoQueryRepository = archivoQueryRepository;
         }
 
 
@@ -126,14 +128,18 @@ namespace Equinoterapia.Application.Services
         }
 
        
-        
-        
+        public async Task<List<GetTipoArchivoDto>> GetTipoArchivo()
+        {
+            return await _archivoQueryRepository.GetTiposArchivos();
+
+        }
 
 
 
 
 
-        
+
+
         // --- MÉTODOS PRIVADOS (Helper) ---
 
         private async Task<byte[]> FileToArrayAsync(IFormFile archivo)

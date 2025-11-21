@@ -15,7 +15,7 @@ namespace FrontEquinoterapia.Data.Services
 
         public async Task<(string,bool,string)> AccesoAsync(InicioSesionModel credenciales)
         {
-            var respuesta  = await _httpClient.PostAsJsonAsync("/api/InicioSesion/acceso", credenciales);
+            var respuesta  = await _httpClient.PostAsJsonAsync("/api/Auth/login", credenciales);
             if (respuesta.IsSuccessStatusCode)
             {
                 var datos = await respuesta.Content.ReadFromJsonAsync<RespuestaLoginDto>();
