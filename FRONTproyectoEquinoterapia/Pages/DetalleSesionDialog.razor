@@ -1,0 +1,114 @@
+﻿@using FRONTproyectoEquinoterapia.Models
+@inject Radzen.DialogService DialogService
+@inject FRONTproyectoEquinoterapia.Services.AsistenciaService AsistenciaService
+@inject FRONTproyectoEquinoterapia.Services.SesionService SesionService
+
+@inject FRONTproyectoEquinoterapia.Services.InstructorService InstructorService
+@inject FRONTproyectoEquinoterapia.Services.CaballoService CaballoService
+@inject IJSRuntime JS
+
+@if (Visible)
+{
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles de la Sesión</h5>
+                    <button type="button" class="btn-close" @onclick="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Instructor:</strong> @(Sesion?.InstructorNombre ?? "No disponible")</p>
+                    <p><strong>Caballo:</strong> @(Sesion?.CaballoNombre ?? "No disponible")</p>
+                    <p><strong>Fecha:</strong> @Sesion.Fecha.ToString("dd/MM/yyyy")</p>
+                    <p><strong>Hora:</strong> @Sesion.Hora.ToString(@"hh\:mm")</p>
+
+                    <h6>Pacientes:</h6>
+                    <ul>
+                        @foreach (var p in Pacientes)
+                        {
+                            <li>@p.Nombre</li>
+                        }
+                    </ul>
+
+                    <button class="btn btn-outline-primary" @onclick="AbrirAgregarPacientes">
+                        <i class="bi bi-person-plus"></i> Agregar Paciente
+                    </button>
+
+                    <AgregarPacientesDialog @ref="AgregarPacientesDialogRef"
+                                            OnPacientesAgregados="RecargarPacientes"
+                                            VisibleChanged="@((v) => ModalAgregarVisible = v)" />
+
+                    <button class="btn btn-danger ms-2" @onclick="EliminarSesion">Eliminar Sesión</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop show"></div>
+}
+
+@code {
+    private bool Visible { get; set; }
+    private SesionDto Sesion { get; set; }
+    private List<PacienteDto> Pacientes = new();
+
+    private AgregarPacientesDialog AgregarPacientesDialogRef;
+    private bool ModalAgregarVisible = false;
+
+    [Parameter] public EventCallback OnSesionActualizada { get; set; }
+
+    public async Task Abrir(Appointment appt)
+    {
+        if (appt.SesionId == null)
+        {
+            await JS.InvokeVoidAsync("alert", "La sesión no tiene un ID válido.");
+            return;
+        }
+
+        // Obtener la sesión
+        var (sesionDto, mensaje) = await SesionService.ObtenerSesionPorIdAsync(appt.SesionId.Value);
+        if (sesionDto == null)
+        {
+            await JS.InvokeVoidAsync("alert", $"No se pudo obtener la sesión: {mensaje}");
+            return;
+        }
+
+        // Asegurarnos de que los nombres nunca sean null
+        sesionDto.InstructorNombre ??= "Sin Instructor";
+        sesionDto.CaballoNombre ??= "Sin Caballo";
+
+        Sesion = sesionDto;
+
+        // Traer los pacientes de la sesión
+        var pacientesList = await AsistenciaService.ObtenerPacientesPorSesionAsync(appt.SesionId.Value);
+        Pacientes = pacientesList ?? new List<PacienteDto>();
+
+        Visible = true;
+        StateHasChanged();
+    }
+
+    private async Task AbrirAgregarPacientes()
+    {
+        int existentes = Pacientes?.Count ?? 0;
+        await AgregarPacientesDialogRef.Abrir(Sesion.SesionId, existentes);
+    }
+
+    private async Task RecargarPacientes()
+    {
+        var lista = await AsistenciaService.ObtenerPacientesPorSesionAsync(Sesion.SesionId);
+        Pacientes = lista ?? new List<PacienteDto>();
+        StateHasChanged();
+    }
+
+    private async Task Cerrar()
+    {
+        Visible = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task EliminarSesion()
+    {
+        var exito = await SesionService.EliminarSesionAsync(Sesion.SesionId, JS);
+        if (exito)
+            await Cerrar();
+    }
+}
