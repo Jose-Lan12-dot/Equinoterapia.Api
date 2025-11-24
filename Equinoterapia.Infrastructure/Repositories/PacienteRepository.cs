@@ -25,13 +25,13 @@ namespace Equinoterapia.Infrastructure.Repositories
 
         public async Task<bool> SaveChangesAsync()
         {
-            // SaveChangesAsync devuelve el número de filas afectadas
+
             return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<Paciente?> GetByIdAsync(int pacienteId)
         {
-            // FindAsync es perfecto para buscar por Clave Primaria
+        
             return await _context.paciente.FindAsync(pacienteId);
         }
 
@@ -56,14 +56,13 @@ namespace Equinoterapia.Infrastructure.Repositories
 
         public async Task<int> GetTotalFileTypesCountAsync()
         {
-            // Asumo que tu DbContext tiene 'tipoArchivo'
+
             return await _context.tipoArchivo.CountAsync();
         }
 
         public async Task<List<string>> GetMissingFileTypesAsync(int pacienteId)
         {
-            // Asumo que 'TiposArchivo' es la entidad 'TipoArchivo'
-            // y que 'paciente.Archivos' es la colección
+
             var archivosPaciente = await _context.archivo
                 .Where(a => a.PacienteId == pacienteId)
                 .Select(a => a.TiposArchivo)
@@ -73,7 +72,7 @@ namespace Equinoterapia.Infrastructure.Repositories
 
             var archivosFaltantes = archivosRequeridos
                 .Where(ar => !archivosPaciente.Contains(ar))
-                .Select(ar => ar.Nombre) // Asumo que TipoArchivo tiene 'Nombre'
+                .Select(ar => ar.Nombre) 
                 .ToList();
 
             return archivosFaltantes;
@@ -83,18 +82,17 @@ namespace Equinoterapia.Infrastructure.Repositories
         {
             var numeroArchivosRequeridos = await _context.tipoArchivo.CountAsync();
 
-            // Esta es la query optimizada
+           
             return await _context.paciente
-                .AsNoTracking() // Mejora rendimiento, no necesitamos "vigilar" estos datos
+                .AsNoTracking() 
                 .Select(p => new GetAllPacienteDto
                 {
-                    // Mapeo directo
+                   
                     PacienteId = p.PacienteId,
                     Nombre = p.Nombre,
                     Tutor = p.Tutor,
                     Estado = p.Estado.ToString(),
 
-                    // LINQ dentro de LINQ. EF Core lo traduce a Sub-Queries de SQL.
                     NumeroFaltas = _context.asistencia
                         .Count(a => a.PacienteId == p.PacienteId && a.Asistio == false),
 
@@ -104,7 +102,7 @@ namespace Equinoterapia.Infrastructure.Repositories
                     FaltanArchivos = (_context.archivo
                         .Count(ar => ar.PacienteId == p.PacienteId) < numeroArchivosRequeridos)
                 })
-                .ToListAsync(); // TODO EL CÓDIGO ANTERIOR SE EJECUTA EN LA BD
+                .ToListAsync(); 
         }
 
         public void Delete(Paciente paciente)
@@ -123,6 +121,16 @@ namespace Equinoterapia.Infrastructure.Repositories
                 })
                 .ToListAsync();
         }
+
+        public async Task<Enum> PacienteEstado(int pacienteId)
+        {
+            return await _context.paciente
+                .Where(p => p.PacienteId == pacienteId)
+                .Select(p => p.Estado)
+                .FirstOrDefaultAsync();
+        }
+
+
 
 
 

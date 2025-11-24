@@ -15,5 +15,6 @@ namespace Equinoterapia.Domain.Interfaces
         void AddRange(IEnumerable<Asistencia> asistencias);
         void RemoveRange(IEnumerable<Asistencia> asistencias);
         Task<bool> SaveChangesAsync();
+
     }
 }

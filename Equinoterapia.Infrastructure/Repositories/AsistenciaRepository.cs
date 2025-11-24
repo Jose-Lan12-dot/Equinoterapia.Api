@@ -53,6 +53,7 @@ namespace Equinoterapia.Infrastructure.Repositories
             return await _context.asistencia
                 .Where(a => asistenciaIds.Contains(a.AsistenciaId))
                 .ToListAsync();
+
         }
 
         public void AddRange(IEnumerable<Asistencia> asistencias)
@@ -83,5 +84,8 @@ namespace Equinoterapia.Infrastructure.Repositories
                 .Where(a => sesionIds.Contains(a.SesionId))
                 .ToListAsync();
         }
+
+
+
     }
 }

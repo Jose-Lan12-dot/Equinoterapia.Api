@@ -10,11 +10,15 @@ namespace Equinoterapia.Application.Services
 
         private readonly IAsistenciaRepository _repository;
         private readonly IAsistenciaQueryRepository _queryRepository;
+        private readonly IPacienteRepository _repositoryPaciente;
 
-        public AsistenciaService(IAsistenciaRepository repository, IAsistenciaQueryRepository queryRepository)
+        public AsistenciaService(IAsistenciaRepository repository, 
+            IAsistenciaQueryRepository queryRepository,
+            IPacienteRepository repositoryPaciente)
         {
             _repository = repository;
             _queryRepository = queryRepository;
+            _repositoryPaciente = repositoryPaciente;
         }
 
         public async Task<(IEnumerable<GetAsistenciaDto>, string)> GetAsync(int sesionId)
@@ -88,6 +92,13 @@ namespace Equinoterapia.Application.Services
                     {
                         asistencia.Asistio = updateDto.Asistio;
                     }
+                    var faltasPaciente = await _repositoryPaciente.GetFaltasCountAsync(asistencia.PacienteId);
+                    if (faltasPaciente >= 3)
+                    {
+                        var estadoPaciente = await _repositoryPaciente.PacienteEstado(asistencia.PacienteId);
+                        estadoPaciente = EstadoPaciente.Baja;
+                        await _repositoryPaciente.SaveChangesAsync();
+                    }
                 }
 
                 await _repository.SaveChangesAsync();
@@ -98,7 +109,6 @@ namespace Equinoterapia.Application.Services
                 return ($"Error al actualizar las asistencias: {ex.Message}", false);
             }
         }
-
 
         public async Task<(string, bool)> DeleteAsync(List<int> asistenciaId)
         {

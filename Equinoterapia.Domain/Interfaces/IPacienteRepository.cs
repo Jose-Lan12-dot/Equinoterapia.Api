@@ -11,12 +11,14 @@ namespace Equinoterapia.Domain.Interfaces
         Task<List<string>> GetMissingFileTypesAsync(int pacienteId);
         Task<int> GetTotalFileTypesCountAsync();
         Task<int> GetArchivosCountAsync(int pacienteId);
+        Task<Enum> PacienteEstado(int pacienteId);
 
         // Métodos que modifican datos (void)
         void Add(Paciente paciente);
         void Delete(Paciente paciente);
 
         Task<bool> SaveChangesAsync();
+
 
     }
 }
