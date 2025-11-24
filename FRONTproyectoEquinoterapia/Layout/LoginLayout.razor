@@ -1,0 +1,38 @@
+﻿@inherits LayoutComponentBase
+
+<div class="login-layout">
+    @Body
+</div>
+
+<style>
+    .login-layout {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .login-card {
+        background-color: #fff;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+        width: 360px;
+        text-align: center;
+    }
+
+        .login-card h3 {
+            margin-bottom: 25px;
+            font-size: 22px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .login-card .radzen-textbox {
+            margin-bottom: 15px;
+        }
+</style>
+
+

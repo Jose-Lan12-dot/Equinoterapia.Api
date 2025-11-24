@@ -1,0 +1,211 @@
+﻿@inject FRONTproyectoEquinoterapia.Services.InstructorService InstructorService
+@inject FRONTproyectoEquinoterapia.Services.CaballoService CaballoService
+@inject FRONTproyectoEquinoterapia.Services.SesionService SesionService
+@using FRONTproyectoEquinoterapia.Models
+@using FRONTproyectoEquinoterapia.Services
+@inject PacienteService PacienteService
+@inject IJSRuntime JS
+
+
+@if (Visible)
+{
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Nueva Sesión</h5>
+                    <button type="button" class="btn-close" @onclick="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="NuevaSesion" OnValidSubmit="AgregarSesion">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label>Instructor</label>
+                            <select class="form-select" @bind="NuevaSesion.InstructorId">
+                                <option value="">-- Selecciona Instructor --</option>
+                                @foreach (var i in Instructores)
+                                {
+                                    <option value="@i.InstructorId">@i.Nombre</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Caballo</label>
+                            <select class="form-select" @bind="NuevaSesion.CaballoId">
+                                <option value="">-- Selecciona Caballo --</option>
+                                @foreach (var c in Caballos)
+                                {
+                                    <option value="@c.CaballoId">@c.Nombre</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Fecha</label>
+                            <input type="date" class="form-control" @bind="NuevaSesion.Fecha" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Hora</label>
+                            <input type="time" class="form-control" @bind="NuevaSesion.Hora" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Pacientes (máx. 4)</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var paciente in pacientesDisponibles)
+                                {
+                                    bool seleccionado = PacienteIdsSeleccionados.Contains(paciente.PacienteId);
+                                    <div class="card p-2 shadow-sm"
+                                         style="width: 160px; cursor: pointer; border: @(seleccionado ? "2px solid #0d6efd" : "1px solid #ccc");"
+                                         @onclick="() => TogglePaciente(paciente.PacienteId)">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span>@paciente.Nombre</span>
+                                            @if (seleccionado)
+                                            {
+                                                <i class="bi bi-check-circle-fill text-primary"></i>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+
+
+                        <button type="submit" class="btn btn-primary">Agregar</button>
+                        <button type="button" class="btn btn-secondary ms-2" @onclick="Cerrar">Cancelar</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop show"></div>
+}
+
+@code {
+
+    public bool Visible { get; set; }
+
+    private List<AllPacienteDto> pacientesDisponibles = new();
+    private AddSesionDto NuevaSesion = new();
+    private List<InstructorDto> Instructores = new();
+    private List<CaballoDto> Caballos = new();
+    private ElementReference pacientesSelect;
+    private List<int> PacienteIdsSeleccionados = new();
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter] public EventCallback OnSesionAgregada { get; set; }
+
+
+    public async Task AbrirConFecha(DateTime fecha)
+    {
+        NuevaSesion = new AddSesionDto
+        {
+            Fecha = DateOnly.FromDateTime(fecha),
+            Hora = TimeOnly.FromDateTime(fecha)
+        };
+        Visible = true;
+        await VisibleChanged.InvokeAsync(Visible);
+        StateHasChanged();
+    }
+
+    private async void OnPacientesSeleccionados(ChangeEventArgs e)
+    {
+        // Usamos JS para obtener las opciones seleccionadas correctamente
+        var selectedValues = await JS.InvokeAsync<string[]>(
+            "getSelectedValues",
+            pacientesSelect
+        );
+
+        if (selectedValues.Length > 4)
+        {
+            // Si seleccionó más de 4, cortamos y mostramos alerta
+            selectedValues = selectedValues.Take(4).ToArray();
+            await JS.InvokeVoidAsync("alert", "Solo se pueden seleccionar hasta 4 pacientes.");
+        }
+
+        PacienteIdsSeleccionados = selectedValues.Select(int.Parse).ToList();
+        NuevaSesion.PacienteIds = PacienteIdsSeleccionados;
+    }
+
+    private void TogglePaciente(int pacienteId)
+    {
+        if (PacienteIdsSeleccionados.Contains(pacienteId))
+        {
+            // Si ya está seleccionado, lo quitamos
+            PacienteIdsSeleccionados.Remove(pacienteId);
+        }
+        else
+        {
+            // Si intenta seleccionar más de 4, lo bloqueamos
+            if (PacienteIdsSeleccionados.Count >= 4)
+            {
+                // Puedes usar un toast o un alert
+                _ = JS.InvokeVoidAsync("alert", "Solo puedes seleccionar hasta 4 pacientes.");
+                return;
+            }
+
+            PacienteIdsSeleccionados.Add(pacienteId);
+        }
+
+        // Actualizar en el DTO
+        NuevaSesion.PacienteIds = PacienteIdsSeleccionados.ToList();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Traer pacientes desde tu servicio
+        List<AllPacienteDto> pacientesDisponibles = new();
+        Instructores = await InstructorService.GetAllAsync();
+        Caballos = await CaballoService.GetAllAsync();
+    }
+
+    // en AgregarSesionDialog.razor.cs o dentro @code
+    public async Task Abrir(Appointment? appt = null)
+    {
+        if (appt != null)
+        {
+            NuevaSesion = new AddSesionDto
+            {
+                Fecha = DateOnly.FromDateTime(appt.Start),
+                Hora = TimeOnly.FromDateTime(appt.Start),
+                // si quieres preseleccionar Instructor/Caballo, debes manejar appt.InstructorId
+            };
+        }
+        else
+        {
+            NuevaSesion = new AddSesionDto
+            {
+                Fecha = DateOnly.FromDateTime(DateTime.Now),
+                Hora = TimeOnly.FromDateTime(DateTime.Now)
+            };
+        }
+        Visible = true;
+        await VisibleChanged.InvokeAsync(Visible);
+        StateHasChanged();
+    }
+
+
+
+    private async Task Cerrar()
+    {
+        Visible = false;
+        await OnSesionAgregada.InvokeAsync();
+    }
+
+    private async Task AgregarSesion()
+    {
+        NuevaSesion.PacienteIds = PacienteIdsSeleccionados; // 👈 asigna los seleccionados
+        var exito = await SesionService.AgregarSesionAsync(NuevaSesion);
+        if (exito)
+        {
+            await OnSesionAgregada.InvokeAsync();
+            Cerrar();
+        }
+    }
+}

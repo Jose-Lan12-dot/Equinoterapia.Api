@@ -1,0 +1,111 @@
+﻿@using FRONTproyectoEquinoterapia.Models
+@inject Radzen.DialogService DialogService
+@inject FRONTproyectoEquinoterapia.Services.AsistenciaService AsistenciaService
+@inject FRONTproyectoEquinoterapia.Services.SesionService SesionService
+@inject PacienteService pacienteService
+@inject FRONTproyectoEquinoterapia.Services.InstructorService InstructorService
+@inject FRONTproyectoEquinoterapia.Services.CaballoService CaballoService
+@inject IJSRuntime JS
+
+
+
+@if (Visible)
+{
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Pacientes</h5>
+                    <button type="button" class="btn-close" @onclick="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Selecciona uno o varios pacientes (máx. @MaximoSeleccionables).</p>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var paciente in PacientesDisponibles)
+                        {
+                            bool seleccionado = PacienteIdsSeleccionados.Contains(paciente.PacienteId);
+                            <div class="card p-2 shadow-sm" 
+                                 style="width:160px;cursor:pointer;border:@(seleccionado ? "2px solid #0d6efd" : "1px solid #ccc");"
+                                 @onclick="() => TogglePaciente(paciente.PacienteId)">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span>@paciente.Nombre</span>
+                                    @if (seleccionado)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-primary"></i>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" @onclick="AgregarSeleccionados">Agregar</button>
+                    <button class="btn btn-secondary" @onclick="Cerrar">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop show"></div>
+}
+
+@code {
+    public bool Visible { get; set; }
+    public int SesionId { get; set; }
+    public int MaximoSeleccionables { get; set; } = 4;
+
+    private List<AllPacienteDto> PacientesDisponibles = new();
+
+    private List<int> PacienteIdsSeleccionados = new();
+
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+    [Parameter] public EventCallback OnPacientesAgregados { get; set; }
+
+    public async Task Abrir(int sesionId, int pacientesExistentes)
+    {
+        SesionId = sesionId;
+        MaximoSeleccionables = 4 - pacientesExistentes;
+        var pacientes = await pacienteService.ObtenerTodosAsync();
+        PacienteIdsSeleccionados.Clear();
+
+        Visible = true;
+        await VisibleChanged.InvokeAsync(Visible);
+        StateHasChanged();
+    }
+
+    private void TogglePaciente(int pacienteId)
+    {
+        if (PacienteIdsSeleccionados.Contains(pacienteId))
+        {
+            PacienteIdsSeleccionados.Remove(pacienteId);
+        }
+        else
+        {
+            if (PacienteIdsSeleccionados.Count >= MaximoSeleccionables)
+            {
+                _ = JS.InvokeVoidAsync("alert", $"Solo puedes agregar hasta {MaximoSeleccionables} pacientes.");
+                return;
+            }
+            PacienteIdsSeleccionados.Add(pacienteId);
+        }
+    }
+
+    private async Task AgregarSeleccionados()
+    {
+        foreach (var id in PacienteIdsSeleccionados)
+        {
+            await SesionService.AgregarPacienteAsync(SesionId, id);
+        }
+
+        await OnPacientesAgregados.InvokeAsync();
+        await JS.InvokeVoidAsync("alert", "Pacientes agregados correctamente.");
+        await Cerrar();
+    }
+
+    private async Task Cerrar()
+    {
+        Visible = false;
+        await VisibleChanged.InvokeAsync(Visible);
+    }
+}
+

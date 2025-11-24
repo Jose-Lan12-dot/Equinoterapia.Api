@@ -1,0 +1,157 @@
+﻿@page "/agregar-paciente"
+@using FRONTproyectoEquinoterapia.Models
+@using FRONTproyectoEquinoterapia.Services
+@using Radzen
+@using Radzen.Blazor
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+@inject ArchivoService ArchivoService
+@inject PacienteService PacienteService
+@inject NavigationManager Navigation
+@inject HttpClient Http
+
+
+<RadzenTemplateForm Data="@nuevoPaciente" TItem="PacienteFormDTO" Submit="@GuardarPaciente">
+
+    <RadzenTextBox @bind-Value="nuevoPaciente.Nombre" Placeholder="Nombre" Style="width:100%;" />
+    <RadzenDatePicker @bind-Value="nuevoPaciente.FechaNacimiento" Placeholder="Fecha de nacimiento" Style="width:100%;" />
+    <RadzenTextBox @bind-Value="nuevoPaciente.Tutor" Placeholder="Tutor" Style="width:100%;" />
+    <RadzenTextBox @bind-Value="nuevoPaciente.TelefonoTutor" Placeholder="Teléfono tutor" Style="width:100%;" />
+    <RadzenDropDown @bind-Value="nuevoPaciente.Genero" Data="@generos" Placeholder="Selecciona género" Style="width:100%;" />
+
+    <fieldset style="margin-top: 20px; padding: 10px;">
+        <legend>Archivos</legend>
+        @foreach (var archivo in archivos)
+        {
+            <div style="margin-bottom: 10px;">
+                <label>@archivo.Label</label><br />
+                <InputFile OnChange="@(e => ManejarArchivo(e, archivo.Campo))" />
+                @if (archivoPreviews.TryGetValue(archivo.Campo, out var nombreArchivo))
+                {
+                    <p>
+                        Archivo seleccionado: @nombreArchivo
+                        <button type="button" class="btn-personalizado" @onclick="@archivo.Quitar">❌ Quitar</button>
+                    </p>
+                }
+            </div>
+        }
+    </fieldset>
+
+    <RadzenButton Text="Guardar" ButtonStyle="ButtonStyle.Primary" Type="Submit" Style="margin-top:10px;" />
+</RadzenTemplateForm>
+
+@code {
+    private PacienteFormDTO nuevoPaciente = new();
+    private Dictionary<string, string> archivoPreviews = new();
+    private readonly string[] generos = { "Masculino", "Femenino", "Otro" };
+
+    private List<(string Campo, string Label, Action Quitar)> archivos => new()
+    {
+        ("DiagnosticoMedico","Suba el Diagnóstico Médico",QuitarDiagnostico),
+        ("CertificadoMedico","Suba el Certificado Médico",QuitarCertificado),
+        ("ActaNacimiento","Suba el Acta de Nacimiento",QuitarActa),
+        ("Curp","Suba la CURP",QuitarCurp),
+        ("ComprobanteDomicilio","Suba el Comprobante de Domicilio",QuitarComprobante),
+        ("IneTutor","Suba el INE del Tutor",QuitarIne),
+        ("Fotografia","Suba la Fotografía",QuitarFoto)
+    };
+
+    private async Task GuardarPaciente(PacienteFormDTO paciente)
+    {
+        var formData = new MultipartFormDataContent();
+
+        // 1️⃣ Campos del paciente
+        formData.Add(new StringContent(paciente.Nombre ?? ""), "Paciente.Nombre");
+        formData.Add(new StringContent(paciente.Tutor ?? ""), "Paciente.Tutor");
+        formData.Add(new StringContent(paciente.TelefonoTutor ?? ""), "Paciente.TelefonoTutor");
+        formData.Add(new StringContent(paciente.Genero ?? ""), "Paciente.Genero");
+        formData.Add(new StringContent(paciente.FechaNacimiento?.ToString("yyyy-MM-dd") ?? ""), "Paciente.FechaNacimiento");
+
+        // 2️⃣ Archivos
+        var archivosDict = new Dictionary<string, IBrowserFile?> {
+        { "DiagnosticoMedico", paciente.Archivo.DiagnosticoMedico },
+        { "CertificadoMedico", paciente.Archivo.CertificadoMedico },
+        { "ActaNacimiento", paciente.Archivo.ActaNacimiento },
+        { "Curp", paciente.Archivo.Curp },
+        { "ComprobanteDomicilio", paciente.Archivo.ComprobanteDomicilio },
+        { "IneTutor", paciente.Archivo.IneTutor },
+        { "Fotografia", paciente.Archivo.Fotografia }
+    };
+
+        int index = 0;
+        foreach (var kv in archivosDict)
+        {
+            var file = kv.Value;
+            if (file == null) continue;
+
+            // Stream del archivo
+            var streamContent = new StreamContent(file.OpenReadStream(10_000_000));
+            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+
+            // **MUY IMPORTANTE:** nombres exactos que espera el DTO en backend
+            formData.Add(new StringContent(kv.Key), $"Archivos[{index}].Nombre");
+            formData.Add(streamContent, $"Archivos[{index}].Archivo", file.Name);
+
+            index++;
+        }
+
+        // 3️⃣ Llamada al backend
+        var response = await Http.PostAsync("https://localhost:7280/api/Pacientes", formData);
+
+        if (response.IsSuccessStatusCode)
+        {
+            Console.WriteLine("Paciente guardado correctamente ✅");
+            Navigation.NavigateTo("/pacientes");
+        }
+        else
+        {
+            var err = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"❌ Error al guardar paciente: {response.StatusCode} - {err}");
+        }
+    }
+
+
+
+
+
+
+    private void ManejarArchivo(InputFileChangeEventArgs e, string campo)
+    {
+        switch (campo)
+        {
+            case "DiagnosticoMedico": nuevoPaciente.Archivo.DiagnosticoMedico = e.File; break;
+            case "CertificadoMedico": nuevoPaciente.Archivo.CertificadoMedico = e.File; break;
+            case "ActaNacimiento": nuevoPaciente.Archivo.ActaNacimiento = e.File; break;
+            case "Curp": nuevoPaciente.Archivo.Curp = e.File; break;
+            case "ComprobanteDomicilio": nuevoPaciente.Archivo.ComprobanteDomicilio = e.File; break;
+            case "IneTutor": nuevoPaciente.Archivo.IneTutor = e.File; break;
+            case "Fotografia": nuevoPaciente.Archivo.Fotografia = e.File; break;
+        }
+        archivoPreviews[campo] = e.File.Name;
+    }
+
+    private void EliminarArchivo(string campo)
+    {
+        switch (campo)
+        {
+            case "DiagnosticoMedico": nuevoPaciente.Archivo.DiagnosticoMedico = null; break;
+            case "CertificadoMedico": nuevoPaciente.Archivo.CertificadoMedico = null; break;
+            case "ActaNacimiento": nuevoPaciente.Archivo.ActaNacimiento = null; break;
+            case "Curp": nuevoPaciente.Archivo.Curp = null; break;
+            case "ComprobanteDomicilio": nuevoPaciente.Archivo.ComprobanteDomicilio = null; break;
+            case "IneTutor": nuevoPaciente.Archivo.IneTutor = null; break;
+            case "Fotografia": nuevoPaciente.Archivo.Fotografia = null; break;
+        }
+        archivoPreviews.Remove(campo);
+    }
+
+    private void QuitarDiagnostico() => EliminarArchivo("DiagnosticoMedico");
+    private void QuitarCertificado() => EliminarArchivo("CertificadoMedico");
+    private void QuitarActa() => EliminarArchivo("ActaNacimiento");
+    private void QuitarCurp() => EliminarArchivo("Curp");
+    private void QuitarComprobante() => EliminarArchivo("ComprobanteDomicilio");
+    private void QuitarIne() => EliminarArchivo("IneTutor");
+    private void QuitarFoto() => EliminarArchivo("Fotografia");
+}
