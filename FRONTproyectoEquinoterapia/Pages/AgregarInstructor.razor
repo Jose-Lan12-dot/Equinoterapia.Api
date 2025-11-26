@@ -1,0 +1,58 @@
+﻿@page "/agregar-instructor"
+@inject FRONTproyectoEquinoterapia.Services.InstructorService InstructorService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<h3>Agregar Instructor</h3>
+
+<div class="mb-3">
+    <label>Nombre:</label>
+    <RadzenTextBox @bind-Value="NuevoInstructor.Nombre" Style="width:300px" />
+</div>
+
+<div class="mb-3">
+    <label>Teléfono:</label>
+    <RadzenTextBox @bind-Value="NuevoInstructor.Telefono" Style="width:300px" />
+</div>
+
+<div class="mb-3">
+    <label>Estado:</label>
+    
+</div>
+
+<RadzenButton Text="Guardar" ButtonStyle="ButtonStyle.Primary" Click="@GuardarInstructor" />
+<RadzenButton Text="Cancelar" ButtonStyle="ButtonStyle.Secondary" Click="@Cancelar" Style="margin-left:5px" />
+
+@code {
+    private AddInstructorDto NuevoInstructor = new AddInstructorDto
+    {
+        Nombre = "",
+        Telefono = ""
+    };
+
+    private async Task GuardarInstructor()
+    {
+        if (string.IsNullOrWhiteSpace(NuevoInstructor.Nombre))
+        {
+            await JS.InvokeVoidAsync("alert", "El nombre es obligatorio.");
+            return;
+        }
+
+        var exito = await InstructorService.AddAsync(NuevoInstructor);
+        if (exito)
+        {
+            await JS.InvokeVoidAsync("alert", "Instructor agregado correctamente.");
+            Navigation.NavigateTo("/instructores");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Error al agregar el instructor.");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/instructores");
+    }
+}
+

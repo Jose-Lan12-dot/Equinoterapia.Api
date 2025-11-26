@@ -45,18 +45,22 @@
 
     private async Task CargarSesiones()
     {
-        var sesiones = await SesionService.ObtenerSesionesAsync();
+        var (sesiones, mensaje) = await SesionService.ObtenerSesionesAsync();
 
+        // Aquí no necesitamos instructores ni caballos por ahora
         appointments = sesiones.Select(s => new Appointment
         {
             Start = CombinarFechaHora(s.Fecha, s.Hora),
             End = CombinarFechaHora(s.Fecha, s.Hora).AddHours(1),
-            Text = $"{s.InstructorNombre} / {s.CaballoNombre}", // ahora aparece Instructor y Caballo
+            Text = $"Sesión: {s.Hora:hh\\:mm}", // Solo mostramos la hora
             ColorInstructor = s.ColorInstructor ?? "#378006",
-            SesionId = s.SesionId // si quieres usarlo para detalles
+            SesionId = s.SesionId
         }).ToList();
-
     }
+
+
+
+
 
     private async Task RefrescarCalendario()
     {

@@ -2,7 +2,6 @@
 @inject Radzen.DialogService DialogService
 @inject FRONTproyectoEquinoterapia.Services.AsistenciaService AsistenciaService
 @inject FRONTproyectoEquinoterapia.Services.SesionService SesionService
-
 @inject FRONTproyectoEquinoterapia.Services.InstructorService InstructorService
 @inject FRONTproyectoEquinoterapia.Services.CaballoService CaballoService
 @inject IJSRuntime JS
@@ -17,8 +16,7 @@
                     <button type="button" class="btn-close" @onclick="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                    <p><strong>Instructor:</strong> @(Sesion?.InstructorNombre ?? "No disponible")</p>
-                    <p><strong>Caballo:</strong> @(Sesion?.CaballoNombre ?? "No disponible")</p>
+                    
                     <p><strong>Fecha:</strong> @Sesion.Fecha.ToString("dd/MM/yyyy")</p>
                     <p><strong>Hora:</strong> @Sesion.Hora.ToString(@"hh\:mm")</p>
 
@@ -48,7 +46,7 @@
 
 @code {
     private bool Visible { get; set; }
-    private SesionDto Sesion { get; set; }
+    private SesionDto Sesion { get; set; } = new();
     private List<PacienteDto> Pacientes = new();
 
     private AgregarPacientesDialog AgregarPacientesDialogRef;
@@ -64,15 +62,18 @@
             return;
         }
 
-        // Obtener la sesión
-        var (sesionDto, mensaje) = await SesionService.ObtenerSesionPorIdAsync(appt.SesionId.Value);
+        // Obtener la sesión desde el servicio
+        var resultado = await SesionService.ObtenerSesionPorIdAsync(appt.SesionId.Value);
+        SesionDto? sesionDto = resultado.Item1;
+        string mensaje = resultado.Item2;
+
         if (sesionDto == null)
         {
             await JS.InvokeVoidAsync("alert", $"No se pudo obtener la sesión: {mensaje}");
             return;
         }
 
-        // Asegurarnos de que los nombres nunca sean null
+        // Nombres nunca nulos
         sesionDto.InstructorNombre ??= "Sin Instructor";
         sesionDto.CaballoNombre ??= "Sin Caballo";
 
@@ -109,6 +110,11 @@
     {
         var exito = await SesionService.EliminarSesionAsync(Sesion.SesionId, JS);
         if (exito)
+        {
             await Cerrar();
+            if (OnSesionActualizada.HasDelegate)
+                await OnSesionActualizada.InvokeAsync();
+        }
     }
 }
+

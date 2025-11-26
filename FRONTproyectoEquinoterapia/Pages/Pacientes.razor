@@ -1,65 +1,227 @@
 ﻿@page "/pacientes"
-
-@using System.Net.Http.Json
+@using FRONTproyectoEquinoterapia.Services
+@using FRONTproyectoEquinoterapia.Components
+@using FRONTproyectoEquinoterapia.Models
+@inject NavigationManager Navigation
 @inject HttpClient Http
+@inject NotificationService NotificationService
+@inject PacienteService pacienteService
+@inject DialogService DialogService
+@using Radzen
+@using Radzen.Blazor
+
 
 <h3>Lista de Pacientes</h3>
 
-@* <RadzenDataGrid Data="@pacientes" TItem="Paciente" ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" AllowSorting="true">
+<RadzenStack Orientation="Orientation.Horizontal" Gap="10px" Style="margin-bottom:15px">
+    <RadzenButton Click="@AbrirAgregarPaciente" Text="Agregar paciente" Icon="add_circle" ButtonStyle="ButtonStyle.Primary" />
+
+    <RadzenDropDown Style="width: 100%; max-width: 300px;"
+                    TValue="string"
+                    @bind-Value="selectedOrder"
+                    Placeholder="Selecciona orden"
+                    Data="@ordenesDisponibles"
+                    TextProperty="Text"
+                    ValueProperty="Value"
+                    Change="@(args => AplicarFiltros())"
+                    AllowFiltering="true" />
+</RadzenStack>
+
+<RadzenTextBox @bind-Value="searchTerm" Placeholder="Buscar paciente..."
+               Style="margin-bottom:10px;width:250px" Change="@(args => AplicarFiltros())" />
+
+<RadzenDataGrid Data="@filteredPacientes" TItem="AllPacienteDto" ColumnWidth="200px"
+                AllowFiltering="true" AllowPaging="true" AllowSorting="true" PageSize="5">
     <Columns>
-        <RadzenDataGridColumn TItem="Paciente" Property="Id" Title="ID" />
-        <RadzenDataGridColumn TItem="Paciente" Property="Nombre" Title="Nombre" />
-        <RadzenDataGridColumn TItem="Paciente" Property="FaltasAcumuladas" Title="FaltasAcumuladas" />
-        <RadzenDataGridColumn TItem="Paciente" Property="Estado" Title="Estado" />
-        <RadzenDataGridColumn TItem="Paciente" Title="Operaciones">
+        <RadzenDataGridColumn TItem="AllPacienteDto" Property="PacienteId" Title="ID" />
+        <RadzenDataGridColumn TItem="AllPacienteDto" Property="Nombre" Title="Nombre" />
+        <RadzenDataGridColumn TItem="AllPacienteDto" Property="NumeroFaltas" Title="Faltas Acumuladas" />
+        <RadzenDataGridColumn TItem="AllPacienteDto" Property="Estado" Title="Estado" />
+        <RadzenDataGridColumn TItem="AllPacienteDto" Title="Operaciones">
             <Template Context="p">
-                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => EliminarPaciente(p))" />
-                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Click="@(() => EditarPaciente(p))" Style="margin-left:5px" />
-                <RadzenButton Icon="visibility" ButtonStyle="ButtonStyle.Info" Size="ButtonSize.Small" Click="@(() => VerPaciente(p))" Style="margin-left:5px" />
+
+                <RadzenButton Icon="visibility"
+                              ButtonStyle="ButtonStyle.Info"
+                              Click="@(args => VerPaciente(p.PacienteId))" />
+
+                <RadzenButton Icon="edit"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Style="margin-left:5px"
+                              Click="@(args => EditarPaciente(p))" />
+
+                <RadzenButton Icon="delete"
+                              ButtonStyle="ButtonStyle.Danger"
+                              Style="margin-left:5px"
+                              Click="@(args => ConfirmarEliminarConJs(p))" />
+
             </Template>
         </RadzenDataGridColumn>
     </Columns>
-</RadzenDataGrid> *@
+</RadzenDataGrid>
 
 @code {
-    List<Paciente> pacientes = new List<Paciente>();
+    string searchTerm = "";
+    string selectedOrder = "";
+
+    List<AllPacienteDto> pacientes = new();
+    List<AllPacienteDto> filteredPacientes = new();
+
+    public class Orden
+    {
+        public string Value { get; set; } = "";
+        public string Text { get; set; } = "";
+    }
+
+    List<Orden> ordenesDisponibles = new()
+    {
+        new Orden { Value = "nombre_asc", Text = "Nombre (A-Z)" },
+        new Orden { Value = "nombre_desc", Text = "Nombre (Z-A)" },
+        new Orden { Value = "faltas_asc", Text = "Faltas (Menor a Mayor)" },
+        new Orden { Value = "faltas_desc", Text = "Faltas (Mayor a Menor)" },
+        new Orden { Value = "id_asc", Text = "ID (Más antiguo primero)" },
+        new Orden { Value = "id_desc", Text = "ID (Más reciente primero)" }
+    };
 
     protected override async Task OnInitializedAsync()
     {
-        // Llamada de la API
-       // pacientes = await Http.GetFromJsonAsync<List<Paciente>>("https://tubackend.com/api/pacientes");
-
-        //  simulacion de datos:
-        if (pacientes == null || !pacientes.Any())
+        try
         {
-            pacientes = new List<Paciente>
+            await CargarPacientes();
+            filteredPacientes = pacientes.ToList();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage
             {
-                new Paciente { Id = 1, Nombre = "Juan Pérez", FaltasAcumuladas = 1, Estado = "Activo" },
-                new Paciente { Id = 2, Nombre = "María López", FaltasAcumuladas = 2, Estado = "En Tratamiento" }
-            };
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = $"No se pudieron cargar los pacientes: {ex.Message}"
+            });
         }
     }
 
-    void EliminarPaciente(Paciente p)
+    void AplicarFiltros()
     {
-        pacientes.Remove(p);
+        var query = string.IsNullOrWhiteSpace(searchTerm)
+            ? pacientes
+            : pacientes.Where(p => (p.Nombre ?? "").Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                                   (p.Estado ?? "").Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+
+        query = selectedOrder switch
+        {
+            "nombre_asc" => query.OrderBy(p => p.Nombre),
+            "nombre_desc" => query.OrderByDescending(p => p.Nombre),
+            "faltas_asc" => query.OrderBy(p => p.NumeroFaltas),
+            "faltas_desc" => query.OrderByDescending(p => p.NumeroFaltas),
+            "id_asc" => query.OrderBy(p => p.PacienteId),
+            "id_desc" => query.OrderByDescending(p => p.PacienteId),
+            _ => query
+        };
+
+        filteredPacientes = query.ToList();
+        StateHasChanged();
     }
 
-    void EditarPaciente(Paciente p)
+    void AbrirAgregarPaciente()
     {
-        Console.WriteLine($"Editar {p.Nombre}");
+        Navigation.NavigateTo("/agregar-paciente");
     }
 
-    void VerPaciente(Paciente p)
+    void VerPaciente(int id)
     {
-        Console.WriteLine($"Ver {p.Nombre}");
+        Navigation.NavigateTo($"/pacientes/detalle/{id}");
     }
 
-    public class Paciente
+    void EditarPaciente(AllPacienteDto paciente)
     {
-        public int Id { get; set; }
-        public required string Nombre { get; set; }
-        public int FaltasAcumuladas { get; set; }
-        public required string Estado { get; set; }
+        Navigation.NavigateTo($"/editar-paciente/{paciente.PacienteId}");
     }
+
+    [Inject] IJSRuntime JS { get; set; }
+
+    async Task ConfirmarEliminarConJs(AllPacienteDto paciente)
+    {
+        if (paciente == null) return;
+
+        bool confirm = await JS.InvokeAsync<bool>("confirm",
+            $"¿Seguro que deseas eliminar al paciente \"{paciente.Nombre}\"? Esta acción eliminará también TODOS sus archivos y registros asociados.");
+
+        if (!confirm) return;
+
+        var (exito, mensaje) = await pacienteService.EliminarPacienteAsync(paciente.PacienteId);
+
+        if (exito)
+        {
+            await CargarPacientes();
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Paciente eliminado",
+                Detail = mensaje
+            });
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = mensaje
+            });
+        }
+    }
+
+    async Task EliminarPaciente(AllPacienteDto paciente)
+    {
+        // Confirmación con DialogService (Radzen)
+        bool? confirmar = await DialogService.Confirm(
+            $"¿Seguro que deseas eliminar al paciente \"{paciente.Nombre}\"? Esta acción eliminará también TODOS sus archivos y registros asociados.",
+            "Confirmar eliminación",
+            new ConfirmOptions()
+            {
+                OkButtonText = "Eliminar",
+                CancelButtonText = "Cancelar"
+                // <-- NO pongas ButtonStyle aquí; ConfirmOptions no lo tiene
+            }
+        );
+
+        if (confirmar != true)
+            return;
+
+        // Llamada al servicio
+        var (exito, mensaje) = await pacienteService.EliminarPacienteAsync(paciente.PacienteId);
+
+        if (exito)
+        {
+            await CargarPacientes();
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Paciente eliminado",
+                Detail = mensaje
+            });
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = mensaje
+            });
+        }
+    }
+
+
+
+    private async Task CargarPacientes()
+    {
+        pacientes = await pacienteService.ObtenerTodosAsync();
+        filteredPacientes = pacientes.ToList();
+        StateHasChanged();
+    }
+
+
+
+
 }

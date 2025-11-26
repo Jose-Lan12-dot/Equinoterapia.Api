@@ -95,21 +95,23 @@ namespace FRONTproyectoEquinoterapia.Services
             return (bytes, "Archivo descargado correctamente", extension);
         }
 
-            // Obtener tipos de archivo desde backend
-            public async Task<List<TipoArchivoDto>> ObtenerTiposAsync()
-            {
-                var response = await _http.GetFromJsonAsync<List<TipoArchivoDto>>("https://localhost:7280/api/tipos-archivo");
-                return response ?? new List<TipoArchivoDto>();
-            }
+        // Obtener tipos de archivo desde backend
+        public async Task<List<TipoArchivoDto>> ObtenerTiposAsync()
+        {
+            var response = await _http.GetFromJsonAsync<List<TipoArchivoDto>>("https://localhost:7280/obtener-tipoarchivo");
+            return response ?? new List<TipoArchivoDto>();
+        }
 
-            // DTO para Blazor
-            public class TipoArchivoDto
-            {
-                public int TipoId { get; set; }
-                public string Nombre { get; set; } = string.Empty;
-                public string Extension { get; set; } = string.Empty;
-            }
-        
+
+
+        // DTO para Blazor
+        public class TipoArchivoDto
+        {
+            public int TipoId { get; set; }
+            public string Nombre { get; set; } = string.Empty;
+            public string Extension { get; set; } = string.Empty;
+        }
+
 
 
     }

@@ -12,38 +12,40 @@ namespace FRONTproyectoEquinoterapia.Services
             _http = http;
         }
 
-        // ✅ Obtener todos los caballos (ajustado al formato real del backend)
+        // Obtener todos los caballos
         public async Task<List<CaballoDto>> GetAllAsync()
         {
-            var response = await _http.GetFromJsonAsync<CaballosResponse>("api/caballo/obtener/todos");
-            return response?.Caballos ?? new List<CaballoDto>();
+            // Llamamos a la ruta real del backend: /api/caballos
+            var response = await _http.GetFromJsonAsync<List<CaballoDto>>("api/caballos");
+            return response ?? new List<CaballoDto>();
         }
 
-        // ✅ Obtener por ID
+        // Obtener por ID
         public async Task<CaballoDto?> GetByIdAsync(int id)
         {
-            var response = await _http.GetFromJsonAsync<CaballoResponse>($"api/caballo/obtener/por/{id}");
-            return response?.Caballo;
+            // Llamamos a la ruta real del backend: /api/caballos/{id}
+            var response = await _http.GetFromJsonAsync<CaballoDto>($"api/caballos/{id}");
+            return response;
         }
 
-        // 🟢 Agregar nuevo caballo
+        // Agregar nuevo caballo
         public async Task<bool> AddAsync(AddCaballoDto dto)
         {
-            var response = await _http.PostAsJsonAsync("api/caballo/agregar", dto);
+            var response = await _http.PostAsJsonAsync("api/caballos", dto);
             return response.IsSuccessStatusCode;
         }
 
-        // 🟠 Actualizar parcialmente
+        // Actualizar parcialmente
         public async Task<bool> UpdatePartialAsync(int id, CaballoDto dto)
         {
-            var response = await _http.PatchAsJsonAsync($"api/caballo/actualizar-parcialmente/{id}", dto);
+            var response = await _http.PatchAsJsonAsync($"api/caballos/{id}", dto);
             return response.IsSuccessStatusCode;
         }
 
-        // 🔴 Eliminar caballo
+        // Eliminar caballo
         public async Task<bool> DeleteAsync(int id)
         {
-            var response = await _http.DeleteAsync($"api/caballo/eliminar/{id}");
+            var response = await _http.DeleteAsync($"api/caballos/{id}");
             return response.IsSuccessStatusCode;
         }
     }

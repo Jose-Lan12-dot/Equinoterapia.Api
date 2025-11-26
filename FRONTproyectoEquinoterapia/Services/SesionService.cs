@@ -1,170 +1,105 @@
 ﻿using Radzen;
+using FRONTproyectoEquinoterapia.Models;
 using System.Net.Http.Json;
-using FrontEquinoterapia.Data.Models; // El using a tus DTOs
-using System.Net.Http;
-using System.Net.Http.Json;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using FRONTproyectoEquinoterapia.Dtos;
+using Microsoft.JSInterop;
 
 namespace FRONTproyectoEquinoterapia.Services
 {
     public class SesionService : ISesionService
     {
         private readonly HttpClient _http;
-        private readonly NotificationService _notificationService;
 
-        // Asumiré que tus rutas de API son "api/sesion/..."
-        // ¡Cámbialo si tu controlador se llama diferente!
-        private const string ApiBasePath = "api/sesion";
+        private const string ApiBase = "api/sesiones";
 
-        public SesionService(HttpClient http, NotificationService notificationService)
+        public SesionService(HttpClient http)
         {
             _http = http;
-            _notificationService = notificationService;
         }
 
-        public async Task<(IEnumerable<SesionDto>, string)> GetByWeekAsync(DateOnly startOfWeek)
+        public async Task<(IEnumerable<SesionDto>, string)> ObtenerSesionesPorSemanaAsync(DateOnly startOfWeek)
         {
-            // Formatea la fecha como espera tu API (ej: 2025-10-30)
-            string formattedDate = startOfWeek.ToString("yyyy-MM-dd");
-
-            try
+            string fechaStr = startOfWeek.ToString("yyyy-MM-dd");
+            var response = await _http.GetAsync($"{ApiBase}/by-week?startOfWeek={fechaStr}");
+            if (response.IsSuccessStatusCode)
             {
-                // Llama a la API
-                var response = await _http.GetAsync($"{ApiBasePath}/semana/{formattedDate}");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var data = await response.Content.ReadFromJsonAsync<IEnumerable<SesionDto>>();
-                    return (data ?? new List<SesionDto>(), "Datos cargados");
-                }
-
-                // Si la API devuelve un error (ej: 404, 500)
-                var mensajeError = await response.Content.ReadAsStringAsync();
-                MostrarError(mensajeError);
-                return (new List<SesionDto>(), mensajeError);
+                var data = await response.Content.ReadFromJsonAsync<IEnumerable<SesionDto>>();
+                return (data ?? new List<SesionDto>(), "Datos cargados");
             }
-            catch (Exception ex)
-            {
-                // Si hay un error de red o de HttpClient
-                MostrarError($"Error de conexión: {ex.Message}");
-                return (new List<SesionDto>(), ex.Message);
-            }
+            var mensaje = await response.Content.ReadAsStringAsync();
+            return (new List<SesionDto>(), mensaje);
         }
 
-        public async Task<(SesionDto?, string)> GetByIdAsync(int sesionId)
+        public async Task<(SesionDto?, string)> ObtenerSesionPorIdAsync(int sesionId) // <-- implementado
         {
-            try
+            var response = await _http.GetAsync($"{ApiBase}/{sesionId}");
+            if (response.IsSuccessStatusCode)
             {
-                var response = await _http.GetAsync($"{ApiBasePath}/{sesionId}");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var data = await response.Content.ReadFromJsonAsync<SesionDto>();
-                    return (data, "Datos cargados");
-                }
-
-                var mensajeError = await response.Content.ReadAsStringAsync();
-                MostrarError(mensajeError);
-                return (null, mensajeError);
+                var data = await response.Content.ReadFromJsonAsync<SesionDto>();
+                return (data, "Sesión cargada");
             }
-            catch (Exception ex)
-            {
-                MostrarError($"Error de conexión: {ex.Message}");
-                return (null, ex.Message);
-            }
+            var mensaje = await response.Content.ReadAsStringAsync();
+            return (null, mensaje);
         }
 
-        public async Task<(bool, string)> AddAsync(AddSesionDto addSesionDto)
+        public async Task<(bool, string)> AddAsync(AddSesionDto nuevaSesion)
         {
-            try
-            {
-                var response = await _http.PostAsJsonAsync(ApiBasePath, addSesionDto);
-                var mensaje = await response.Content.ReadAsStringAsync();
-
-                if (response.IsSuccessStatusCode)
-                {
-                    MostrarExito(mensaje); // Muestra el mensaje de éxito del backend
-                    return (true, mensaje);
-                }
-
-                MostrarError(mensaje); // Muestra el mensaje de error del backend
-                return (false, mensaje);
-            }
-            catch (Exception ex)
-            {
-                MostrarError($"Error de conexión: {ex.Message}");
-                return (false, ex.Message);
-            }
+            var response = await _http.PostAsJsonAsync(ApiBase, nuevaSesion);
+            var mensaje = await response.Content.ReadAsStringAsync();
+            return (response.IsSuccessStatusCode, mensaje);
         }
 
         public async Task<(bool, string)> UpdateAsync(int sesionId, SesionDto sesionDto)
         {
-            try
-            {
-                var response = await _http.PutAsJsonAsync($"{ApiBasePath}/{sesionId}", sesionDto);
-                var mensaje = await response.Content.ReadAsStringAsync();
-
-                if (response.IsSuccessStatusCode)
-                {
-                    MostrarExito(mensaje);
-                    return (true, mensaje);
-                }
-
-                MostrarError(mensaje);
-                return (false, mensaje);
-            }
-            catch (Exception ex)
-            {
-                MostrarError($"Error de conexión: {ex.Message}");
-                return (false, ex.Message);
-            }
+            var response = await _http.PutAsJsonAsync($"{ApiBase}/{sesionId}", sesionDto);
+            var mensaje = await response.Content.ReadAsStringAsync();
+            return (response.IsSuccessStatusCode, mensaje);
         }
 
         public async Task<(bool, string)> DeleteAsync(int sesionId)
         {
-            try
-            {
-                var response = await _http.DeleteAsync($"{ApiBasePath}/{sesionId}");
-                var mensaje = await response.Content.ReadAsStringAsync();
-
-                if (response.IsSuccessStatusCode)
-                {
-                    MostrarExito(mensaje);
-                    return (true, mensaje);
-                }
-
-                MostrarError(mensaje);
-                return (false, mensaje);
-            }
-            catch (Exception ex)
-            {
-                MostrarError($"Error de conexión: {ex.Message}");
-                return (false, ex.Message);
-            }
+            var response = await _http.DeleteAsync($"{ApiBase}/{sesionId}");
+            var mensaje = await response.Content.ReadAsStringAsync();
+            return (response.IsSuccessStatusCode, mensaje);
         }
 
-        // --- Métodos Privados para Notificaciones ---
-        private void MostrarError(string mensaje)
+        public async Task<bool> EliminarSesionAsync(int sesionId, IJSRuntime js) // <-- compatibilidad con diálogo
         {
-            _notificationService.Notify(new NotificationMessage
-            {
-                Severity = NotificationSeverity.Error,
-                Summary = "Error",
-                Detail = string.IsNullOrWhiteSpace(mensaje) ? "Ocurrió un error desconocido" : mensaje,
-                Duration = 4000
-            });
+            var (exito, mensaje) = await DeleteAsync(sesionId);
+            if (!exito)
+                await js.InvokeVoidAsync("alert", mensaje);
+            return exito;
         }
 
-        private void MostrarExito(string mensaje)
+        public async Task<bool> AgregarPacienteAsync(int sesionId, int pacienteId) // <-- para agregar pacientes
         {
-            _notificationService.Notify(new NotificationMessage
-            {
-                Severity = NotificationSeverity.Success,
-                Summary = "Éxito",
-                Detail = mensaje,
-                Duration = 3000
-            });
+            var response = await _http.PostAsJsonAsync($"{ApiBase}/{sesionId}/pacientes", new { PacienteId = pacienteId });
+            return response.IsSuccessStatusCode;
         }
+
+        public async Task<(IEnumerable<SesionDto>, string)> ObtenerSesionesAsync()
+        {
+            var response = await _http.GetAsync($"{ApiBase}");
+            if (response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadFromJsonAsync<IEnumerable<SesionDto>>();
+                return (data ?? new List<SesionDto>(), "Sesiones cargadas");
+            }
+
+            var mensaje = await response.Content.ReadAsStringAsync();
+            return (new List<SesionDto>(), mensaje);
+        }
+
+        public async Task<List<InstructorDto>> ObtenerTodosInstructoresAsync()
+        {
+            return await _http.GetFromJsonAsync<List<InstructorDto>>("api/instructores") ?? new List<InstructorDto>();
+        }
+
+        public async Task<List<CaballoDto>> ObtenerTodosCaballosAsync()
+        {
+            return await _http.GetFromJsonAsync<List<CaballoDto>>("api/caballos") ?? new List<CaballoDto>();
+        }
+
     }
 }

@@ -1,22 +1,17 @@
-﻿using FRONTproyectoEquinoterapia.Dtos;
+﻿using FRONTproyectoEquinoterapia.Models;
+using Microsoft.JSInterop;
 
 namespace FRONTproyectoEquinoterapia.Services
 {
     public interface ISesionService
     {
-        // Para el calendario del Home
-        Task<(IEnumerable<SesionDto>, string)> GetByWeekAsync(DateOnly startOfWeek);
-
-        // Para la página de "Editar Sesión"
-        Task<(SesionDto?, string)> GetByIdAsync(int sesionId);
-
-        // Para el formulario de "Agregar Sesión"
-        Task<(bool, string)> AddAsync(AddSesionDto addSesionDto);
-
-        // Para el formulario de "Editar Sesión"
+        Task<(IEnumerable<SesionDto>, string)> ObtenerSesionesPorSemanaAsync(DateOnly startOfWeek);
+        Task<(SesionDto?, string)> ObtenerSesionPorIdAsync(int sesionId); // <-- nuevo
+        Task<(IEnumerable<SesionDto>, string)> ObtenerSesionesAsync(); // <-- nuevo
+        Task<(bool, string)> AddAsync(AddSesionDto nuevaSesion);
         Task<(bool, string)> UpdateAsync(int sesionId, SesionDto sesionDto);
-
-        // Para el botón de "Eliminar"
-        Task<(bool, string)> DeleteAsync(int sesionId);
+        Task<(bool, string)> DeleteAsync(int sesionId); // ya existente
+        Task<bool> EliminarSesionAsync(int sesionId, IJSRuntime js); // <-- nuevo, solo para compatibilidad con el diálogo
+        Task<bool> AgregarPacienteAsync(int sesionId, int pacienteId); // <-- si usas agregar pacientes
     }
 }

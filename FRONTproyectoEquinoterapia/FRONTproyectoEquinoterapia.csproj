@@ -1,16 +1,25 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+
+    <RootNamespace>FRONTproyectoEquinoterapia</RootNamespace>
+    <AssemblyName>FRONTproyectoEquinoterapia</AssemblyName>
+<!-- 👇 agrega esta línea -->
+  <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.20" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.20" PrivateAssets="all" />
-    <PackageReference Include="Radzen.Blazor" Version="8.1.7" />
+    <PackageReference Include="Radzen.Blazor" Version="7.3.5" />
+  </ItemGroup> 
+
+  <ItemGroup>
+    <Folder Include="wwwroot\icons\" />
   </ItemGroup>
+
 
 </Project>

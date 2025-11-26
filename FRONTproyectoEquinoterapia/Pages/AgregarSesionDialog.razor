@@ -200,12 +200,22 @@
 
     private async Task AgregarSesion()
     {
-        NuevaSesion.PacienteIds = PacienteIdsSeleccionados; // 👈 asigna los seleccionados
-        var exito = await SesionService.AgregarSesionAsync(NuevaSesion);
+        // Asignamos los pacientes seleccionados
+        NuevaSesion.PacienteIds = PacienteIdsSeleccionados;
+
+        // Usamos el DTO correcto
+        var (exito, mensaje) = await SesionService.AddAsync(NuevaSesion);
+
         if (exito)
         {
             await OnSesionAgregada.InvokeAsync();
-            Cerrar();
+            await Cerrar();
+        }
+        else
+        {
+            // Mostrar mensaje de error si quieres
+            await JS.InvokeVoidAsync("alert", mensaje);
         }
     }
+
 }
