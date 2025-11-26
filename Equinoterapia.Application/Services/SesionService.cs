@@ -79,7 +79,9 @@ namespace Equinoterapia.Application.Services
                     Fecha = sesion.Fecha,
                     Hora = sesion.Hora,
                     InstructorId = sesion.InstructorId,
-                    CaballoId = sesion.CaballoId
+                    CaballoId = sesion.CaballoId,
+                    nombreInstructor = sesion.Instructor.Nombre,
+                    nombreCaballo = sesion.Caballo.Nombre
                 };
                 return (dto, "Sesión encontrada.");
             }

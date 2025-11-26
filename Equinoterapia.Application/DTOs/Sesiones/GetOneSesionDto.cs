@@ -7,5 +7,7 @@
         public TimeOnly Hora { get; set; }
         public int InstructorId { get; set; }
         public int CaballoId { get; set; }
+        public string nombreInstructor { get; set; } = string.Empty;    
+        public string nombreCaballo { get; set; } = string.Empty;
     }
 }
