@@ -40,7 +40,7 @@ namespace Equinoterapia.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SubirArchivo(int pacienteId, [FromForm] AddArchivoDto archivoDto)
+        public async Task<IActionResult> SubirArchivo(int pacienteId, AddArchivoDto archivoDto)
         {
 
             if (!ModelState.IsValid)
@@ -59,7 +59,7 @@ namespace Equinoterapia.Api.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> ActualizarArchivo(int pacienteId, [FromForm] UpdateArchivoDto archivoDto)
+        public async Task<IActionResult> ActualizarArchivo(int pacienteId, UpdateArchivoDto archivoDto)
         {
             if (!ModelState.IsValid)
             {
