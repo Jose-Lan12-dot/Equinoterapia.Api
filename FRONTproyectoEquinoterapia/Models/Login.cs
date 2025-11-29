@@ -1,4 +1,4 @@
-﻿namespace Equinoterapia2.Models
+﻿namespace FRONTproyectoEquinoterapia.Models
 {
     public class LoginModel
     {

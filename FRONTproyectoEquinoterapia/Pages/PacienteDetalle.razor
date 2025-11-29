@@ -1,18 +1,15 @@
 ﻿@page "/pacientes/detalle/{id:int}"
 @using FRONTproyectoEquinoterapia.Models
 @using Microsoft.AspNetCore.Components.Forms
+@using FRONTproyectoEquinoterapia.Services
+@inject IJSRuntime JS
 @inject PacienteService PacienteService
 @inject ArchivoService ArchivoService
-@inject NavigationManager Navigation
 @inject IJSRuntime JS
-@inject NavigationManager NavigationManager
-@using FRONTproyectoEquinoterapia.Services
-@inject NavigationManager Navigation
 @inject HttpClient Http
-@inject FRONTproyectoEquinoterapia.Services.ArchivoService ArchivoService
-@using Microsoft.JSInterop
-@inject ArchivoService ArchivoService
-@inject IJSRuntime JS
+
+@using ModelsPaciente = FRONTproyectoEquinoterapia.Models
+@using ServicesPaciente = FRONTproyectoEquinoterapia.Services
 
 <h3>Detalle del Paciente</h3>
 
@@ -27,10 +24,10 @@ else if (pacienteDetalle == null)
 else
 {
     <div>
-        <h4>@pacienteDetalle.Paciente?.Nombre</h4>
-        <p><strong>Tutor:</strong> @pacienteDetalle.Paciente?.Tutor</p>
-        <p><strong>Teléfono:</strong> @pacienteDetalle.Paciente?.TelefonoTutor</p>
-        <p><strong>Género:</strong> @pacienteDetalle.Paciente?.Genero</p>
+        <h4>@pacienteDetalle.Nombre</h4>
+        <p><strong>Tutor:</strong> @pacienteDetalle.Tutor</p>
+        <p><strong>Teléfono:</strong> @pacienteDetalle.TelefonoTutor</p>
+        <p><strong>Género:</strong> @pacienteDetalle.Genero</p>
         <p><strong>Faltas:</strong> @pacienteDetalle.NumeroFaltas</p>
         <p><strong>Falta evaluación:</strong> @pacienteDetalle.FaltaEvaluacion</p>
 
@@ -56,9 +53,8 @@ else
         }
 
         <h5>Subir nuevo archivo</h5>
-
-        <select @bind="nuevoArchivoDto.TipoArchivoId">
-            <option value="0">-- Selecciona tipo de archivo --</option>
+        <select @bind="archivoActual">
+            <option value="">-- Selecciona tipo de archivo --</option>
             @foreach (var tipo in tiposArchivo)
             {
                 <option value="@tipo.TipoId">@tipo.Nombre (@tipo.Extension)</option>
@@ -69,30 +65,28 @@ else
 
         <button @onclick="SubirArchivo">Subir Archivo</button>
 
-        <p>@mensajeOperacion</p>
+        @if (!string.IsNullOrEmpty(mensajeError))
+        {
+            <p style="color:red">@mensajeError</p>
+        }
 
+        <p>@mensajeOperacion</p>
     </div>
 }
 
 @code {
     [Parameter] public int id { get; set; }
 
-    private PacienteDetalleResponse? pacienteDetalle;
+    private PacienteDetailsDto? pacienteDetalle;
     private List<AddArchivoBlazorDto> archivosLista = new();
     private bool cargando = true;
-    private string mensajeOperacion = string.Empty;
-    private List<ArchivoService.TipoArchivoDto> tiposArchivoLista = new();
-    private AddArchivoBlazorDto nuevoArchivoDto = new(); // Para bind del select y archivo
-    private List<ArchivoService.TipoArchivoDto> tiposArchivo = new();
-    private ArchivoService.TipoArchivoDto? tipoSeleccionado;
-    private int tipoArchivoSeleccionado = 0;
-    private List<TipoArchivoDto> tiposArchivos = new();
+    private List<FRONTproyectoEquinoterapia.Services.ArchivoService.TipoArchivoDto> tiposArchivo = new();
 
-
-    private string nuevoArchivoNombre = string.Empty;
-    private IBrowserFile? nuevoArchivo;
-
-    // Diccionario temporal para actualizar archivos
+    private string archivoActual = "";
+    private IBrowserFile? archivoSeleccionado;
+    private string mensajeError = "";
+    private string mensajeOperacion = "";
+    private AddArchivoBlazorDto nuevoArchivoDto = new();
     private Dictionary<string, IBrowserFile> archivosSeleccionados = new();
 
     protected override async Task OnInitializedAsync()
@@ -106,70 +100,49 @@ else
         cargando = true;
         pacienteDetalle = await PacienteService.ObtenerPorIdAsync(id);
 
-        archivosLista.Clear();
-
-        if (pacienteDetalle?.Archivos != null)
-        {
-            foreach (var nombre in pacienteDetalle.Archivos)
-            {
-                archivosLista.Add(new AddArchivoBlazorDto
-                {
-                    Nombre = nombre,
-                    Archivo = null! // para actualizar si se desea
-                });
-            }
-        }
-
+        archivosLista = pacienteDetalle?.ArchivosPendientes
+            .Select(nombre => new AddArchivoBlazorDto { Nombre = nombre })
+            .ToList() ?? new List<AddArchivoBlazorDto>();
 
         cargando = false;
     }
 
-    // ===============================
-    // Subir nuevo archivo
-    // ===============================
     private void OnNuevoArchivoSeleccionado(InputFileChangeEventArgs e)
     {
-        nuevoArchivoDto.Archivo = e.File;
+        archivoSeleccionado = e.File;
     }
 
     private async Task SubirArchivo()
     {
-        if (nuevoArchivoDto.TipoArchivoId == 0 || nuevoArchivoDto.Archivo == null)
+        if (archivoSeleccionado == null)
         {
-            mensajeOperacion = "Seleccione un tipo de archivo y un archivo válido.";
+            mensajeError = "Seleccione un archivo primero.";
             return;
         }
 
-        var tipo = tiposArchivo.FirstOrDefault(t => t.TipoId == nuevoArchivoDto.TipoArchivoId);
-        if (tipo == null)
+        if (string.IsNullOrEmpty(archivoActual))
         {
-            mensajeOperacion = "Tipo de archivo inválido.";
+            mensajeError = "Seleccione un tipo de archivo.";
             return;
         }
 
-        // Nombre que espera el backend
-        nuevoArchivoDto.Nombre = tipo.Nombre;
+        mensajeError = "";
+
+        nuevoArchivoDto.Nombre = archivoActual;
+        nuevoArchivoDto.Archivo = archivoSeleccionado;
 
         var (exito, mensaje) = await ArchivoService.SubirArchivoAsync(id, nuevoArchivoDto);
         mensajeOperacion = mensaje;
 
         if (exito)
         {
-            archivosLista.Add(new AddArchivoBlazorDto
-            {
-                Nombre = nuevoArchivoDto.Nombre,
-                Archivo = null!,
-                TipoArchivoId = nuevoArchivoDto.TipoArchivoId
-            });
-
-            // Reset
-            nuevoArchivoDto = new AddArchivoBlazorDto();
+            // Refresca lista de archivos
+            await CargarPaciente();
+            archivoSeleccionado = null;
+            archivoActual = "";
         }
     }
 
-    // ===============================
-    // Actualizar archivo existente
-    // ===============================
     private void OnArchivoSeleccionado(InputFileChangeEventArgs e, string nombreArchivo)
     {
         archivosSeleccionados[nombreArchivo] = e.File;
@@ -191,11 +164,14 @@ else
 
         var (exito, mensaje) = await ArchivoService.ActualizarArchivoAsync(id, dto);
         mensajeOperacion = mensaje;
+
+        if (exito)
+        {
+            await CargarPaciente();
+            archivosSeleccionados.Remove(nombreArchivo);
+        }
     }
 
-    // ===============================
-    // Eliminar archivo
-    // ===============================
     private async Task EliminarArchivo(string nombreArchivo)
     {
         var (exito, mensaje) = await ArchivoService.EliminarArchivoAsync(id, nombreArchivo);
@@ -203,15 +179,10 @@ else
 
         if (exito)
         {
-            var archivo = archivosLista.FirstOrDefault(a => a.Nombre == nombreArchivo);
-            if (archivo != null)
-                archivosLista.Remove(archivo);
+            await CargarPaciente();
         }
     }
 
-    // ===============================
-    // Descargar archivo
-    // ===============================
     private async Task DescargarArchivo(AddArchivoBlazorDto archivo)
     {
         var (contenido, mensaje, extension) = await ArchivoService.DescargarArchivoAsync(id, archivo.Nombre);
@@ -224,3 +195,9 @@ else
         }
     }
 }
+
+
+
+
+
+

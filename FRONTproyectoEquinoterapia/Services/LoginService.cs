@@ -1,9 +1,9 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Equinoterapia2.Models;
+using FRONTproyectoEquinoterapia.Models;
 
-namespace Equinoterapia2.Services //simulacion mientras no tengamos backend
+namespace FRONTproyectoEquinoterapia.Services //simulacion mientras no tengamos backend
 {
     public class LoginService
     {

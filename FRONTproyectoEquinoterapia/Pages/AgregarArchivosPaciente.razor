@@ -1,0 +1,98 @@
+﻿@page "/agregar-archivos/{PacienteId:int}"
+@using FRONTproyectoEquinoterapia.Services
+@using FRONTproyectoEquinoterapia.Models
+@using Radzen
+@using Microsoft.AspNetCore.Components.Forms
+@inject ArchivoService ArchivoService
+@inject NotificationService NotificationService
+@inject NavigationManager Navigation
+
+<h3>Subir archivos para paciente @PacienteId</h3>
+
+<fieldset style="padding:10px;">
+    <legend>Archivos</legend>
+    @foreach (var tipo in tiposArchivos)
+    {
+        <div style="margin-bottom:10px;">
+            <label>@tipo.Nombre (@tipo.Extension)</label><br />
+            <InputFile OnChange="@(e => ManejarArchivo(e, tipo))" />
+            @if (archivoPreviews.ContainsKey(tipo.Nombre))
+            {
+                <p>
+                    Archivo seleccionado: @archivoPreviews[tipo.Nombre]
+                    <button type="button" @onclick="() => QuitarArchivo(tipo.Nombre)">❌ Quitar</button>
+                </p>
+            }
+        </div>
+    }
+</fieldset>
+
+<RadzenButton Text="Subir archivos" ButtonStyle="ButtonStyle.Primary" Click="@SubirArchivos" />
+
+@code {
+
+  
+    int PacienteId { get; set; }
+
+    private List<ArchivoService.TipoArchivoDto> tiposArchivos = new();
+    private Dictionary<string, IBrowserFile> archivoPreviews = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        tiposArchivos = await ArchivoService.ObtenerTiposAsync();
+    }
+
+    private void ManejarArchivo(InputFileChangeEventArgs e, ArchivoService.TipoArchivoDto tipo)
+    {
+        var archivo = e.File;
+        if (!archivo.Name.EndsWith(tipo.Extension, StringComparison.OrdinalIgnoreCase))
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Archivo inválido",
+                Detail = $"Debe ser un archivo {tipo.Extension}"
+            });
+            return;
+        }
+
+        archivoPreviews[tipo.Nombre] = archivo;
+    }
+
+    private void QuitarArchivo(string nombre)
+    {
+        archivoPreviews.Remove(nombre);
+    }
+
+    private async Task SubirArchivos()
+    {
+        foreach (var kv in archivoPreviews)
+        {
+            var result = await ArchivoService.SubirArchivoAsync(PacienteId, new AddArchivoBlazorDto
+            {
+                Nombre = kv.Key,
+                TipoArchivoId = tiposArchivos.First(t => t.Nombre == kv.Key).TipoId,
+                Archivo = kv.Value
+            });
+
+            if (!result.exito)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = $"Error subiendo {kv.Key}",
+                    Detail = result.mensaje
+                });
+            }
+        }
+
+        NotificationService.Notify(new NotificationMessage
+        {
+            Severity = NotificationSeverity.Success,
+            Summary = "Archivos subidos",
+            Detail = "Todos los archivos fueron subidos correctamente"
+        });
+
+        Navigation.NavigateTo("/pacientes");
+    }
+}

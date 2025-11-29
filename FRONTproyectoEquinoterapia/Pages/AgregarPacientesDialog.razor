@@ -2,6 +2,7 @@
 @inject Radzen.DialogService DialogService
 @inject FRONTproyectoEquinoterapia.Services.AsistenciaService AsistenciaService
 @inject FRONTproyectoEquinoterapia.Services.SesionService SesionService
+@using FRONTproyectoEquinoterapia.Services
 @inject PacienteService pacienteService
 @inject FRONTproyectoEquinoterapia.Services.InstructorService InstructorService
 @inject FRONTproyectoEquinoterapia.Services.CaballoService CaballoService
@@ -25,7 +26,7 @@
                         @foreach (var paciente in PacientesDisponibles)
                         {
                             bool seleccionado = PacienteIdsSeleccionados.Contains(paciente.PacienteId);
-                            <div class="card p-2 shadow-sm" 
+                            <div class="card p-2 shadow-sm"
                                  style="width:160px;cursor:pointer;border:@(seleccionado ? "2px solid #0d6efd" : "1px solid #ccc");"
                                  @onclick="() => TogglePaciente(paciente.PacienteId)">
                                 <div class="d-flex align-items-center justify-content-between">

@@ -17,7 +17,8 @@ namespace FRONTproyectoEquinoterapia.Services
         {
             try
             {
-                var response = await _http.GetAsync($"https://localhost:7280/api/Asistencia/obtener-por-sesion/{sesionId}");
+                var response = await _http.GetAsync($"https://localhost:7280/api/asistencias?sesionId={sesionId}");
+
                 if (!response.IsSuccessStatusCode) return new List<PacienteDto>();
 
                 var json = await response.Content.ReadAsStringAsync();
@@ -35,6 +36,7 @@ namespace FRONTproyectoEquinoterapia.Services
                 return new List<PacienteDto>();
             }
         }
+
 
         public class AsistenciasResponse
         {

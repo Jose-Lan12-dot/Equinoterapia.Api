@@ -1,130 +1,152 @@
-﻿@* @page "/instructores"
+﻿@page "/instructores"
+@using FRONTproyectoEquinoterapia.Services
+@inject InstructorService InstructorService
+@using FRONTproyectoEquinoterapia.Models
+@inject NavigationManager Navigation
+@inject HttpClient Http
+@inject NotificationService NotificationService
+@inject InstructorService InstructorService
+@inject DialogService DialogService
 @using Radzen
 @using Radzen.Blazor
-@using FrontEquinoterapia.Data.Models
-@using FrontEquinoterapia.Data.Services
-@inject InstructoresService InstructoresService
-@inject NavigationManager NavigationManager
 
-<PageTitle>Instructores</PageTitle>
+<h3>Lista de Instructores</h3>
 
-<!-- Encabezado -->
-<header style="
-    width:100%;
-    background:linear-gradient(90deg,#A0102C 0%,#B81131 40%,#c61f68 100%);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    box-shadow:0 4px 15px rgba(0,0,0,0.15);
-">
-    <img src="images/banner_gobierno.png" alt="Gobierno de Chiapas"
-         style="width:auto; max-height:70px; padding:12px 0;" />
-</header>
+<RadzenStack Orientation="Orientation.Horizontal" Gap="10px" Style="margin-bottom:15px">
+    <RadzenButton Click="@AbrirAgregarInstructor" Text="Agregar instructor" Icon="add_circle" ButtonStyle="ButtonStyle.Primary" />
 
-<!-- Contenido principal -->
-<main style="
-    min-height:calc(100vh - 70px);
-    background:linear-gradient(135deg,#f6f8fb 0%,#eef1f6 100%);
-    font-family:'Montserrat','Roboto',sans-serif;
-    padding:30px;
-">
-    <RadzenCard Style="border-radius:16px; background:white; box-shadow:0 12px 40px rgba(0,0,0,0.1); padding:32px;">
-        <div style="display:flex; flex-direction:column; gap:20px;">
+    <RadzenDropDown Style="width: 100%; max-width: 300px;"
+                    TValue="string"
+                    @bind-Value="selectedOrder"
+                    Placeholder="Selecciona orden"
+                    Data="@ordenesDisponibles"
+                    TextProperty="Text"
+                    ValueProperty="Value"
+                    Change="@(args => AplicarFiltros())"
+                    AllowFiltering="true" />
+</RadzenStack>
 
-            <!-- Título -->
-            <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:15px;">
-                <RadzenHeading Size="5" Style="font-weight:700; color:#B81131;">
-                    Lista de Instructores
-                </RadzenHeading>
-            </div>
+<RadzenTextBox @bind-Value="searchTerm" Placeholder="Buscar instructor..."
+               Style="margin-bottom:10px;width:250px" Change="@(args => AplicarFiltros())" />
 
-            <RadzenDataGrid TItem="InstructorModel" Data="@instructoresFiltrados" RowSelect="@VerDetalles" 
-                            Style="border-radius:12px; box-shadow:none;" 
-                            ShowPagingSummary="false" AllowPaging="false" AllowFiltering="false" AllowSorting="false"
-                            Responsive="true" Class="rz-datatable-striped rz-datatable-hoverable">
-                <Columns>
-                    <RadzenDataGridColumn TItem="InstructorModel" Property="instructorId" Title="ID" />
-                    <RadzenDataGridColumn TItem="InstructorModel" Property="nombre" Title="Nombre" />
-                    <RadzenDataGridColumn TItem="InstructorModel" Property="telefono" Title="Teléfono" />
-                    <RadzenDataGridColumn TItem="InstructorModel" Property="estado" Title="Estado">
-                        <Template Context="data">
-                            @FormatearEstado(data.estado)
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="InstructorModel" Title="Acciones" Width="160px">
-                        <Template Context="data">
-                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Medium"
-                                          Style="margin-right:6px;" Click="@(args => EditarInstructor(data.instructorId))" />
-                            <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium"
-                                          Style="margin-right:6px;" Click="@(args => EliminarInstructor(data.instructorId))" />
-                            <RadzenButton Icon="info" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Medium"
-                                          Click="@(args => VerDetalles(data.instructorId))" />
-                        </Template>
-                    </RadzenDataGridColumn>
-                </Columns>
-                @* <Empty>
-                    <div style="padding:20px; text-align:center; color:#888;">
-                        No se encontraron instructores con los criterios seleccionados.
-                    </div>
-                </Empty> *@
-@*             </RadzenDataGrid>
-        </div>
-    </RadzenCard>
-</main>
+<RadzenDataGrid Data="@filteredInstructores" TItem="InstructorDto" ColumnWidth="200px"
+                AllowFiltering="true" AllowPaging="true" AllowSorting="true" PageSize="5">
+    <Columns>
+        <RadzenDataGridColumn TItem="InstructorDto" Property="InstructorId" Title="ID" />
+        <RadzenDataGridColumn TItem="InstructorDto" Property="Nombre" Title="Nombre" />
+        <RadzenDataGridColumn TItem="InstructorDto" Property="Telefono" Title="Teléfono" />
+        <RadzenDataGridColumn TItem="InstructorDto" Property="Estado" Title="Estado" />
+        <RadzenDataGridColumn TItem="InstructorDto" Title="Operaciones">
+            <Template Context="i">
+                <RadzenButton Icon="visibility" ButtonStyle="ButtonStyle.Info" Click="@(() => VerInstructor(i.InstructorId))" />
+                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Click="@(() => EditarInstructor(i))" Style="margin-left:5px" />
+                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => EliminarInstructor(i))" />
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
 
 @code {
-    private List<InstructorModel> instructores = new();
-    private List<InstructorModel> instructoresFiltrados = new();
-    private string searchString = string.Empty;
-    private string selectedEstado = string.Empty;
+    string searchTerm = "";
+    string selectedOrder = "";
+
+    List<InstructorDto> instructores = new();
+    List<InstructorDto> filteredInstructores = new();
+
+    public class Orden
+    {
+        public string Value { get; set; } = "";
+        public string Text { get; set; } = "";
+    }
+
+    List<Orden> ordenesDisponibles = new()
+    {
+        new Orden { Value = "nombre_asc", Text = "Nombre (A-Z)" },
+        new Orden { Value = "nombre_desc", Text = "Nombre (Z-A)" },
+        new Orden { Value = "id_asc", Text = "ID (Más antiguo primero)" },
+        new Orden { Value = "id_desc", Text = "ID (Más reciente primero)" }
+    };
 
     protected override async Task OnInitializedAsync()
     {
-        instructores = await InstructoresService.GetInstructoresAsync();
-        instructoresFiltrados = instructores;
-    }
-
-    private void OnSearchChanged(KeyboardEventArgs e)
-    {
-        Filtrar();
-    }
-
-    private void Filtrar()
-    {
-        instructoresFiltrados = instructores
-            .Where(i =>
-                (string.IsNullOrWhiteSpace(searchString) ||
-                 i.nombre.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                 i.telefono.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                &&
-                (string.IsNullOrWhiteSpace(selectedEstado) ||
-                 FormatearEstado(i.estado) == selectedEstado)
-            ).ToList();
-    }
-
-    private string FormatearEstado(string estado)
-    {
-        return estado switch
+        try
         {
-            "EnTratamiento" => "En tratamiento",
-            "Disponible" => "Disponible",
-            "Inactivo" => "Inactivo",
-            _ => estado
+            instructores = await InstructorService.GetAllAsync();
+            filteredInstructores = instructores.ToList();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = $"No se pudieron cargar los instructores: {ex.Message}"
+            });
+        }
+    }
+
+    void AplicarFiltros()
+    {
+        var query = string.IsNullOrWhiteSpace(searchTerm)
+            ? instructores
+            : instructores.Where(i => (i.Nombre ?? "").Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                                      (i.Estado ?? "").Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+
+        query = selectedOrder switch
+        {
+            "nombre_asc" => query.OrderBy(i => i.Nombre),
+            "nombre_desc" => query.OrderByDescending(i => i.Nombre),
+            "id_asc" => query.OrderBy(i => i.InstructorId),
+            "id_desc" => query.OrderByDescending(i => i.InstructorId),
+            _ => query
         };
+
+        filteredInstructores = query.ToList();
+        StateHasChanged();
     }
 
-    private void EditarInstructor(int id)
+    void AbrirAgregarInstructor()
     {
-        NavigationManager.NavigateTo($"/instructores/editar/{id}");
+        Navigation.NavigateTo("/agregar-instructor");
     }
 
-    private void VerDetalles(int id)
+    void VerInstructor(int id)
     {
-        NavigationManager.NavigateTo($"/instructores/detalles/{id}");
+        Navigation.NavigateTo($"/detalle-instructor/{id}");
     }
 
-    private void EliminarInstructor(int id)
+    void EditarInstructor(InstructorDto instructor)
     {
-        // Aquí podrías abrir un diálogo de confirmación usando RadzenDialog
-@*     }
-} *@
+        Navigation.NavigateTo($"/editar-instructor/{instructor.InstructorId}");
+    }
+
+    async void EliminarInstructor(InstructorDto instructor)
+    {
+        bool? confirmadoNullable = await DialogService.Confirm("¿Deseas eliminar este instructor?", "Confirmar");
+        bool confirmado = confirmadoNullable ?? false; // si es null, se toma como false
+        if (confirmado)
+        {
+            bool exito = await InstructorService.DeleteAsync(instructor.InstructorId);
+            if (exito)
+            {
+                instructores.Remove(instructor);
+                AplicarFiltros();
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Éxito",
+                    Detail = "Instructor eliminado correctamente"
+                });
+            }
+            else
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se pudo eliminar el instructor"
+                });
+            }
+        }
+    }
+}

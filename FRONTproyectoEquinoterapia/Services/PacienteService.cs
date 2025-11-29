@@ -4,129 +4,152 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
-public class PacienteService
+
+namespace FRONTproyectoEquinoterapia.Services
 {
-    private readonly HttpClient _http;
-
-    public PacienteService(HttpClient http)
+    // Wrapper genérico para leer { Message, Data } del backend
+    public class ResponseWrapper<T>
     {
-        _http = http;
+        public string Message { get; set; } = string.Empty;
+        public T Data { get; set; } = default!;
     }
 
-    // ==========================
-    // PACIENTES (ya existentes)
-    // ==========================
-    public async Task<List<PacienteDto>> ObtenerTodosAsync()
+    public class PacienteService
     {
-        var response = await _http.GetFromJsonAsync<ResponseWrapper<List<PacienteDto>>>("https://localhost:7280/api/Pacientes");
-        return response?.Data ?? new List<PacienteDto>();
-    }
+        private readonly HttpClient _http;
 
-    public async Task<PacienteDetalleResponse?> ObtenerPorIdAsync(int pacienteId)
-    {
-        var response = await _http.GetFromJsonAsync<ResponseWrapper<PacienteDto>>($"https://localhost:7280/api/Pacientes/{pacienteId}");
-        if (response == null) return null;
-
-        return new PacienteDetalleResponse
+        public PacienteService(HttpClient http)
         {
-            Paciente = response.Data,
-            Mensaje = response.Message
-        };
-    }
-
-    public async Task<(bool exito, string mensaje)> AgregarPacienteAsync(AddPacienteConArchivosDto dto)
-    {
-        using var formData = new MultipartFormDataContent();
-
-        formData.Add(new StringContent(dto.Paciente.Nombre ?? ""), "Paciente.Nombre");
-        formData.Add(new StringContent(dto.Paciente.Tutor ?? ""), "Paciente.Tutor");
-        formData.Add(new StringContent(dto.Paciente.TelefonoTutor ?? ""), "Paciente.TelefonoTutor");
-        formData.Add(new StringContent(dto.Paciente.Genero ?? ""), "Paciente.Genero");
-        formData.Add(new StringContent(dto.Paciente.FechaNacimiento.ToString("yyyy-MM-dd")), "Paciente.FechaNacimiento");
-
-        // No se envían archivos al crear paciente, los subimos después
-        var response = await _http.PostAsync("https://localhost:7280/api/Pacientes", formData);
-        if (response.IsSuccessStatusCode)
-            return (true, "Paciente agregado correctamente");
-
-        string error = await response.Content.ReadAsStringAsync();
-        return (false, $"Error: {response.StatusCode} - {error}");
-    }
-
-    public async Task<bool> ActualizarParcialAsync(UpdatePacienteDto paciente)
-    {
-        var response = await _http.PatchAsJsonAsync($"https://localhost:7280/api/Pacientes/{paciente.PacienteId}", paciente);
-        return response.IsSuccessStatusCode;
-    }
-
-    public async Task<bool> EliminarAsync(int pacienteId)
-    {
-        var response = await _http.DeleteAsync($"https://localhost:7280/api/Pacientes/{pacienteId}");
-        return response.IsSuccessStatusCode;
-    }
-
-    // ==========================
-    // ARCHIVOS
-    // ==========================
-
-    // Subir archivo
-    public async Task<(bool exito, string mensaje)> SubirArchivoAsync(int pacienteId, AddArchivoBlazorDto archivoDto)
-    {
-        using var formData = new MultipartFormDataContent();
-
-        formData.Add(new StringContent(archivoDto.Nombre ?? ""), "Nombre");
-
-        var streamContent = new StreamContent(archivoDto.Archivo.OpenReadStream());
-        streamContent.Headers.ContentType = new MediaTypeHeaderValue(archivoDto.Archivo.ContentType);
-
-        formData.Add(streamContent, "Archivo", archivoDto.Archivo.Name);
-
-        var response = await _http.PostAsync($"https://localhost:7280/api/pacientes/{pacienteId}/archivos", formData);
-
-        if (response.IsSuccessStatusCode)
-            return (true, "Archivo subido correctamente");
-
-        string error = await response.Content.ReadAsStringAsync();
-        return (false, $"Error: {response.StatusCode} - {error}");
-    }
-
-    // Descargar archivo
-    public async Task<byte[]?> ObtenerArchivoAsync(int pacienteId, string nombreArchivo)
-    {
-        var response = await _http.GetAsync($"https://localhost:7280/api/pacientes/{pacienteId}/archivos/{nombreArchivo}");
-        if (!response.IsSuccessStatusCode) return null;
-        return await response.Content.ReadAsByteArrayAsync();
-    }
-
-    // Actualizar archivo
-    public async Task<(bool exito, string mensaje)> ActualizarArchivoAsync(int pacienteId, UpdateArchivoBlazorDto archivoDto)
-    {
-        using var formData = new MultipartFormDataContent();
-        formData.Add(new StringContent(archivoDto.Nombre ?? ""), "Nombre");
-
-        if (archivoDto.Archivo != null)
-        {
-            var streamContent = new StreamContent(archivoDto.Archivo.OpenReadStream());
-            streamContent.Headers.ContentType = new MediaTypeHeaderValue(archivoDto.Archivo.ContentType);
-            formData.Add(streamContent, "Archivo", archivoDto.Archivo.Name);
+            _http = http;
         }
 
-        var response = await _http.PutAsync($"https://localhost:7280/api/pacientes/{pacienteId}/archivos", formData);
+        // 🔹 Obtener todos los pacientes
+        public async Task<List<AllPacienteDto>> ObtenerTodosAsync()
+        {
+            var response = await _http.GetFromJsonAsync<ResponseWrapper<List<AllPacienteDto>>>("https://localhost:7280/api/Pacientes");
+            return response?.Data ?? new List<AllPacienteDto>();
+        }
 
-        if (response.IsSuccessStatusCode)
-            return (true, "Archivo actualizado correctamente");
+        // 🔹 Obtener detalle de un paciente por ID
+        public async Task<PacienteDetailsDto?> ObtenerPorIdAsync(int pacienteId)
+        {
+            var response = await _http.GetFromJsonAsync<ResponseWrapper<PacienteDetailsDto>>(
+                $"https://localhost:7280/api/Pacientes/{pacienteId}");
 
-        string error = await response.Content.ReadAsStringAsync();
-        return (false, $"Error: {response.StatusCode} - {error}");
+            // Retorna solo el objeto Data (PacienteDetailsDto)
+            return response?.Data;
+        }
+
+
+        // 🔹 Agregar un nuevo paciente solo datos no archivos 
+        public async Task<(bool exito, string mensaje, int pacienteId)> AgregarPacienteSoloDatosAsync(AddPacienteDto paciente)
+        {
+            var response = await _http.PostAsJsonAsync("https://localhost:7280/api/Pacientes", paciente);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var err = await response.Content.ReadAsStringAsync();
+                return (false, err, 0);
+            }
+
+            var creado = await response.Content.ReadFromJsonAsync<PacienteCreadoDto>();
+            return (true, "Paciente creado", creado!.PacienteId);
+        }
+
+
+
+
+
+        // 🔹 Agregar un nuevo paciente con archivos
+        public async Task<(bool exito, string mensaje)> AgregarPacienteAsync(AddPacienteConArchivosDto pacienteConArchivos)
+        {
+            using var formData = new MultipartFormDataContent();
+
+            // 🧩 Datos del paciente
+            formData.Add(new StringContent(pacienteConArchivos.Paciente.Nombre), "Paciente.Nombre");
+            formData.Add(new StringContent(pacienteConArchivos.Paciente.Tutor), "Paciente.Tutor");
+            formData.Add(new StringContent(pacienteConArchivos.Paciente.TelefonoTutor), "Paciente.TelefonoTutor");
+            formData.Add(new StringContent(pacienteConArchivos.Paciente.Genero), "Paciente.Genero");
+            formData.Add(new StringContent(pacienteConArchivos.Paciente.FechaNacimiento.ToString("yyyy-MM-dd")), "Paciente.FechaNacimiento");
+
+            // 🗂 Archivos opcionales
+            void AddFile(string nombreCampo, IBrowserFile? archivo)
+            {
+                if (archivo != null)
+                {
+                    var streamContent = new StreamContent(archivo.OpenReadStream());
+                    streamContent.Headers.ContentType = new MediaTypeHeaderValue(archivo.ContentType);
+                    formData.Add(streamContent, nombreCampo, archivo.Name);
+                }
+            }
+
+            AddFile("DiagnosticoMedico", pacienteConArchivos.DiagnosticoMedico);
+            AddFile("CertificadoMedico", pacienteConArchivos.CertificadoMedico);
+            AddFile("ActaNacimiento", pacienteConArchivos.ActaNacimiento);
+            AddFile("Curp", pacienteConArchivos.Curp);
+            AddFile("ComprobanteDomicilio", pacienteConArchivos.ComprobanteDomicilio);
+            AddFile("IneTutor", pacienteConArchivos.IneTutor);
+            AddFile("Fotografia", pacienteConArchivos.Fotografia);
+
+            var response = await _http.PostAsync("https://localhost:7280/api/Pacientes", formData);
+
+            if (response.IsSuccessStatusCode)
+                return (true, "Paciente agregado correctamente.");
+
+            string error = await response.Content.ReadAsStringAsync();
+            return (false, $"Error: {response.StatusCode} - {error}");
+        }
+
+        // 🔹 Actualizar completamente un paciente
+        public async Task<(bool exito, string mensaje)> ActualizarPacienteAsync(UpdatePacienteDto paciente)
+        {
+            var response = await _http.PutAsJsonAsync(
+                $"https://localhost:7280/api/Pacientes/{paciente.PacienteId}",
+                paciente);
+
+            if (response.IsSuccessStatusCode)
+                return (true, "Paciente actualizado correctamente.");
+
+            string error = await response.Content.ReadAsStringAsync();
+            return (false, $"Error: {response.StatusCode} - {error}");
+        }
+
+        // 🔹 Actualizar parcialmente un paciente
+        public async Task<(bool exito, string mensaje)> ActualizarParcialAsync(PacienteDto paciente)
+        {
+            var response = await _http.PatchAsJsonAsync(
+                $"https://localhost:7280/api/Pacientes/{paciente.PacienteId}",
+                paciente);
+
+            if (response.IsSuccessStatusCode)
+                return (true, "Paciente actualizado parcialmente.");
+
+            string error = await response.Content.ReadAsStringAsync();
+            return (false, $"Error: {response.StatusCode} - {error}");
+        }
+
+        // 🔹 Eliminar un paciente por ID
+        public async Task<(bool exito, string mensaje)> EliminarPacienteAsync(int pacienteId)
+        {
+            var response = await _http.DeleteAsync($"https://localhost:7280/api/Pacientes/{pacienteId}");
+            if (response.IsSuccessStatusCode)
+                return (true, "Paciente eliminado correctamente.");
+
+            string error = await response.Content.ReadAsStringAsync();
+            return (false, $"Error: {response.StatusCode} - {error}");
+        }
+
+    }
+
+    // 🔹 Clase auxiliar para la respuesta del endpoint obtener-por-id
+    public class PacienteDetalleResponse
+    {
+        public PacienteDto? Paciente { get; set; }
+        public int NumeroFaltas { get; set; }
+        public bool FaltaEvaluacion { get; set; }
+        public List<string>? ArchivosPendientes { get; set; }
+        public string Mensaje { get; set; } = string.Empty;
     }
 }
 
-// Wrapper para respuestas
-public class ResponseWrapper<T>
-{
-    public string Message { get; set; } = string.Empty;
-    public T? Data { get; set; }
-}

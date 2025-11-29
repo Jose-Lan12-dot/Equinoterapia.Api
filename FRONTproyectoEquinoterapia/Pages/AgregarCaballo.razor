@@ -1,0 +1,63 @@
+﻿@page "/agregar-caballo"
+@inject NavigationManager Navigation
+@using FRONTproyectoEquinoterapia.Models
+@inject FRONTproyectoEquinoterapia.Services.CaballoService CaballoService
+@inject IJSRuntime JS
+
+<h3>Agregar Caballo</h3>
+
+<div class="mb-3">
+    <label>Placa:</label>
+    <RadzenTextBox @bind-Value="NuevoCaballo.Placa" Style="width:250px" />
+</div>
+
+<div class="mb-3">
+    <label>Nombre:</label>
+    <RadzenTextBox @bind-Value="NuevoCaballo.Nombre" Style="width:250px" />
+</div>
+
+<div class="mb-3">
+    <label>Fecha de Herraje:</label>
+    <RadzenDatePicker @bind-Value="NuevoCaballo.FechaHerraje" Style="width:250px" />
+</div>
+
+<div class="mb-3">
+    <label>Padecimiento:</label>
+    <RadzenTextBox @bind-Value="NuevoCaballo.Padecimiento" Style="width:250px" />
+</div>
+
+<RadzenButton Text="Guardar" Click="@GuardarCaballo" ButtonStyle="ButtonStyle.Primary" Style="margin-right:10px" />
+<RadzenButton Text="Cancelar" Click="@Cancelar" ButtonStyle="ButtonStyle.Secondary" />
+
+@code {
+    private AddCaballoDto NuevoCaballo = new AddCaballoDto
+    {
+        FechaHerraje = DateTime.Now
+    };
+
+    private async Task GuardarCaballo()
+    {
+        if (string.IsNullOrWhiteSpace(NuevoCaballo.Placa) || string.IsNullOrWhiteSpace(NuevoCaballo.Nombre))
+        {
+            await JS.InvokeVoidAsync("alert", "Placa y Nombre son obligatorios.");
+            return;
+        }
+
+        var exito = await CaballoService.AddAsync(NuevoCaballo);
+        if (exito)
+        {
+            await JS.InvokeVoidAsync("alert", "Caballo agregado correctamente.");
+            Navigation.NavigateTo("/caballos");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Error al agregar el caballo.");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/caballos");
+    }
+}
+

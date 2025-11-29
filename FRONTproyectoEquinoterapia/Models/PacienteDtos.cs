@@ -30,25 +30,25 @@ namespace FRONTproyectoEquinoterapia.Models
     public class AddPacienteDto
     {
         public string Nombre { get; set; } = string.Empty;
-        public DateOnly FechaNacimiento { get; set; }
+        public DateTime FechaNacimiento { get; set; }
         public string Tutor { get; set; } = string.Empty;
         public string TelefonoTutor { get; set; } = string.Empty;
         public string Genero { get; set; } = string.Empty;
     }
 
+
     public class AddPacienteConArchivosDto
     {
-        public AddPacienteDto Paciente { get; set; } = new();
-        public List<AddArchivoBlazorDto>? Archivos { get; set; }
-    }
+        public AddPacienteDto Paciente { get; set; } = new AddPacienteDto();
 
-    public class PacienteDetalleResponse
-    {
-        public PacienteDto? Paciente { get; set; }
-        public int NumeroFaltas { get; set; } = 0;
-        public bool FaltaEvaluacion { get; set; } = false;
-        public List<string>? ArchivosPendientes { get; set; }
-        public string Mensaje { get; set; } = string.Empty;
+        // Aquí van tus archivos como IFormFile
+        public IBrowserFile? DiagnosticoMedico { get; set; }
+        public IBrowserFile? CertificadoMedico { get; set; }
+        public IBrowserFile? ActaNacimiento { get; set; }
+        public IBrowserFile? Curp { get; set; }
+        public IBrowserFile? ComprobanteDomicilio { get; set; }
+        public IBrowserFile? IneTutor { get; set; }
+        public IBrowserFile? Fotografia { get; set; }
     }
 
     public class UpdatePacienteDto
@@ -61,6 +61,44 @@ namespace FRONTproyectoEquinoterapia.Models
         public string? Estado { get; set; }
         public string? Genero { get; set; }
     }
+
+    public class PacienteCreadoDto
+    {
+        public int PacienteId { get; set; }
+        public string Mensaje { get; set; } = string.Empty;
+    }
+
+    // Esto refleja exactamente lo que devuelve tu backend
+    public class PacienteDetalleResponse
+    {
+        public string Message { get; set; } = string.Empty;
+        public PacienteDetailsDto? Data { get; set; }
+    }
+
+
+    public class PacienteDetailsDto
+    {
+        public int PacienteId { get; set; }
+        public string Tutor { get; set; }
+        public string TelefonoTutor { get; set; }
+        public string Nombre { get; set; }
+        public string Genero { get; set; }
+        public DateTime FechaNacimiento { get; set; }
+        public bool FormularioHecho { get; set; }
+        public string Estado { get; set; }
+        public int NumeroFaltas { get; set; }
+        public bool FaltaEvaluacion { get; set; }
+        public List<string> ArchivosPendientes { get; set; }
+    }
+
+
+    public class ResponseWrapper<T>
+    {
+        public T Data { get; set; }
+        public string Message { get; set; }
+    }
+
+
 
     public class ArchivoDto
     {

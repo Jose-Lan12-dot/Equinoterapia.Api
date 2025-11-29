@@ -1,54 +1,38 @@
-﻿@* NavMenu.razor *@
-@using Radzen.Blazor
-
-<div class="nav-header">
-    <img src="images/banner_gobierno.png" alt="Gobierno de Chiapas" />
-    <h1 class="nav-title">Sistema de Equinoterapia</h1>
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">FRONTproyectoEquinoterapia</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
 </div>
 
-<div class="nav-links">
-
-    <NavLink href="/home" Match="NavLinkMatch.All" class="nav-link">
-        @* <RadzenIcon Icon="home" class="nav-icon" /> *@
-        <span>Inicio</span>
-    </NavLink>
-
-    <NavLink href="/pacientes" class="nav-link">
-        @* <RadzenIcon Icon="groups" class="nav-icon" /> *@
-        <span>Pacientes</span>
-    </NavLink>
-
-    <NavLink href="/agenda" class="nav-link">
-        @* <RadzenIcon Icon="calendar_today" class="nav-icon" /> *@
-        <span>Agenda</span>
-    </NavLink>
-
-    <NavLink href="/terapeutas" class="nav-link">
-        @* <RadzenIcon Icon="assignment_ind" class="nav-icon" /> *@
-        <span>Terapeutas</span>
-    </NavLink>
-
-    <NavLink href="/reportes" class="nav-link">
-        @* <RadzenIcon Icon="assessment" class="nav-icon" /> *@
-        <span>Reportes</span>
-    </NavLink>
-
-</div>
-
-<div class="nav-footer">
-    <NavLink href="/logout" class="nav-link nav-link-logout">
-        <RadzenIcon Icon="logout" class="nav-icon" />
-        <span>Cerrar Sesión</span>
-    </NavLink>
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu" style="width:250px;">
+    <RadzenPanelMenu Click="OnParentClicked" Style="width:100%;" Multiple="@multiple">
+        <!-- General -->
+        <RadzenPanelMenuItem Text="Home" Path="home" Icon="home"></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Text="Counter" Path="counter"></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Text="Pacientes" Path="Pacientes" Icon="account_circle"></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Text="Instructores" Path="Instructores" Icon="Psychology"></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Text="Caballos" Path="Caballos" Icon="Psychology"></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Text="Sesiones" Path="/sesiones" Icon="event_note" />
+        <RadzenPanelMenuItem Text="Weather" Path="weather" Icon="list"></RadzenPanelMenuItem>
+    </RadzenPanelMenu>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
+    private bool multiple = true;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    void OnParentClicked(MenuItemEventArgs args)
+    {
+        Console.WriteLine($"{args.Text} clicked from parent");
     }
 }

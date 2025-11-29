@@ -17,5 +17,11 @@ namespace FRONTproyectoEquinoterapia.Models
         public string Nombre { get; set; } = string.Empty;
         public IBrowserFile Archivo { get; set; } = null!;
     }
+    public class ArchivoPacienteDto
+    {
+        public string Nombre { get; set; } = string.Empty;
+        public int TipoArchivoId { get; set; }
+        public string Extension { get; set; } = string.Empty;
+    }
 }
 

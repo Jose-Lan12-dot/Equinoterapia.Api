@@ -1,7 +1,7 @@
 ﻿public class AddInstructorDto
 {
-    public required string Nombre { get; set; }
-    public required string Telefono { get; set; }
+    public required string Nombre { get; set; } = string.Empty;
+    public required string Telefono { get; set; } = string.Empty;
 }
 
 public class InstructorDto

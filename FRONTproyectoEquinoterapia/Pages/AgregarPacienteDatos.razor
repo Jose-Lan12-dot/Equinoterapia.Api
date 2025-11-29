@@ -1,0 +1,182 @@
+﻿@page "/agregar-paciente"
+@using FRONTproyectoEquinoterapia.Models
+@using FRONTproyectoEquinoterapia.Services
+@using Radzen
+@using Radzen.Blazor
+@using Microsoft.AspNetCore.Components.Forms
+@inject ArchivoService ArchivoService
+@inject HttpClient Http
+@inject NotificationService NotificationService
+@inject NavigationManager Navigation
+
+<h3>Agregar paciente</h3>
+
+<RadzenTemplateForm Data="@nuevoPaciente" TItem="PacienteFormDTO" Submit="@GuardarPaciente">
+    <RadzenTextBox @bind-Value="nuevoPaciente.Nombre" Placeholder="Nombre" Style="width:100%;" />
+    <RadzenDatePicker @bind-Value="nuevoPaciente.FechaNacimiento" Placeholder="Fecha de nacimiento" Style="width:100%;" />
+    <RadzenTextBox @bind-Value="nuevoPaciente.Tutor" Placeholder="Tutor" Style="width:100%;" />
+    <RadzenTextBox @bind-Value="nuevoPaciente.TelefonoTutor" Placeholder="Teléfono tutor" Style="width:100%;" />
+    <RadzenDropDown @bind-Value="nuevoPaciente.Genero" Data="@generos" Placeholder="Selecciona género" Style="width:100%;" />
+
+    <fieldset style="margin-top: 20px; padding: 10px;">
+        <legend>Archivos (opcionales)</legend>
+        @foreach (var tipo in tiposArchivos)
+        {
+            <div style="margin-bottom:10px;">
+                <label>@tipo.Nombre (@tipo.Extension)</label><br />
+                <InputFile OnChange="@(e => ManejarArchivo(e, tipo))" />
+                @if (archivoPreviews.ContainsKey(tipo.Nombre))
+                {
+                    <p>
+                        Archivo seleccionado: @archivoPreviews[tipo.Nombre].Name
+                        <button type="button" @onclick="() => QuitarArchivo(tipo.Nombre)">❌ Quitar</button>
+                    </p>
+                }
+            </div>
+        }
+    </fieldset>
+
+    <RadzenButton Text="Guardar paciente" ButtonStyle="ButtonStyle.Primary" Type="Submit" Style="margin-top:10px;" />
+</RadzenTemplateForm>
+
+@code {
+    private PacienteFormDTO nuevoPaciente = new();
+    private Dictionary<string, IBrowserFile> archivoPreviews = new();
+    private readonly string[] generos = { "Masculino", "Femenino", "Otro" };
+    private List<ArchivoService.TipoArchivoDto> tiposArchivos = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Obtener tipos de archivo desde backend
+        tiposArchivos = await ArchivoService.ObtenerTiposAsync();
+
+
+    }
+
+    private void ManejarArchivo(InputFileChangeEventArgs e, ArchivoService.TipoArchivoDto tipo)
+    {
+        var archivo = e.File;
+        if (!archivo.Name.EndsWith(tipo.Extension, StringComparison.OrdinalIgnoreCase))
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Archivo inválido",
+                Detail = $"Debe ser un archivo {tipo.Extension}"
+            });
+            return;
+        }
+
+        archivoPreviews[tipo.Nombre] = archivo;
+    }
+
+
+    private void QuitarArchivo(string nombre)
+    {
+        archivoPreviews.Remove(nombre);
+    }
+
+    private async Task GuardarPaciente(PacienteFormDTO paciente)
+    {
+        try
+        {
+            using var formData = new MultipartFormDataContent();
+
+            // Datos del paciente
+            formData.Add(new StringContent(paciente.Nombre ?? ""), "Paciente.Nombre");
+            formData.Add(new StringContent(paciente.Tutor ?? ""), "Paciente.Tutor");
+            formData.Add(new StringContent(paciente.TelefonoTutor ?? ""), "Paciente.TelefonoTutor");
+            formData.Add(new StringContent(paciente.Genero ?? ""), "Paciente.Genero");
+            formData.Add(new StringContent(paciente.FechaNacimiento?.ToString("yyyy-MM-dd") ?? ""), "Paciente.FechaNacimiento");
+
+            // Archivos individuales según tu DTO
+            if (paciente.Archivo.DiagnosticoMedico != null)
+            {
+                var streamContent = new StreamContent(paciente.Archivo.DiagnosticoMedico.OpenReadStream(10 * 1024 * 1024));
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(paciente.Archivo.DiagnosticoMedico.ContentType);
+                formData.Add(streamContent, "DiagnosticoMedico", paciente.Archivo.DiagnosticoMedico.Name);
+            }
+
+            if (paciente.Archivo.CertificadoMedico != null)
+            {
+                var streamContent = new StreamContent(paciente.Archivo.CertificadoMedico.OpenReadStream(10 * 1024 * 1024));
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(paciente.Archivo.CertificadoMedico.ContentType);
+                formData.Add(streamContent, "CertificadoMedico", paciente.Archivo.CertificadoMedico.Name);
+            }
+
+            if (paciente.Archivo.ActaNacimiento != null)
+            {
+                var streamContent = new StreamContent(paciente.Archivo.ActaNacimiento.OpenReadStream(10 * 1024 * 1024));
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(paciente.Archivo.ActaNacimiento.ContentType);
+                formData.Add(streamContent, "ActaNacimiento", paciente.Archivo.ActaNacimiento.Name);
+            }
+
+            if (paciente.Archivo.Curp != null)
+            {
+                var streamContent = new StreamContent(paciente.Archivo.Curp.OpenReadStream(10 * 1024 * 1024));
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(paciente.Archivo.Curp.ContentType);
+                formData.Add(streamContent, "Curp", paciente.Archivo.Curp.Name);
+            }
+
+            if (paciente.Archivo.ComprobanteDomicilio != null)
+            {
+                var streamContent = new StreamContent(paciente.Archivo.ComprobanteDomicilio.OpenReadStream(10 * 1024 * 1024));
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(paciente.Archivo.ComprobanteDomicilio.ContentType);
+                formData.Add(streamContent, "ComprobanteDomicilio", paciente.Archivo.ComprobanteDomicilio.Name);
+            }
+
+            if (paciente.Archivo.IneTutor != null)
+            {
+                var streamContent = new StreamContent(paciente.Archivo.IneTutor.OpenReadStream(10 * 1024 * 1024));
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(paciente.Archivo.IneTutor.ContentType);
+                formData.Add(streamContent, "IneTutor", paciente.Archivo.IneTutor.Name);
+            }
+
+            if (paciente.Archivo.Fotografia != null)
+            {
+                var streamContent = new StreamContent(paciente.Archivo.Fotografia.OpenReadStream(10 * 1024 * 1024));
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(paciente.Archivo.Fotografia.ContentType);
+                formData.Add(streamContent, "Fotografia", paciente.Archivo.Fotografia.Name);
+            }
+
+            // POST al endpoint
+            var response = await Http.PostAsync("https://localhost:7280/api/Pacientes", formData);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error al guardar paciente",
+                    Detail = error
+                });
+                return;
+            }
+
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Paciente guardado",
+                Detail = "Paciente y archivos guardados correctamente"
+            });
+
+            Navigation.NavigateTo("/pacientes");
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Error inesperado",
+                Detail = ex.Message
+            });
+        }
+    }
+
+
+
+
+
+}
