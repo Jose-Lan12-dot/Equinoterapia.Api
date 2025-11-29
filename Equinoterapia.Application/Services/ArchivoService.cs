@@ -58,7 +58,7 @@ namespace Equinoterapia.Application.Services
             {
                 PacienteId = pacienteId,
                 TipoId = tipoId,
-                Archivo = await FileToArrayAsync(archivos.Archivo!)
+                Archivo = archivos.Archivo!
             };
 
             try
@@ -90,7 +90,7 @@ namespace Equinoterapia.Application.Services
 
             try
             {
-                archivo.Archivo = await FileToArrayAsync(archivoDto.Archivo!);
+                archivo.Archivo = archivoDto.Archivo;
 
                 await _archivoRepository.SaveChangesAsync();
                 return (true, archivoDto.Nombre + " Actualizado Correctamnete");

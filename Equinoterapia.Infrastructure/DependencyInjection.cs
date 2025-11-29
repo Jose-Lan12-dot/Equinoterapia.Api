@@ -29,7 +29,11 @@ namespace Equinoterapia.Infrastructure
                     b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)
             ));
 
-////////////SERVICIO JWT
+            //services.AddDbContext<AppDbContext>(options =>
+            //    options.UseSqlServer("Server=192.168.105.212;Database=EquinoterapiaDB;User ID=equinoterapia;Password=equino2025; Encrypt=False"
+            //));
+
+            ////////////SERVICIO JWT
             services.AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

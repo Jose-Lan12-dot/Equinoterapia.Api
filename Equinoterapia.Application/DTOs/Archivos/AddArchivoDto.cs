@@ -4,6 +4,7 @@ namespace Equinoterapia.Application.DTOs.Archivos
     public class AddArchivoDto
     {
         public string Nombre { get; set; } = string.Empty;
-        public IFormFile Archivo { get; set; } = null!; 
+        public byte[] Archivo { get; set; } = null!;
+
     }
 }

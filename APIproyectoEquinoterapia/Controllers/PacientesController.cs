@@ -18,6 +18,9 @@ namespace Equinoterapia.Api.Controllers
             _pacienteService = pacienteService;
         }
 
+
+
+////////////////////////////////////////////////////////////////////////////////////////
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -31,7 +34,7 @@ namespace Equinoterapia.Api.Controllers
             return Ok(new { Message = mensaje, Data = pacientes });
          }
 
-
+////////////////////////////////////////////////////////////////////////////////////////
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -45,15 +48,10 @@ namespace Equinoterapia.Api.Controllers
             return Ok(new { Message = mensaje, Data = datosPaciente });
         }
 
-
+////////////////////////////////////////////////////////////////////////////////////////
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddPacienteConArchivosDto addPacienteDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var (exito, mensaje) = await _pacienteService.AddAsync(addPacienteDto);
 
             if (!exito)
@@ -61,10 +59,10 @@ namespace Equinoterapia.Api.Controllers
                 return BadRequest(mensaje);
             }
 
-            return Ok(new { Mensaje = mensaje });
+            return Ok(mensaje);
         }
 
-
+////////////////////////////////////////////////////////////////////////////////////////
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdatePacienteDto pacienteDto)
         {
@@ -83,6 +81,7 @@ namespace Equinoterapia.Api.Controllers
             return NoContent(); 
         }
 
+////////////////////////////////////////////////////////////////////////////////////////
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -90,10 +89,10 @@ namespace Equinoterapia.Api.Controllers
 
             if (!exito)
             {
-                return NotFound(new { Mensaje = mensaje });
+                return NotFound(mensaje);
             }
 
-            return NoContent(); 
+            return Ok(mensaje); 
         }
     }
 }
