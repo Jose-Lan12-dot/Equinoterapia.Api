@@ -2,92 +2,190 @@
 @using FRONTproyectoEquinoterapia.Models
 @using Microsoft.AspNetCore.Components.Forms
 @using FRONTproyectoEquinoterapia.Services
+@inject NavigationManager NavManager
+@inject HttpClient Http
 @inject IJSRuntime JS
 @inject PacienteService PacienteService
 @inject ArchivoService ArchivoService
-@inject IJSRuntime JS
-@inject HttpClient Http
 
-@using ModelsPaciente = FRONTproyectoEquinoterapia.Models
-@using ServicesPaciente = FRONTproyectoEquinoterapia.Services
 
-<h3>Detalle del Paciente</h3>
+<div class="card shadow-sm p-4 mt-3">
 
-@if (cargando)
-{
-    <p>Cargando...</p>
-}
-else if (pacienteDetalle == null)
-{
-    <p>Paciente no encontrado.</p>
-}
-else
-{
-    <div>
-        <h4>@pacienteDetalle.Nombre</h4>
-        <p><strong>Tutor:</strong> @pacienteDetalle.Tutor</p>
-        <p><strong>Teléfono:</strong> @pacienteDetalle.TelefonoTutor</p>
-        <p><strong>Género:</strong> @pacienteDetalle.Genero</p>
-        <p><strong>Faltas:</strong> @pacienteDetalle.NumeroFaltas</p>
-        <p><strong>Falta evaluación:</strong> @pacienteDetalle.FaltaEvaluacion</p>
+    <h3 class="text-primary mb-3">Detalle del Paciente</h3>
 
-        <h5>Archivos</h5>
-        @if (archivosLista.Any())
+    @if (cargando)
+    {
+        <div class="text-center my-4">
+            <div class="spinner-border" role="status"></div>
+            <p class="mt-2">Cargando...</p>
+        </div>
+    }
+    else if (pacienteDetalle == null)
+    {
+        <div class="alert alert-danger">Paciente no encontrado.</div>
+    }
+    else
+    {
+        <!-- Datos generales -->
+        <h4 class="mb-3">@pacienteDetalle.Nombre</h4>
+
+        @if (!editando)
         {
-            <ul>
-                @foreach (var archivo in archivosLista)
-                {
-                    <li>
-                        @archivo.Nombre
-                        <button @onclick="() => DescargarArchivo(archivo)">Descargar</button>
-                        <InputFile OnChange="e => OnArchivoSeleccionado(e, archivo.Nombre)" />
-                        <button @onclick="() => ActualizarArchivo(archivo.Nombre)">Actualizar</button>
-                        <button @onclick="() => EliminarArchivo(archivo.Nombre)">Eliminar</button>
-                    </li>
-                }
-            </ul>
+            <p><strong>Tutor:</strong> @pacienteDetalle.Tutor</p>
+            <p><strong>Teléfono:</strong> @pacienteDetalle.TelefonoTutor</p>
+            <p><strong>Género:</strong> @pacienteDetalle.Genero</p>
         }
         else
         {
-            <p>No hay archivos.</p>
+            <InputText @bind-Value="pacienteDetalle.Tutor" class="form-control" />
+            <InputText @bind-Value="pacienteDetalle.TelefonoTutor" class="form-control" />
+            <InputSelect @bind-Value="pacienteDetalle.Genero" class="form-select">
+                <option value="Masculino">Masculino</option>
+                <option value="Femenino">Femenino</option>
+            </InputSelect>
+
+            <RadzenButton Text="Guardar cambios"
+                          Icon="save"
+                          ButtonStyle="ButtonStyle.Primary"
+                          Click="GuardarCambios" />
         }
 
-        <h5>Subir nuevo archivo</h5>
-        <select @bind="archivoActual">
-            <option value="">-- Selecciona tipo de archivo --</option>
-            @foreach (var tipo in tiposArchivo)
+
+        <RadzenButton Text="@((editando) ? "Cancelar" : "Editar")"
+                      Icon="@((editando) ? "close" : "edit")"
+                      ButtonStyle="ButtonStyle.Secondary"
+                      Click="@(() => editando = !editando)" />
+
+
+        <hr class="my-4" />
+
+        <!-- Archivos -->
+        <h5 class="text-secondary mb-3">Archivos del Paciente</h5>
+
+        @foreach (var tipo in tiposArchivo)
+        {
+            <div class="border rounded p-3 mb-3 bg-light">
+
+                <label class="fw-bold">@tipo.Nombre (@tipo.Extension)</label>
+
+                @if (ArchivoExisteDict[tipo.Nombre])
+                {
+                    <div class="mt-2 d-flex align-items-center gap-2">
+
+                        <RadzenButton Text="Descargar"
+                                      Icon="download"
+                                      ButtonStyle="ButtonStyle.Primary"
+                                      Size="ButtonSize.Small"
+                                      Click="() => DescargarArchivo(tipo.Nombre)" />
+                        <RadzenButton Text="Eliminar"
+                                      Icon="delete"
+                                      ButtonStyle="ButtonStyle.Danger"
+                                      Size="ButtonSize.Small"
+                                      Click="() => EliminarArchivo(tipo.Nombre)" />
+
+                        <label class="btn btn-outline-secondary btn-sm m-0">
+                            @((archivosSeleccionados.ContainsKey(tipo.Nombre)
+                                            ? archivosSeleccionados[tipo.Nombre].Name
+                                            : "Seleccionar archivo"))
+                <InputFile class="d-none"
+                           OnChange="e => OnArchivoSeleccionado(e, tipo.Nombre)" />
+            </label>
+
+                        <RadzenButton Text="Actualizar"
+                                      Icon="upload"
+                                      ButtonStyle="ButtonStyle.Warning"
+                                      Size="ButtonSize.Small"
+                                      Click="() => ActualizarArchivo(tipo.Nombre)" />
+
+                        
+                    </div>
+
+                    @if (archivosSeleccionados.ContainsKey(tipo.Nombre) == false && !string.IsNullOrEmpty(mensajeError))
+                    {
+                        <div class="text-danger mt-1">@mensajeError</div>
+                    }
+                }
+
+                else
+                {
+                    <div class="mt-2">
+                        <div class="text-muted">Sin archivo</div>
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <InputFile class="form-control"
+                                       OnChange="e => OnArchivoSeleccionado(e, tipo.Nombre)" />
+
+                            <RadzenButton Text="Subir"
+                                          Icon="upload"
+                                          ButtonStyle="ButtonStyle.Success"
+                                          Size="ButtonSize.Small"
+                                          Click="() => SubirArchivo(tipo.Nombre)" />
+                        </div>
+                    </div>
+                }
+
+            </div>
+
+            @if (mensajeErrorArchivo.ContainsKey(tipo.Nombre))
             {
-                <option value="@tipo.TipoId">@tipo.Nombre (@tipo.Extension)</option>
+                <div class="text-danger mt-1">@mensajeErrorArchivo[tipo.Nombre]</div>
             }
-        </select>
 
-        <InputFile OnChange="OnNuevoArchivoSeleccionado" />
+            @if (mensajeOperacionArchivo.ContainsKey(tipo.Nombre))
+            {
+                <div class="text-success mt-1">@mensajeOperacionArchivo[tipo.Nombre]</div>
+            }
 
-        <button @onclick="SubirArchivo">Subir Archivo</button>
+        }
+
+        @if (!string.IsNullOrEmpty(mensajeOperacion))
+        {
+            <div class="alert alert-success mt-3">@mensajeOperacion</div>
+        }
 
         @if (!string.IsNullOrEmpty(mensajeError))
         {
-            <p style="color:red">@mensajeError</p>
+            <div class="alert alert-danger mt-3">@mensajeError</div>
         }
+    }
+    @if (archivoParaVer != null)
+    {
+        <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@archivoParaVer.Nombre</h5>
+                        <button type="button" class="btn-close" @onclick="CerrarVistaArchivo"></button>
+                    </div>
+                    <div class="modal-body">
+                        <iframe style="width:100%; height:80vh;" src="@archivoParaVer.Url" frameborder="0"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 
-        <p>@mensajeOperacion</p>
-    </div>
-}
+</div>
+
+
 
 @code {
     [Parameter] public int id { get; set; }
 
     private PacienteDetailsDto? pacienteDetalle;
-    private List<AddArchivoBlazorDto> archivosLista = new();
-    private bool cargando = true;
     private List<FRONTproyectoEquinoterapia.Services.ArchivoService.TipoArchivoDto> tiposArchivo = new();
+    private Dictionary<string, IBrowserFile> archivosSeleccionados = new();
+    private Dictionary<string, bool> ArchivoExisteDict = new();
+    private bool editando = false;
 
-    private string archivoActual = "";
-    private IBrowserFile? archivoSeleccionado;
+    private bool cargando = true;
     private string mensajeError = "";
     private string mensajeOperacion = "";
-    private AddArchivoBlazorDto nuevoArchivoDto = new();
-    private Dictionary<string, IBrowserFile> archivosSeleccionados = new();
+
+    private Dictionary<string, string> mensajeErrorArchivo = new();
+    private Dictionary<string, string> mensajeOperacionArchivo = new();
+
+
+    private ArchivoVistaDto? archivoParaVer;
 
     protected override async Task OnInitializedAsync()
     {
@@ -100,47 +198,14 @@ else
         cargando = true;
         pacienteDetalle = await PacienteService.ObtenerPorIdAsync(id);
 
-        archivosLista = pacienteDetalle?.ArchivosPendientes
-            .Select(nombre => new AddArchivoBlazorDto { Nombre = nombre })
-            .ToList() ?? new List<AddArchivoBlazorDto>();
+        // Verifica existencia de cada archivo
+        ArchivoExisteDict.Clear();
+        foreach (var tipo in tiposArchivo)
+        {
+            ArchivoExisteDict[tipo.Nombre] = await ArchivoExiste(tipo.Nombre);
+        }
 
         cargando = false;
-    }
-
-    private void OnNuevoArchivoSeleccionado(InputFileChangeEventArgs e)
-    {
-        archivoSeleccionado = e.File;
-    }
-
-    private async Task SubirArchivo()
-    {
-        if (archivoSeleccionado == null)
-        {
-            mensajeError = "Seleccione un archivo primero.";
-            return;
-        }
-
-        if (string.IsNullOrEmpty(archivoActual))
-        {
-            mensajeError = "Seleccione un tipo de archivo.";
-            return;
-        }
-
-        mensajeError = "";
-
-        nuevoArchivoDto.Nombre = archivoActual;
-        nuevoArchivoDto.Archivo = archivoSeleccionado;
-
-        var (exito, mensaje) = await ArchivoService.SubirArchivoAsync(id, nuevoArchivoDto);
-        mensajeOperacion = mensaje;
-
-        if (exito)
-        {
-            // Refresca lista de archivos
-            await CargarPaciente();
-            archivoSeleccionado = null;
-            archivoActual = "";
-        }
     }
 
     private void OnArchivoSeleccionado(InputFileChangeEventArgs e, string nombreArchivo)
@@ -148,53 +213,149 @@ else
         archivosSeleccionados[nombreArchivo] = e.File;
     }
 
+
+    private async Task<bool> ArchivoExiste(string nombreArchivo)
+    {
+        try
+        {
+            var response = await Http.GetAsync($"api/pacientes/{id}/archivos/{nombreArchivo}", HttpCompletionOption.ResponseHeadersRead);
+
+            // Si devuelve 200, existe; si 404, no existe
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+
+    private async Task SubirArchivo(string nombreArchivo)
+    {
+        if (!archivosSeleccionados.ContainsKey(nombreArchivo))
+        {
+            mensajeErrorArchivo[nombreArchivo] = "Seleccione un archivo para subir.";
+            return;
+        }
+
+        var file = archivosSeleccionados[nombreArchivo];
+        var tipo = tiposArchivo.First(t => t.Nombre == nombreArchivo);
+
+        var dto = new AddArchivoBlazorDto
+        {
+            Nombre = tipo.Nombre,
+            Extension = tipo.Extension,
+            Archivo = file,
+            TipoArchivoId = tipo.TipoId
+        };
+
+        var (exito, mensaje) = await ArchivoService.SubirArchivoAsync(id, dto);
+        mensajeOperacion = mensaje;
+        mensajeError = "";
+
+        if (exito)
+        {
+            archivosSeleccionados.Remove(nombreArchivo);
+            // Recarga la página
+            NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
+        }
+    }
+
     private async Task ActualizarArchivo(string nombreArchivo)
     {
         if (!archivosSeleccionados.ContainsKey(nombreArchivo))
         {
-            mensajeOperacion = "Seleccione un archivo para actualizar.";
+            mensajeErrorArchivo[nombreArchivo] = "Seleccione un archivo para actualizar..";
+           
             return;
         }
 
+        bool confirm = await JS.InvokeAsync<bool>("confirm",
+            $"El archivo nuevo reemplazará al archivo actual '{nombreArchivo}'. ¿Está seguro?");
+        if (!confirm) return;
+
+        var file = archivosSeleccionados[nombreArchivo];
         var dto = new UpdateArchivoBlazorDto
         {
             Nombre = nombreArchivo,
-            Archivo = archivosSeleccionados[nombreArchivo]
+            Archivo = file
         };
 
         var (exito, mensaje) = await ArchivoService.ActualizarArchivoAsync(id, dto);
         mensajeOperacion = mensaje;
+        mensajeError = "";
 
         if (exito)
         {
-            await CargarPaciente();
             archivosSeleccionados.Remove(nombreArchivo);
+            // Recarga la página
+            NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
         }
     }
+
+    private async Task GuardarCambios()
+    {
+        var (exito, mensaje) = await PacienteService.ActualizarPacienteAsync(pacienteDetalle!);
+
+        if (exito)
+        {
+            mensajeOperacion = "Paciente actualizado correctamente.";
+            editando = false;
+        }
+        else
+        {
+            mensajeError = mensaje;
+        }
+    }
+
 
     private async Task EliminarArchivo(string nombreArchivo)
     {
+        bool confirm = await JS.InvokeAsync<bool>("confirm",
+            $"El archivo '{nombreArchivo}' se eliminará por completo. ¿Está seguro?");
+
+        if (!confirm) return;
+
         var (exito, mensaje) = await ArchivoService.EliminarArchivoAsync(id, nombreArchivo);
         mensajeOperacion = mensaje;
+        mensajeError = "";
+        
+            if (exito)
+            {
+                mensajeOperacion = "Archivo eliminado correctamente.";
+                await CargarPaciente(); // recarga archivos y estado
+            }
 
-        if (exito)
-        {
-            await CargarPaciente();
-        }
     }
 
-    private async Task DescargarArchivo(AddArchivoBlazorDto archivo)
+
+// aqui en esta seccion es el apartado para ver archivo,
+
+    private void DescargarArchivo(string nombreArchivo)
     {
-        var (contenido, mensaje, extension) = await ArchivoService.DescargarArchivoAsync(id, archivo.Nombre);
-        mensajeOperacion = mensaje;
-
-        if (contenido != null)
-        {
-            var base64 = Convert.ToBase64String(contenido);
-            await JS.InvokeVoidAsync("blazorDownloadFile", archivo.Nombre + extension, base64);
-        }
+        // Abre el archivo en otra pestaña
+        var url = $"https://localhost:7280/api/pacientes/{id}/archivos/{nombreArchivo}";
+        JS.InvokeVoidAsync("open", url, "_blank");
     }
+
+
+    private void CerrarVistaArchivo()
+    {
+        archivoParaVer = null;
+    }
+
+    private class ArchivoVistaDto
+    {
+        public string Nombre { get; set; } = "";
+        public string Url { get; set; } = "";
+    }
+
+
+
+
 }
+
+
 
 
 

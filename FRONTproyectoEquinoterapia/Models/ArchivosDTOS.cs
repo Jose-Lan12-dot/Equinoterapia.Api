@@ -5,11 +5,14 @@ namespace FRONTproyectoEquinoterapia.Models
 {
     public class AddArchivoBlazorDto
     {
-
-        public int TipoArchivoId { get; set; }           // <-- nuevo
-        public string Nombre { get; set; } = string.Empty; // mantén por compatibilidad
-        public IBrowserFile Archivo { get; set; } = null!;
+        public int ArchivoId { get; set; }
+        public int TipoArchivoId { get; set; }
+        public int TipoId { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string Extension { get; set; } = string.Empty;
+        public IBrowserFile? Archivo { get; set; }
     }
+
 
     public class UpdateArchivoBlazorDto
     {

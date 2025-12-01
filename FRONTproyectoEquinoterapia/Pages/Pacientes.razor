@@ -11,53 +11,96 @@
 @using Radzen.Blazor
 
 
-<h3>Lista de Pacientes</h3>
+<div class="card shadow-sm p-4 mt-3">
 
-<RadzenStack Orientation="Orientation.Horizontal" Gap="10px" Style="margin-bottom:15px">
-    <RadzenButton Click="@AbrirAgregarPaciente" Text="Agregar paciente" Icon="add_circle" ButtonStyle="ButtonStyle.Primary" />
+    <!-- Título con icono -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="m-0 text-primary">
+            <i class="material-icons" style="vertical-align: middle;">group</i>
+            Lista de Pacientes
+        </h3>
 
-    <RadzenDropDown Style="width: 100%; max-width: 300px;"
-                    TValue="string"
-                    @bind-Value="selectedOrder"
-                    Placeholder="Selecciona orden"
-                    Data="@ordenesDisponibles"
-                    TextProperty="Text"
-                    ValueProperty="Value"
-                    Change="@(args => AplicarFiltros())"
-                    AllowFiltering="true" />
-</RadzenStack>
+        <RadzenButton Click="@AbrirAgregarPaciente"
+                      Text="Agregar paciente"
+                      Icon="add_circle"
+                      ButtonStyle="ButtonStyle.Primary" />
+    </div>
 
-<RadzenTextBox @bind-Value="searchTerm" Placeholder="Buscar paciente..."
-               Style="margin-bottom:10px;width:250px" Change="@(args => AplicarFiltros())" />
+    <!-- Filtros -->
+    <div class="row g-3 mb-3">
 
-<RadzenDataGrid Data="@filteredPacientes" TItem="AllPacienteDto" ColumnWidth="200px"
-                AllowFiltering="true" AllowPaging="true" AllowSorting="true" PageSize="5">
-    <Columns>
-        <RadzenDataGridColumn TItem="AllPacienteDto" Property="PacienteId" Title="ID" />
-        <RadzenDataGridColumn TItem="AllPacienteDto" Property="Nombre" Title="Nombre" />
-        <RadzenDataGridColumn TItem="AllPacienteDto" Property="NumeroFaltas" Title="Faltas Acumuladas" />
-        <RadzenDataGridColumn TItem="AllPacienteDto" Property="Estado" Title="Estado" />
-        <RadzenDataGridColumn TItem="AllPacienteDto" Title="Operaciones">
-            <Template Context="p">
+        <div class="col-md-4">
+            <RadzenTextBox @bind-Value="searchTerm"
+                           Placeholder="Buscar paciente..."
+                           Style="width:100%;"
+                           Change="@(args => AplicarFiltros())" />
+        </div>
 
-                <RadzenButton Icon="visibility"
-                              ButtonStyle="ButtonStyle.Info"
-                              Click="@(args => VerPaciente(p.PacienteId))" />
+        <div class="col-md-4">
+            <RadzenDropDown Style="width:100%;"
+                            TValue="string"
+                            @bind-Value="selectedOrder"
+                            Placeholder="Ordenar por"
+                            Data="@ordenesDisponibles"
+                            TextProperty="Text"
+                            ValueProperty="Value"
+                            Change="@(args => AplicarFiltros())"
+                            AllowFiltering="true" />
+        </div>
 
-                <RadzenButton Icon="edit"
-                              ButtonStyle="ButtonStyle.Primary"
-                              Style="margin-left:5px"
-                              Click="@(args => EditarPaciente(p))" />
+    </div>
 
-                <RadzenButton Icon="delete"
-                              ButtonStyle="ButtonStyle.Danger"
-                              Style="margin-left:5px"
-                              Click="@(args => ConfirmarEliminarConJs(p))" />
+    <!-- Grid -->
+    <RadzenDataGrid Data="@filteredPacientes"
+                    TItem="AllPacienteDto"
+                    ColumnWidth="200px"
+                    AllowFiltering="true"
+                    AllowPaging="true"
+                    AllowSorting="true"
+                    PageSize="5"
+                    class="shadow-sm rounded">
 
-            </Template>
-        </RadzenDataGridColumn>
-    </Columns>
-</RadzenDataGrid>
+        <Columns>
+
+            <RadzenDataGridColumn TItem="AllPacienteDto" Property="PacienteId" Title="ID" />
+
+            <RadzenDataGridColumn TItem="AllPacienteDto" Property="Nombre" Title="Nombre" />
+
+            <RadzenDataGridColumn TItem="AllPacienteDto" Property="NumeroFaltas" Title="Faltas" />
+
+            <RadzenDataGridColumn TItem="AllPacienteDto" Property="Estado" Title="Estado" />
+
+            <RadzenDataGridColumn TItem="AllPacienteDto" Title="Operaciones">
+                <Template Context="p">
+
+                    <div class="btn-group">
+
+                        <RadzenButton Icon="visibility"
+                                      ButtonStyle="ButtonStyle.Info"
+                                      Click="@(args => VerPaciente(p.PacienteId))"
+                                      Size="ButtonSize.Small" />
+
+                        <RadzenButton Icon="edit"
+                                      ButtonStyle="ButtonStyle.Primary"
+                                      Click="@(args => EditarPaciente(p))"
+                                      Size="ButtonSize.Small" />
+
+                        <RadzenButton Icon="delete"
+                                      ButtonStyle="ButtonStyle.Danger"
+                                      Click="@(args => ConfirmarEliminarConJs(p))"
+                                      Size="ButtonSize.Small" />
+
+                    </div>
+
+                </Template>
+            </RadzenDataGridColumn>
+
+        </Columns>
+
+    </RadzenDataGrid>
+
+</div>
+
 
 @code {
     string searchTerm = "";

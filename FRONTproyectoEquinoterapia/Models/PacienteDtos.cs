@@ -78,18 +78,16 @@ namespace FRONTproyectoEquinoterapia.Models
 
     public class PacienteDetailsDto
     {
-        public int PacienteId { get; set; }
-        public string Tutor { get; set; }
-        public string TelefonoTutor { get; set; }
-        public string Nombre { get; set; }
-        public string Genero { get; set; }
-        public DateTime FechaNacimiento { get; set; }
-        public bool FormularioHecho { get; set; }
-        public string Estado { get; set; }
+        public int Id { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string Tutor { get; set; } = string.Empty;
+        public string TelefonoTutor { get; set; } = string.Empty;
+        public string Genero { get; set; } = string.Empty;
         public int NumeroFaltas { get; set; }
         public bool FaltaEvaluacion { get; set; }
-        public List<string> ArchivosPendientes { get; set; }
+        public List<ArchivoDTO> Archivos { get; set; } = new();
     }
+
 
 
     public class ResponseWrapper<T>
