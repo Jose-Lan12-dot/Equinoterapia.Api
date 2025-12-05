@@ -21,10 +21,8 @@ namespace FRONTproyectoEquinoterapia.Services
         {
             using var formData = new MultipartFormDataContent();
 
-            // Enviar Nombre (el backend lo usa para buscar tipo)
+            // Enviar solo lo que el backend pide: Nombre + Archivo
             formData.Add(new StringContent(archivo.Nombre ?? ""), "Nombre");
-            // También puedes enviar TipoId si quieres:
-            formData.Add(new StringContent(archivo.TipoArchivoId.ToString()), "TipoArchivoId");
 
             var streamContent = new StreamContent(archivo.Archivo.OpenReadStream(10 * 1024 * 1024));
             streamContent.Headers.ContentType = new MediaTypeHeaderValue(archivo.Archivo.ContentType);
@@ -37,6 +35,7 @@ namespace FRONTproyectoEquinoterapia.Services
             var error = await response.Content.ReadAsStringAsync();
             return (false, $"Error: {response.StatusCode} - {error}");
         }
+
 
 
         // ===========================
