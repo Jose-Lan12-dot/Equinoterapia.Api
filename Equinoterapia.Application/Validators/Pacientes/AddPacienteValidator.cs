@@ -26,9 +26,9 @@ namespace Equinoterapia.Application.Validators.Pacientes
 
             RuleFor(x => x.FechaNacimiento)
                 .NotEmpty().WithMessage("La fecha de nacimiento es requerida.")
-                .LessThan(DateOnly.FromDateTime(DateTime.Today))
+                .LessThan(DateTime.Today)
                     .WithMessage("La fecha de nacimiento no puede ser hoy o un día futuro.")
-                .GreaterThan(DateOnly.FromDateTime(DateTime.Today.AddYears(-150)))
+                .GreaterThan(DateTime.Today.AddYears(-150))
                     .WithMessage("La fecha de nacimiento no puede ser hace más de 150 años.");
         }
 

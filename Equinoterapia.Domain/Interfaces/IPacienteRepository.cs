@@ -13,6 +13,7 @@ namespace Equinoterapia.Domain.Interfaces
         Task<int> GetArchivosCountAsync(int pacienteId);
         Task<Enum> PacienteEstado(int pacienteId);
 
+
         // Métodos que modifican datos (void)
         void Add(Paciente paciente);
         void Delete(Paciente paciente);

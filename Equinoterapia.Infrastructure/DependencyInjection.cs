@@ -23,7 +23,7 @@ namespace Equinoterapia.Infrastructure
                 IConfiguration configuration)
             {
 
-////////////SERVICIO DBCONTEXT Y MIGRACIONES
+            ////////////SERVICIO DBCONTEXT Y MIGRACIONES
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)

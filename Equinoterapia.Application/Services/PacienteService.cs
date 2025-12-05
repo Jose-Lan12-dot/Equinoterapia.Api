@@ -215,6 +215,52 @@ namespace Equinoterapia.Application.Services
         }
 
 
+        public async Task<(bool, string)> SetBajaAsync(int pacienteId)
+        {
+            var paciente = await _pacienteRepository.GetByIdAsync(pacienteId);
+
+            // Validar que exista
+            if (paciente == null)
+            {
+                return (false, "Paciente no encontrado");
+            }
+
+            paciente.Estado = EstadoPaciente.Baja;
+
+            try
+            {
+                await _pacienteRepository.SaveChangesAsync();
+                return (true, "Paciente dado de baja correctamente");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error al dar de baja: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool, string)> SetReactivar(int pacienteId)
+        {
+            var paciente = await _pacienteRepository.GetByIdAsync(pacienteId);
+
+            // Validar que exista
+            if (paciente == null)
+            {
+                return (false, "Paciente no encontrado");
+            }
+
+            paciente.Estado = EstadoPaciente.EnTratamiento;
+
+            try
+            {
+                await _pacienteRepository.SaveChangesAsync();
+                return (true, "Paciente reactivado correctamente");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error al reactivar: {ex.Message}");
+            }
+        }
+
 
 
 
@@ -256,11 +302,22 @@ namespace Equinoterapia.Application.Services
                 FechaNacimiento = paciente.FechaNacimiento,
                 Tutor = paciente.Tutor,
                 TelefonoTutor = paciente.TelefonoTutor,
-                Estado = paciente.Estado.ToString(),
+                Estado = ObtenerDescripcionEstado(paciente.Estado),
                 Genero = paciente.Genero.ToString(),
                 NumeroFaltas = numeroFaltas,
                 FaltaEvaluacion = faltaEvaluacion,
                 ArchivosPendientes = archivosPendientes
+            };
+        }
+
+
+        private string ObtenerDescripcionEstado(EstadoPaciente estado)
+        {
+            return estado switch
+            {
+                EstadoPaciente.EnTratamiento => "En Tratamiento",
+                EstadoPaciente.Baja => "Baja",
+                _ => estado.ToString()
             };
         }
 

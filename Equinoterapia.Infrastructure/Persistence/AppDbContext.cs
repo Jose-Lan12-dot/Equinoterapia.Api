@@ -270,7 +270,12 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("extension");
         });
 
-        modelBuilder.Entity<InicioSesion>().HasNoKey();
+        //modelBuilder.Entity<InicioSesion>().HasNoKey();
+        modelBuilder.Entity<InicioSesion>(entity =>
+        {
+            entity.HasNoKey();
+            entity.Property(e => e.Foto).HasColumnType("image");
+        });
 
         modelBuilder.Entity<InformeMensual>(entity =>
         {

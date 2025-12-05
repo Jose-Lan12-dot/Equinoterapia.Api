@@ -15,5 +15,8 @@ namespace Equinoterapia.Application.Interfaces
 
         Task<(bool, string)> DeleteAsync(int pacienteId);
 
+        Task<(bool, string)> SetBajaAsync(int pacienteId);
+        Task<(bool, string)> SetReactivar(int pacienteId);
+
     }
 }

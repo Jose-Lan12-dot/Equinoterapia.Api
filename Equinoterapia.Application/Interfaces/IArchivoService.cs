@@ -6,7 +6,7 @@ namespace Equinoterapia.Application.Interfaces
     {
         // Copia las firmas de tus métodos públicos
         Task<(bool, string)> AddAsync(AddArchivoDto archivoDto, int pacienteId);
-        Task<(byte[]?, string, string)> GetAsync(string nombreArchivo, int pacienteId);
+        Task<(GetByIdArchivoDto?, string)> GetAsync(string nombreArchivo, int pacienteId);
         Task<(bool, string)> UpdateAsync(UpdateArchivoDto archivoDto, int pacienteId);
         Task<(bool, string)> DeleteAsync(string nombreArchivo, int pacienteId);
         Task<List<GetTipoArchivoDto>> GetTipoArchivo();

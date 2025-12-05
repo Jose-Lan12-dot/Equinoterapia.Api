@@ -1,4 +1,6 @@
-﻿namespace Equinoterapia.Domain.Entities
+﻿using System.ComponentModel;
+
+namespace Equinoterapia.Domain.Entities
 {
     public enum EstadoPaciente
     {
@@ -19,7 +21,7 @@
 
         public required string Nombre { get; set; }
 
-        public required DateOnly FechaNacimiento { get; set; }
+        public required DateTime FechaNacimiento { get; set; }
 
         public required string Tutor { get; set; }
 

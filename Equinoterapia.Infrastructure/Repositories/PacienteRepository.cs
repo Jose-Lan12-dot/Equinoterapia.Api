@@ -82,17 +82,16 @@ namespace Equinoterapia.Infrastructure.Repositories
         {
             var numeroArchivosRequeridos = await _context.tipoArchivo.CountAsync();
 
-           
-            return await _context.paciente
-                .AsNoTracking() 
-                .Select(p => new GetAllPacienteDto
+            var datosCrudos = await _context.paciente
+                .AsNoTracking()
+                .Select(p => new
                 {
-                   
-                    PacienteId = p.PacienteId,
-                    Nombre = p.Nombre,
-                    Tutor = p.Tutor,
-                    Estado = p.Estado.ToString(),
+                    p.PacienteId,
+                    p.Nombre,
+                    p.Tutor,
+                    EstadoEnum = p.Estado, 
 
+                   
                     NumeroFaltas = _context.asistencia
                         .Count(a => a.PacienteId == p.PacienteId && a.Asistio == false),
 
@@ -102,8 +101,41 @@ namespace Equinoterapia.Infrastructure.Repositories
                     FaltanArchivos = (_context.archivo
                         .Count(ar => ar.PacienteId == p.PacienteId) < numeroArchivosRequeridos)
                 })
-                .ToListAsync(); 
+                .ToListAsync();
+
+            var resultadoFinal = datosCrudos.Select(item => new GetAllPacienteDto
+            {
+                PacienteId = item.PacienteId,
+                Nombre = item.Nombre,
+                Tutor = item.Tutor,
+
+                
+                Estado = ObtenerDescripcionEstado(item.EstadoEnum),
+
+                NumeroFaltas = item.NumeroFaltas,
+                FormularioHecho = item.FormularioHecho,
+                FaltanArchivos = item.FaltanArchivos
+            }).ToList();
+
+            return resultadoFinal;
+
+
+
         }
+
+
+        // Método privado dentro de PacienteRepository.cs
+        private string ObtenerDescripcionEstado(EstadoPaciente estado)
+        {
+            return estado switch
+            {
+                EstadoPaciente.EnTratamiento => "En Tratamiento", 
+                EstadoPaciente.Baja => "Baja",
+                _ => estado.ToString() 
+            };
+        }
+
+
 
         public void Delete(Paciente paciente)
         {

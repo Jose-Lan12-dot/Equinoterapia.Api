@@ -19,7 +19,9 @@ namespace Equinoterapia.Infrastructure.Repositories
 
         public async Task<Sesion?> GetByIdAsync(int sesionId)
         {
-            return await _context.sesion.FindAsync(sesionId);
+            return await _context.sesion.Include(i => i.Instructor)
+                                       .Include(c => c.Caballo)
+                                       .FirstOrDefaultAsync(s => s.SesionId == sesionId);
         }
 
         public void Add(Sesion sesion)

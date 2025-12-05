@@ -18,21 +18,27 @@ namespace Equinoterapia.Application.Services
         }
 
 
-        public async Task<(byte[]?, string, string)> GetAsync(string nombreArchivo, int pacienteId)
+        public async Task<(GetByIdArchivoDto?, string)> GetAsync(string nombreArchivo, int pacienteId)
         {
             var tipoArchivo = await _archivoRepository.GetTipoArchivoPorNombreAsync(nombreArchivo);
             if (IsNull(tipoArchivo))
             {
-                return (null, "Tipo de archivo no encontrado", "");
+                return (null, "Tipo de archivo no encontrado");
             }
 
             var archivo = await _archivoRepository.GetArchivoAsync(pacienteId, tipoArchivo!.TipoId);
             if (IsNull(archivo))
             {
-                return (null, "Archivo no encontrado", "");
+                return (null, "Archivo no encontrado");
             }
 
-            return (archivo!.Archivo, "Archivos encontrado", tipoArchivo.Extension);
+
+            return (
+                new GetByIdArchivoDto
+                {
+                    Archivo = archivo.Archivo,
+                    Extension = tipoArchivo.Extension
+                }, "Archivos encontrado");
         }
 
         public async Task<(bool, string)> AddAsync(AddArchivoDto archivos, int pacienteId)

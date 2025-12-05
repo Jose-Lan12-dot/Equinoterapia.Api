@@ -36,13 +36,13 @@ namespace Equinoterapia.Application.Validators.Pacientes
 
             RuleFor(x => x.Estado)
                 .NotEmpty().WithMessage("El estado no puede estar vacío.")
-                .Must(BeValidEstado).WithMessage("El estado debe ser 'Activo', 'Baja' o 'TratamientoCompleto'.")
+                .Must(BeValidEstado).WithMessage("El estado debe ser 'Baja' o 'EnTratamiento'.")
                 .When(x => x.Estado is not null);
 
             RuleFor(x => x.FechaNacimiento)
-                .LessThan(DateOnly.FromDateTime(DateTime.Today))
+                .LessThan(DateTime.Today)
                     .WithMessage("La fecha de nacimiento no puede ser futura.")
-                .GreaterThan(DateOnly.FromDateTime(DateTime.Today.AddYears(-150)))
+                .GreaterThan(DateTime.Today.AddYears(-150))
                     .WithMessage("La fecha de nacimiento no puede ser hace más de 150 años.")
                 .When(x => x.FechaNacimiento.HasValue);
         }

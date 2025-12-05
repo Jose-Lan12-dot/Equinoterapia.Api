@@ -4,7 +4,7 @@
     {
         public int PacienteId { get; set; }
         public string Nombre { get; set; } = string.Empty;
-        public DateOnly FechaNacimiento { get; set; }
+        public DateTime FechaNacimiento { get; set; }
         public string Tutor { get; set; } = string.Empty;
         public string TelefonoTutor { get; set; } = string.Empty;
         public string Estado { get; set; } = string.Empty;

@@ -20,7 +20,7 @@ namespace Equinoterapia.Api.Controllers
 
 
 
-////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -32,9 +32,9 @@ namespace Equinoterapia.Api.Controllers
             }
 
             return Ok(new { Message = mensaje, Data = pacientes });
-         }
+        }
 
-////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -48,7 +48,7 @@ namespace Equinoterapia.Api.Controllers
             return Ok(new { Message = mensaje, Data = datosPaciente });
         }
 
-////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddPacienteConArchivosDto addPacienteDto)
         {
@@ -62,7 +62,7 @@ namespace Equinoterapia.Api.Controllers
             return Ok(mensaje);
         }
 
-////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdatePacienteDto pacienteDto)
         {
@@ -75,13 +75,13 @@ namespace Equinoterapia.Api.Controllers
 
             if (!exito)
             {
-                return NotFound(mensaje); 
+                return NotFound(mensaje);
             }
 
-            return NoContent(); 
+            return NoContent();
         }
 
-////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -92,7 +92,31 @@ namespace Equinoterapia.Api.Controllers
                 return NotFound(mensaje);
             }
 
-            return Ok(mensaje); 
+            return Ok(mensaje);
+        }
+
+        [HttpPatch("baja/{id}")]
+        public async Task<IActionResult> DarDeBaja(int id)
+        {
+            var (exito, mensaje) = await _pacienteService.SetBajaAsync(id);
+            if (!exito)
+            {
+                return NotFound( mensaje );
+            }
+
+            return Ok( mensaje );
+        }
+
+        [HttpPatch("reactivar/{id}")]
+        public async Task<IActionResult> Reactivar(int id)
+        {
+            var (exito, mensaje) = await _pacienteService.SetReactivar(id);
+            if (!exito)
+            {
+                return NotFound( mensaje );
+            }
+
+            return Ok( mensaje );
         }
     }
 }

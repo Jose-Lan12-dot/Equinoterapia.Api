@@ -20,18 +20,24 @@ namespace Equinoterapia.Api.Controllers
         [HttpGet("{nombreArchivo}")]
         public async Task<IActionResult> GetArchivo(int pacienteId, string nombreArchivo)
         {
-            var (bytes, mensaje, extension) = await _archivoService.GetAsync(nombreArchivo, pacienteId);
+            var (archivo, mensaje) = await _archivoService.GetAsync(nombreArchivo, pacienteId);
 
-            if (bytes == null)
+            if (archivo.Archivo == null)
             {
                 return NotFound(mensaje);
             }
-            var contentType = "application/octet-stream";
+            string contentType = archivo.Extension.ToLower() switch
+            {
+                ".pdf" => "application/pdf",
+                ".jpg" => "image/jpeg",
+                _ => "application/octet-stream"
+            };
 
-            return File(bytes, contentType, nombreArchivo + extension);
+            return File(archivo.Archivo, contentType);
         }
 
-        [HttpGet("/obtener-tipoarchivo")]
+
+        [HttpGet("/api/archivos/obtener-tipoarchivo")]
         public async Task<IActionResult> GetTipoArchivo()
         {
             var tiposArchivos = await _archivoService.GetTipoArchivo();
@@ -43,10 +49,10 @@ namespace Equinoterapia.Api.Controllers
         public async Task<IActionResult> SubirArchivo(int pacienteId, AddArchivoDto archivoDto)
         {
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState); 
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(ModelState); 
+            //}
 
             var (exito, mensaje) = await _archivoService.AddAsync(archivoDto, pacienteId);
 
