@@ -2,73 +2,95 @@
 using System.Text.Json;
 using FRONTproyectoEquinoterapia.Models;
 
+
+
 namespace FRONTproyectoEquinoterapia.Services
 {
-    public class AsistenciaService
+
+    public class AsistenciasService
     {
         private readonly HttpClient _http;
 
-        public AsistenciaService(HttpClient http)
+        public AsistenciasService(HttpClient http)
         {
             _http = http;
         }
-        // Obtener asistencias (pacientes) de una sesión
-        public async Task<List<PacienteDto>> ObtenerPacientesPorSesionAsync(int sesionId)
+
+        public async Task<List<AllPacienteDto>> ObtenerPorSesionAsync(int sesionId)
         {
-            try
+            // Obtener las asistencias de la sesión
+            var asistencias = await GetAsistenciasPorSesion(sesionId);
+
+            // Convertir a AllPacienteDto
+            var pacientes = asistencias.Select(a => new AllPacienteDto
             {
-                var response = await _http.GetAsync($"https://localhost:7280/api/asistencias?sesionId={sesionId}");
+                PacienteId = a.PacienteId,
+                Nombre = a.NombrePaciente
+            }).ToList();
 
-                if (!response.IsSuccessStatusCode) return new List<PacienteDto>();
+            return pacientes;
+        }
 
-                var json = await response.Content.ReadAsStringAsync();
-                var obj = System.Text.Json.JsonSerializer.Deserialize<AsistenciasResponse>(json,
-                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                return obj?.Asistencias.Select(a => new PacienteDto
+        public async Task<List<GetAsistenciaDto>> GetAsistenciasPorSesion(int sesionId)
+        {
+            var res = await _http.GetFromJsonAsync<List<GetAsistenciaDto>>(
+                $"api/asistencias?sesionId={sesionId}"
+            );
+
+            return res ?? new List<GetAsistenciaDto>();
+        }
+
+        public async Task<(bool ok, string mensaje)> CreateAsistencias(AddAsistenciaDto dto)
+        {
+            var res = await _http.PostAsJsonAsync("api/asistencias", dto);
+
+            var content = await res.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+
+            if (!res.IsSuccessStatusCode)
+            {
+                return (false, content?["Mensaje"] ?? "Error");
+            }
+
+            return (true, content?["Mensaje"] ?? "Creado");
+        }
+
+        public async Task<(bool ok, string mensaje)> UpdateAsistencias(UpdateAsistenciaDto dto)
+        {
+            var res = await _http.PatchAsync("api/asistencias", JsonContent.Create(dto));
+
+            var content = await res.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+
+            if (!res.IsSuccessStatusCode)
+            {
+                return (false, content?["Mensaje"] ?? "Error");
+            }
+
+            return (true, content?["Mensaje"] ?? "Actualizado");
+        }
+
+        public async Task<(bool ok, string mensaje)> DeleteAsistencias(List<int> asistenciaIds)
+        {
+            var res = await _http.SendAsync(
+                new HttpRequestMessage
                 {
-                    PacienteId = a.AsistenciaId,
-                    Nombre = a.Nombre // en tu backend es "nombre"
-                }).ToList() ?? new List<PacienteDto>();
-            }
-            catch
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri("api/asistencias", UriKind.Relative),
+                    Content = JsonContent.Create(asistenciaIds)
+                }
+            );
+
+            var content = await res.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+
+            if (!res.IsSuccessStatusCode)
             {
-                return new List<PacienteDto>();
+                return (false, content?["Mensaje"] ?? "Error");
             }
-        }
 
-
-        public class AsistenciasResponse
-        {
-            public string Mensaje { get; set; }
-            public List<AsistenciaDto> Asistencias { get; set; }
-        }
-
-
-      
-
-        public async Task<bool> AgregarPacientesAsync(AsistenciaAddDto nueva)
-        {
-            var response = await _http.PostAsJsonAsync("https://localhost:7280/api/asistencia/agregar", nueva);
-            return response.IsSuccessStatusCode;
-        }
-
-        public async Task<bool> ActualizarAsync(AsistenciaUpdateDto updateDto)
-        {
-            var response = await _http.PutAsJsonAsync("https://localhost:7280/api/asistencia/actualizar", updateDto);
-            return response.IsSuccessStatusCode;
-        }
-
-        public async Task<bool> EliminarAsync(List<int> asistenciasIds)
-        {
-            var request = new HttpRequestMessage(HttpMethod.Delete, "https://localhost:7280/api/asistencia/eliminar")
-            {
-                Content = JsonContent.Create(asistenciasIds)
-            };
-            var response = await _http.SendAsync(request);
-            return response.IsSuccessStatusCode;
+            return (true, content?["Mensaje"] ?? "Eliminado");
         }
     }
+
 }
 
 

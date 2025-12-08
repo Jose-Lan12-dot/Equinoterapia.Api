@@ -1,0 +1,180 @@
+﻿@page "/evaluacion/{pacienteId:int}"
+@using FRONTproyectoEquinoterapia.Services
+@using FRONTproyectoEquinoterapia.Models
+@using System.Text.Json
+@inject PacienteService PacienteService
+@inject EvaluacionService EvaluacionService
+@inject NavigationManager Navigation
+@inject NotificationService NotificationService
+@inject IJSRuntime JS
+
+<div class="card shadow-sm p-4 mt-3">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="text-primary mb-0">Evaluación del Paciente</h3>
+        <div>
+            <label class="form-label fw-bold me-2">Fecha:</label>
+            <RadzenDatePicker @bind-Value="evaluacionForm.Fecha"
+                              Disabled="true"
+                              Style="width:150px;" />
+        </div>
+    </div>
+
+    <h5>Paciente: <strong>@pacienteDetalle?.Nombre</strong></h5>
+
+    @if (cargando)
+    {
+        <div class="text-center my-4">
+            <div class="spinner-border" role="status"></div>
+            <p class="mt-2">Cargando...</p>
+        </div>
+    }
+    else if (preguntas.Count == 0)
+    {
+        <div class="alert alert-warning mt-3">No hay preguntas disponibles para la evaluación.</div>
+    }
+    else
+    {
+        <div>
+
+            <div class="alert alert-info mt-3">
+                Califique cada pregunta del <strong>1 al 10</strong>.
+            </div>
+
+            <hr />
+
+            <div class="row g-3 mt-2">
+                @for (int i = 0; i < preguntas.Count; i++)
+                {
+                    var p = preguntas[i];
+                    var respuesta = evaluacionForm.Respuestas
+                    .First(r => r.PreguntaId == p.Orden);
+
+                    <div class="col-md-12">
+                        <div class="d-flex justify-content-between align-items-center p-3 border rounded bg-light">
+                            <div>
+                                <label class="form-label mb-0">@p.Orden. @p.Pregunta</label>
+                            </div>
+                            <div>
+                                <RadzenNumeric @bind-Value="respuesta.Respuesta"
+                                               Min="1" Max="10"
+                                               Style="width:100px;" />
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="mt-4 d-flex">
+                <RadzenButton Text="Guardar Evaluación"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Click="@GuardarEvaluacion" />
+
+                <RadzenButton Text="Cancelar"
+                              ButtonStyle="ButtonStyle.Secondary"
+                              Click="Cancelar"
+                              Style="margin-left:10px;" />
+            </div>
+
+            @if (!string.IsNullOrEmpty(mensajeExito))
+            {
+                <div class="mt-3 alert alert-success">@mensajeExito</div>
+            }
+
+            @if (!string.IsNullOrEmpty(mensajeError))
+            {
+                <div class="mt-3 alert alert-danger">@mensajeError</div>
+            }
+
+        </div>
+    }
+</div>
+
+
+@code {
+    [Parameter] public int PacienteId { get; set; }
+
+    private bool cargando = true;
+    private string? mensajeError;
+    private string? mensajeExito;
+
+    private PacienteDetailsDto? pacienteDetalle;
+
+    private List<PreguntasDto> preguntas = new();
+    private AddEvaluacionDto evaluacionForm = new()
+    {
+        Fecha = DateOnly.FromDateTime(DateTime.Now),
+        Respuestas = new()
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Obtener paciente
+        pacienteDetalle = await PacienteService.ObtenerPorIdAsync(PacienteId);
+
+        // Obtener preguntas
+        preguntas = await EvaluacionService.GetPreguntasAsync();
+
+        // Inicializar respuestas en 0
+        evaluacionForm.Respuestas = preguntas
+            .Select(p => new RespuestasDto
+            {
+                PreguntaId = p.Orden,
+                Respuesta = 0
+            })
+            .ToList();
+
+        cargando = false;
+    }
+
+    private async Task GuardarEvaluacion()
+    {
+        mensajeError = null;
+        mensajeExito = null;
+
+        // Validación: encontrar primera pregunta sin respuesta válida
+        var preguntaFaltante = preguntas
+            .FirstOrDefault(p => evaluacionForm.Respuestas
+                .First(r => r.PreguntaId == p.Orden).Respuesta < 1);
+
+        if (preguntaFaltante != null)
+        {
+            mensajeError = $"Debes calificar la pregunta {preguntaFaltante.Orden}: \"{preguntaFaltante.Pregunta}\".";
+            return;
+        }
+
+        var (exito, mensaje) = await EvaluacionService.CrearEvaluacionAsync(PacienteId, evaluacionForm);
+
+        // Si el mensaje viene en JSON, extraemos solo el texto
+        if (!exito && mensaje.StartsWith("{") && mensaje.EndsWith("}"))
+        {
+            try
+            {
+                var jsonDoc = JsonDocument.Parse(mensaje);
+                if (jsonDoc.RootElement.TryGetProperty("mensaje", out var prop))
+                {
+                    mensaje = prop.GetString() ?? mensaje;
+                }
+            }
+            catch { }
+        }
+
+        if (exito)
+        {
+            mensajeExito = "Evaluación guardada correctamente.";
+            // opcional: navegar después de 2 segundos
+            // await Task.Delay(2000);
+            Navigation.NavigateTo("/pacientes");
+        }
+        else
+        {
+            mensajeError = mensaje;
+        }
+    }
+
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/pacientes"); // regresar a lista de pacientes
+    }
+}

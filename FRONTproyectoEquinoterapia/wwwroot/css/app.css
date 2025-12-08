@@ -101,3 +101,19 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+.sidebar .rz-panelmenu {
+    background-color: #0d6efd !important;
+    color: white !important;
+}
+
+    .sidebar .rz-panelmenu .rz-panelmenu-item {
+        color: white !important;
+    }
+
+        .sidebar .rz-panelmenu .rz-panelmenu-item:hover {
+            background-color: #1456c2 !important;
+        }
+
+        .sidebar .rz-panelmenu .rz-panelmenu-item i {
+            color: white !important;
+        }

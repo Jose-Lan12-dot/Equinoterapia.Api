@@ -1,8 +1,8 @@
 ﻿@using FRONTproyectoEquinoterapia.Models
-@inject Radzen.DialogService DialogService
-@inject FRONTproyectoEquinoterapia.Services.AsistenciaService AsistenciaService
-@inject FRONTproyectoEquinoterapia.Services.SesionService SesionService
 @using FRONTproyectoEquinoterapia.Services
+@inject Radzen.DialogService DialogService
+@inject FRONTproyectoEquinoterapia.Services.SesionesService SesionesService
+@inject FRONTproyectoEquinoterapia.Services.AsistenciasService AsistenciasService
 @inject PacienteService pacienteService
 @inject FRONTproyectoEquinoterapia.Services.InstructorService InstructorService
 @inject FRONTproyectoEquinoterapia.Services.CaballoService CaballoService
@@ -41,7 +41,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-primary" @onclick="AgregarSeleccionados">Agregar</button>
+                    <button class="btn btn-primary" @onclick="AgregarPacientes">Agregar</button>
                     <button class="btn btn-secondary" @onclick="Cerrar">Cancelar</button>
                 </div>
             </div>
@@ -56,7 +56,6 @@
     public int MaximoSeleccionables { get; set; } = 4;
 
     private List<AllPacienteDto> PacientesDisponibles = new();
-
     private List<int> PacienteIdsSeleccionados = new();
 
     [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
@@ -66,7 +65,7 @@
     {
         SesionId = sesionId;
         MaximoSeleccionables = 4 - pacientesExistentes;
-        var pacientes = await pacienteService.ObtenerTodosAsync();
+        PacientesDisponibles = await pacienteService.ObtenerTodosAsync();
         PacienteIdsSeleccionados.Clear();
 
         Visible = true;
@@ -91,16 +90,27 @@
         }
     }
 
-    private async Task AgregarSeleccionados()
+    private async Task AgregarPacientes()
     {
-        foreach (var id in PacienteIdsSeleccionados)
-        {
-            await SesionService.AgregarPacienteAsync(SesionId, id);
-        }
+        if (!PacienteIdsSeleccionados.Any()) return;
 
-        await OnPacientesAgregados.InvokeAsync();
-        await JS.InvokeVoidAsync("alert", "Pacientes agregados correctamente.");
-        await Cerrar();
+        var updateDto = new UpdateSesionDto
+        {
+            PacienteIds = PacienteIdsSeleccionados.ToList()
+        };
+
+        bool exito = await SesionesService.UpdateAsync(SesionId, updateDto);
+
+        if (exito)
+        {
+            await JS.InvokeVoidAsync("alert", "Pacientes agregados correctamente.");
+            await OnPacientesAgregados.InvokeAsync();
+            await Cerrar();
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Error al agregar pacientes.");
+        }
     }
 
     private async Task Cerrar()
@@ -109,4 +119,3 @@
         await VisibleChanged.InvokeAsync(Visible);
     }
 }
-

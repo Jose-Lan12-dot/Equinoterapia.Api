@@ -4,102 +4,73 @@ using System.Net.Http.Json;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
+using System.Net.Http.Json;
+
 
 namespace FRONTproyectoEquinoterapia.Services
 {
-    public class SesionService : ISesionService
+    public class SesionesService
     {
         private readonly HttpClient _http;
 
-        private const string ApiBase = "api/sesiones";
-
-        public SesionService(HttpClient http)
+        public SesionesService(HttpClient http)
         {
             _http = http;
         }
 
-        public async Task<(IEnumerable<SesionDto>, string)> ObtenerSesionesPorSemanaAsync(DateOnly startOfWeek)
+        public async Task<List<GetAllSesionDto>> GetAllAsync()
         {
-            string fechaStr = startOfWeek.ToString("yyyy-MM-dd");
-            var response = await _http.GetAsync($"{ApiBase}/by-week?startOfWeek={fechaStr}");
-            if (response.IsSuccessStatusCode)
+            var res = await _http.GetFromJsonAsync<List<GetAllSesionDto>>("api/sesiones");
+            return res ?? new List<GetAllSesionDto>();
+        }
+
+        public async Task<List<GetAllSesionDto>> GetByWeekAsync(DateTime startOfWeek)
+        {
+            var dateStr = startOfWeek.ToString("yyyy-MM-dd");
+            var res = await _http.GetFromJsonAsync<List<GetAllSesionDto>>($"api/sesiones/by-week?startOfWeek={dateStr}");
+            return res ?? new List<GetAllSesionDto>();
+        }
+
+        public async Task<GetOneSesionDto?> GetByIdAsync(int id)
+        {
+            return await _http.GetFromJsonAsync<GetOneSesionDto>($"api/sesiones/{id}");
+        }
+
+        public async Task<FormDataDto?> GetFormDataAsync()
+        {
+            return await _http.GetFromJsonAsync<FormDataDto>("api/sesiones/form-data");
+        }
+
+        public async Task<List<HorarioOcupadoDto>> GetHorariosOcupadosAsync(DateTime fecha)
+        {
+            var dateStr = fecha.ToString("yyyy-MM-dd");
+            var res = await _http.GetFromJsonAsync<List<HorarioOcupadoDto>>($"api/sesiones/horarios-ocupados?fecha={dateStr}");
+            return res ?? new List<HorarioOcupadoDto>();
+        }
+
+        public async Task<(bool ok, string mensaje)> CreateAsync(AddSesionDto dto)
+        {
+            var res = await _http.PostAsJsonAsync("api/sesiones", dto);
+            if (!res.IsSuccessStatusCode)
             {
-                var data = await response.Content.ReadFromJsonAsync<IEnumerable<SesionDto>>();
-                return (data ?? new List<SesionDto>(), "Datos cargados");
+                var err = await res.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+                return (false, err?["Mensaje"] ?? "Error");
             }
-            var mensaje = await response.Content.ReadAsStringAsync();
-            return (new List<SesionDto>(), mensaje);
+            var okObj = await res.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            return (true, okObj?["Mensaje"] ?? "Creado");
         }
 
-        public async Task<(SesionDto?, string)> ObtenerSesionPorIdAsync(int sesionId) // <-- implementado
+        public async Task<bool> UpdateAsync(int id, UpdateSesionDto dto)
         {
-            var response = await _http.GetAsync($"{ApiBase}/{sesionId}");
-            if (response.IsSuccessStatusCode)
-            {
-                var data = await response.Content.ReadFromJsonAsync<SesionDto>();
-                return (data, "Sesión cargada");
-            }
-            var mensaje = await response.Content.ReadAsStringAsync();
-            return (null, mensaje);
+            var res = await _http.PatchAsync($"api/sesiones/{id}", JsonContent.Create(dto));
+            return res.IsSuccessStatusCode;
         }
 
-        public async Task<(bool, string)> AddAsync(AddSesionDto nuevaSesion)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var response = await _http.PostAsJsonAsync(ApiBase, nuevaSesion);
-            var mensaje = await response.Content.ReadAsStringAsync();
-            return (response.IsSuccessStatusCode, mensaje);
+            var res = await _http.DeleteAsync($"api/sesiones/{id}");
+            return res.IsSuccessStatusCode;
         }
-
-        public async Task<(bool, string)> UpdateAsync(int sesionId, SesionDto sesionDto)
-        {
-            var response = await _http.PutAsJsonAsync($"{ApiBase}/{sesionId}", sesionDto);
-            var mensaje = await response.Content.ReadAsStringAsync();
-            return (response.IsSuccessStatusCode, mensaje);
-        }
-
-        public async Task<(bool, string)> DeleteAsync(int sesionId)
-        {
-            var response = await _http.DeleteAsync($"{ApiBase}/{sesionId}");
-            var mensaje = await response.Content.ReadAsStringAsync();
-            return (response.IsSuccessStatusCode, mensaje);
-        }
-
-        public async Task<bool> EliminarSesionAsync(int sesionId, IJSRuntime js) // <-- compatibilidad con diálogo
-        {
-            var (exito, mensaje) = await DeleteAsync(sesionId);
-            if (!exito)
-                await js.InvokeVoidAsync("alert", mensaje);
-            return exito;
-        }
-
-        public async Task<bool> AgregarPacienteAsync(int sesionId, int pacienteId) // <-- para agregar pacientes
-        {
-            var response = await _http.PostAsJsonAsync($"{ApiBase}/{sesionId}/pacientes", new { PacienteId = pacienteId });
-            return response.IsSuccessStatusCode;
-        }
-
-        public async Task<(IEnumerable<SesionDto>, string)> ObtenerSesionesAsync()
-        {
-            var response = await _http.GetAsync($"{ApiBase}");
-            if (response.IsSuccessStatusCode)
-            {
-                var data = await response.Content.ReadFromJsonAsync<IEnumerable<SesionDto>>();
-                return (data ?? new List<SesionDto>(), "Sesiones cargadas");
-            }
-
-            var mensaje = await response.Content.ReadAsStringAsync();
-            return (new List<SesionDto>(), mensaje);
-        }
-
-        public async Task<List<InstructorDto>> ObtenerTodosInstructoresAsync()
-        {
-            return await _http.GetFromJsonAsync<List<InstructorDto>>("api/instructores") ?? new List<InstructorDto>();
-        }
-
-        public async Task<List<CaballoDto>> ObtenerTodosCaballosAsync()
-        {
-            return await _http.GetFromJsonAsync<List<CaballoDto>>("api/caballos") ?? new List<CaballoDto>();
-        }
-
     }
+
 }

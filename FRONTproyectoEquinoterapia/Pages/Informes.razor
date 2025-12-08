@@ -1,0 +1,178 @@
+﻿@page "/informes"
+@using FRONTproyectoEquinoterapia.Models
+@using FRONTproyectoEquinoterapia.Services
+@inject InformeService informeService
+@using Radzen
+@using Radzen.Blazor
+@using System.Globalization
+
+@inject ITokenProvider tokenProvider
+
+<h3 class="text-primary">Informes Mensuales</h3>
+
+<div class="row mb-3">
+    <div class="col-md-3">
+        <label for="mes">Mes:</label>
+        <select id="mes" class="form-select" @bind="mesSeleccionado">
+            @for (int m = 1; m <= 12; m++)
+            {
+                <option value="@m">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m)</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="anio">Año:</label>
+        <select id="anio" class="form-select" @bind="anioSeleccionado">
+            @for (int a = DateTime.Now.Year - 5; a <= DateTime.Now.Year; a++)
+            {
+                <option value="@a">@a</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-6 d-flex align-items-end">
+        <button class="btn btn-primary me-2" @onclick="CargarInforme">Generar Informe</button>
+        <button class="btn btn-secondary" @onclick="LimpiarInforme">Limpiar</button>
+    </div>
+</div>
+
+@if (mensajeGuardado != null)
+{
+    <div class="alert @claseMensaje" role="alert">
+        @mensajeGuardado
+    </div>
+}
+
+@if (estadisticas != null)
+{
+    <div class="mb-3">
+        <h5>Estadísticas del Mes</h5>
+        <ul>
+            <li>Total terapias: @estadisticas.TotalTerapias</li>
+            <li>Nuevos ingresos: @estadisticas.NuevosIngresos</li>
+        </ul>
+    </div>
+}
+
+@if (informe != null)
+{
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Situación</th>
+                    <th>Acciones</th>
+                    <th>Avances</th>
+                    <th>Trámite</th>
+                    <th>Observaciones</th>
+                    <th>Opciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var detalle in informe.Detalles)
+                {
+                    <tr>
+                        <td>@detalle.NumeroOrden</td>
+                        <td><input class="form-control" @bind="detalle.Situacion" /></td>
+                        <td><input class="form-control" @bind="detalle.Acciones" /></td>
+                        <td><input class="form-control" @bind="detalle.Avances" /></td>
+                        <td><input class="form-control" @bind="detalle.Tramite" /></td>
+                        <td><input class="form-control" @bind="detalle.Observaciones" /></td>
+                        <td>
+                            <button class="btn btn-sm btn-danger" @onclick="@(() => EliminarDetalle(detalle))">Eliminar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mb-3">
+        <button class="btn btn-success me-2" @onclick="GuardarInforme">Guardar Informe</button>
+        <button class="btn btn-warning" @onclick="AgregarDetalle">Agregar Detalle</button>
+    </div>
+}
+
+@code {
+    private InformeDto? informe;
+    private GetEstadisticasDto? estadisticas;
+
+    private int mesSeleccionado = DateTime.Now.Month;
+    private int anioSeleccionado = DateTime.Now.Year;
+
+    private string? mensajeGuardado;
+    private string claseMensaje = "alert-success";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarInforme();
+    }
+
+    private async Task CargarInforme()
+    {
+        try
+        {
+            mensajeGuardado = null;
+
+            // Token añadido automáticamente por InformeService
+            informe = await informeService.GetInformeAsync(mesSeleccionado, anioSeleccionado);
+            estadisticas = await informeService.GetEstadisticasAsync(mesSeleccionado, anioSeleccionado);
+        }
+        catch (Exception ex)
+        {
+            mensajeGuardado = $"Error al cargar informe: {ex.Message}";
+            claseMensaje = "alert-danger";
+        }
+    }
+
+    private void LimpiarInforme()
+    {
+        informe = null;
+        estadisticas = null;
+        mensajeGuardado = null;
+    }
+
+    private void AgregarDetalle()
+    {
+        if (informe == null) return;
+
+        int nuevoNumero = informe.Detalles.Count > 0
+            ? informe.Detalles.Max(d => d.NumeroOrden) + 1
+            : 1;
+
+        informe.Detalles.Add(new DetalleDto
+        {
+            NumeroOrden = nuevoNumero
+        });
+    }
+
+    private void EliminarDetalle(DetalleDto detalle)
+    {
+        if (informe == null) return;
+
+        informe.Detalles.Remove(detalle);
+    }
+
+    private async Task GuardarInforme()
+    {
+        if (informe == null) return;
+
+        try
+        {
+            var (exito, mensaje) = await informeService.GuardarInformeAsync(informe);
+            mensajeGuardado = mensaje;
+            claseMensaje = exito ? "alert-success" : "alert-danger";
+
+            if (exito)
+            {
+                // Refrescar estadísticas después de guardar
+                estadisticas = await informeService.GetEstadisticasAsync(mesSeleccionado, anioSeleccionado);
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeGuardado = $"Error al guardar informe: {ex.Message}";
+            claseMensaje = "alert-danger";
+        }
+    }
+}

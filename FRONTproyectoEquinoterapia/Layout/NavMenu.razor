@@ -7,11 +7,10 @@
     </div>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu" style="width:250px;">
+<div class="@NavMenuCssClass nav-scrollable">
     <RadzenPanelMenu Click="OnParentClicked" Style="width:100%;" Multiple="@multiple">
-        <!-- General -->
         <RadzenPanelMenuItem Text="Home" Path="home" Icon="home"></RadzenPanelMenuItem>
-        <RadzenPanelMenuItem Text="Counter" Path="counter"></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Text="Informes" Path="Informes" Icon="Assessment"></RadzenPanelMenuItem>
         <RadzenPanelMenuItem Text="Pacientes" Path="Pacientes" Icon="account_circle"></RadzenPanelMenuItem>
         <RadzenPanelMenuItem Text="Instructores" Path="Instructores" Icon="Psychology"></RadzenPanelMenuItem>
         <RadzenPanelMenuItem Text="Caballos" Path="Caballos" Icon="Psychology"></RadzenPanelMenuItem>
@@ -19,6 +18,7 @@
         <RadzenPanelMenuItem Text="Weather" Path="weather" Icon="list"></RadzenPanelMenuItem>
     </RadzenPanelMenu>
 </div>
+
 
 @code {
     private bool collapseNavMenu = true;
