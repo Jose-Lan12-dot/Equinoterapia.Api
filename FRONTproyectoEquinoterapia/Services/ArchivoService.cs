@@ -117,7 +117,7 @@ namespace FRONTproyectoEquinoterapia.Services
         // Obtener tipos de archivo desde backend
         public async Task<List<TipoArchivoDto>> ObtenerTiposAsync()
         {
-            var response = await _http.GetFromJsonAsync<List<TipoArchivoDto>>("https://localhost:7280/obtener-tipoarchivo");
+            var response = await _http.GetFromJsonAsync<List<TipoArchivoDto>>("https://localhost:7280/api/archivos/obtener-tipoarchivo");
             return response ?? new List<TipoArchivoDto>();
         }
 
