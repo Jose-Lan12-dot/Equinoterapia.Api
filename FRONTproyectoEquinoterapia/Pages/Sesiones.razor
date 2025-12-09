@@ -1,7 +1,7 @@
 ﻿@page "/sesiones"
 @using FRONTproyectoEquinoterapia.Models
-@inject FRONTproyectoEquinoterapia.Services.SesionService SesionService
 
+@inject FRONTproyectoEquinoterapia.Services.SesionesService SesionesService
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h3>Sesiones</h3>
@@ -22,12 +22,8 @@
     <RadzenMonthView />
 </RadzenScheduler>
 
-
-
 <AgregarSesionDialog @ref="agregarDialog" OnSesionAgregada="RefrescarCalendario" />
 <DetalleSesionDialog @ref="detallesDialog" OnSesionActualizada="RefrescarCalendario" />
-
-
 
 @code {
     private RadzenScheduler<Appointment> scheduler;
@@ -41,26 +37,25 @@
         await CargarSesiones();
     }
 
-    private DateTime CombinarFechaHora(DateOnly fecha, TimeOnly hora) => fecha.ToDateTime(hora);
+    private DateTime CombinarFechaHora(string fecha, string hora)
+    {
+        var f = DateTime.Parse(fecha);
+        var h = TimeSpan.Parse(hora);
+        return f.Date + h;
+    }
 
     private async Task CargarSesiones()
     {
-        var (sesiones, mensaje) = await SesionService.ObtenerSesionesAsync();
+        var sesiones = await SesionesService.GetAllAsync();
 
-        // Aquí no necesitamos instructores ni caballos por ahora
         appointments = sesiones.Select(s => new Appointment
         {
             Start = CombinarFechaHora(s.Fecha, s.Hora),
             End = CombinarFechaHora(s.Fecha, s.Hora).AddHours(1),
-            Text = $"Sesión: {s.Hora:hh\\:mm}", // Solo mostramos la hora
-            ColorInstructor = s.ColorInstructor ?? "#378006",
+            Text = $"Sesión: {s.Hora}",
             SesionId = s.SesionId
         }).ToList();
     }
-
-
-
-
 
     private async Task RefrescarCalendario()
     {

@@ -1,0 +1,143 @@
+﻿@page "/"
+
+@using FRONTproyectoEquinoterapia.Models
+@using FRONTproyectoEquinoterapia.Services
+@using Radzen
+@using Radzen.Blazor
+@inject InicioSesionService InicioSesionService
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager NavigationManager
+
+<!-- Encabezado institucional -->
+<header style="
+    width:100%;
+    background:linear-gradient(90deg,#A0102C 0%,#B81131 40%,#c61f68 100%);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    box-shadow:0 4px 15px rgba(0,0,0,0.15);
+">
+    <img src="images/banner_gobierno.png" alt="Gobierno de Chiapas"
+         style="width:auto; max-height:70px; padding:12px 0;" />
+</header>
+
+<main style="
+    min-height:calc(100vh - 70px);
+    background:linear-gradient(135deg,#f8fafc 0%,#eef1f6 100%);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:'Montserrat','Roboto',sans-serif;
+    padding:20px;
+">
+    <div style="
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        width:100%;
+        max-width:400px;
+        background:white;
+        border-radius:24px;
+        box-shadow:0 8px 35px rgba(0,0,0,0.1);
+        padding:50px 36px;
+        position:relative;
+        overflow:hidden;
+        transition:transform 0.3s ease, box-shadow 0.3s ease;
+    "
+         onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 45px rgba(0,0,0,0.12)';"
+         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 35px rgba(0,0,0,0.1)';">
+
+        <!-- Fondo decorativo circular -->
+        <div style="
+            position:absolute;
+            top:-100px;
+            right:-100px;
+            width:220px;
+            height:220px;
+            border-radius:50%;
+            background:radial-gradient(circle at 30% 30%, #c61f68 0%, transparent 70%);
+            opacity:0.08;
+        "></div>
+
+        <!-- Título -->
+        <RadzenLabel Text="Sistema de Gestión de Equinoterapia"
+                     Style="font-weight:800; color:#222; text-align:center; margin-bottom:8px; letter-spacing:0.7px; font-size:1.4rem;" />
+        <RadzenLabel Text="Accede a tu cuenta para continuar"
+                     Style="color:#666; text-align:center; margin-bottom:24px; font-size:0.95rem;" />
+
+        <!-- Campos -->
+        <RadzenTextBox @bind-Value="usuario"
+                       Name="Usuario"
+                       Placeholder="Usuario"
+                       Style="width:100%; border-radius:10px; margin-bottom:12px;" />
+
+        <RadzenPassword @bind-Value="contrasena"
+                        Name="Contraseña"
+                        Placeholder="Contraseña"
+                        Style="width:100%; border-radius:10px; margin-bottom:18px;" />
+
+        <!-- Botón con efecto hover -->
+        <RadzenButton Text="Iniciar sesión"
+                      Style="width:100%;
+                             margin-top:15px;
+                             background:linear-gradient(90deg,#B81131,#c61f68);
+                             color:white; font-weight:700; font-size:1rem;
+                             padding:12px 0; border-radius:10px;
+                             box-shadow:0 4px 14px rgba(184,17,49,0.25);
+                             transition:all 0.3s ease;
+                             cursor:pointer;"
+                      onmouseover="this.style.filter='brightness(1.1)'; this.style.boxShadow='0 6px 18px rgba(184,17,49,0.35)';"
+                      onmouseout="this.style.filter='brightness(1)'; this.style.boxShadow='0 4px 14px rgba(184,17,49,0.25)';"
+                      Click="@IniciarSesion" />
+
+        <!-- Link de recuperación con efecto hover -->
+        <div style="display:flex; align-items:center; justify-content:center; margin-top:20px; cursor:pointer;"
+             onclick="@RecuperarContrasena"
+             onmouseover="this.style.textDecoration='underline'; this.style.color='#B81131';"
+             onmouseout="this.style.textDecoration='none'; this.style.color='#555';">
+            <RadzenLabel Text="¿Olvidaste tu contraseña?"
+                         Style="color:#555; font-size:0.9rem; transition:all 0.25s ease;" />
+        </div>
+
+        <!-- Mensaje de alerta -->
+        @if (!string.IsNullOrEmpty(mensaje))
+        {
+            <RadzenAlert Severity="AlertSeverity.Error"
+                         Style="width:100%; margin-top:15px;
+                                    background:rgba(184,17,49,0.07);
+                                    border-left:4px solid #B81131;
+                                    border-radius:6px; color:#B81131;">
+                @mensaje
+            </RadzenAlert>
+        }
+    </div>
+</main>
+
+
+@code {
+    private string usuario = string.Empty;
+    private string contrasena = string.Empty;
+    private string mensaje = string.Empty;
+
+    private async Task IniciarSesion()
+    {
+        var datos = new InicioSesionModel { usuario = usuario, contrasena = contrasena };
+        var (mensajeServidor, estado,token) = await InicioSesionService.AccesoAsync(datos);
+
+        if (estado)
+        {
+            await localStorage.SetItemAsync("token", token);
+            NavigationManager.NavigateTo("/home");
+        }
+        else
+        {
+            mensaje = mensajeServidor;
+        }
+    }
+
+    private void RecuperarContrasena()
+    {
+        NavigationManager.NavigateTo("/recuperarContrase");
+    }
+}

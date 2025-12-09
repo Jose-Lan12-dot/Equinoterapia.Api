@@ -30,7 +30,7 @@ namespace FRONTproyectoEquinoterapia.Models
     public class AddPacienteDto
     {
         public string Nombre { get; set; } = string.Empty;
-        public DateTime FechaNacimiento { get; set; }
+        public DateOnly FechaNacimiento { get; set; }
         public string Tutor { get; set; } = string.Empty;
         public string TelefonoTutor { get; set; } = string.Empty;
         public string Genero { get; set; } = string.Empty;
@@ -39,16 +39,8 @@ namespace FRONTproyectoEquinoterapia.Models
 
     public class AddPacienteConArchivosDto
     {
-        public AddPacienteDto Paciente { get; set; } = new AddPacienteDto();
-
-        // Aquí van tus archivos como IFormFile
-        public IBrowserFile? DiagnosticoMedico { get; set; }
-        public IBrowserFile? CertificadoMedico { get; set; }
-        public IBrowserFile? ActaNacimiento { get; set; }
-        public IBrowserFile? Curp { get; set; }
-        public IBrowserFile? ComprobanteDomicilio { get; set; }
-        public IBrowserFile? IneTutor { get; set; }
-        public IBrowserFile? Fotografia { get; set; }
+        public AddPacienteDto Paciente { get; set; } = new();
+        public List<AddArchivoBlazorDto> Archivos { get; set; } = new(); // lista vacía si no hay archivos
     }
 
     public class UpdatePacienteDto
@@ -78,11 +70,12 @@ namespace FRONTproyectoEquinoterapia.Models
 
     public class PacienteDetailsDto
     {
-        public int Id { get; set; }
+        public int PacienteId { get; set; }
         public string Nombre { get; set; } = string.Empty;
         public string Tutor { get; set; } = string.Empty;
         public string TelefonoTutor { get; set; } = string.Empty;
         public string Genero { get; set; } = string.Empty;
+        public string Estado { get; set; } = "";
         public int NumeroFaltas { get; set; }
         public bool FaltaEvaluacion { get; set; }
         public List<ArchivoDTO> Archivos { get; set; } = new();

@@ -72,17 +72,10 @@
 
             <RadzenDataGridColumn TItem="AllPacienteDto" Title="Operaciones">
                 <Template Context="p">
-
                     <div class="btn-group">
-
                         <RadzenButton Icon="visibility"
                                       ButtonStyle="ButtonStyle.Info"
                                       Click="@(args => VerPaciente(p.PacienteId))"
-                                      Size="ButtonSize.Small" />
-
-                        <RadzenButton Icon="edit"
-                                      ButtonStyle="ButtonStyle.Primary"
-                                      Click="@(args => EditarPaciente(p))"
                                       Size="ButtonSize.Small" />
 
                         <RadzenButton Icon="delete"
@@ -90,10 +83,15 @@
                                       Click="@(args => ConfirmarEliminarConJs(p))"
                                       Size="ButtonSize.Small" />
 
-                    </div>
+                        <RadzenButton ButtonStyle="@(p.FormularioHecho? ButtonStyle.Success: ButtonStyle.Warning)"
+                                      Click="@(args => IrAEvaluacion(p.PacienteId, p.FormularioHecho))"
+                                      Size="ButtonSize.Small"
+                                      Text="@(p.FormularioHecho ? "Evaluación Completada" : "Realizar Evaluación")" />
 
+                    </div>
                 </Template>
             </RadzenDataGridColumn>
+
 
         </Columns>
 
@@ -179,6 +177,12 @@
     {
         Navigation.NavigateTo($"/editar-paciente/{paciente.PacienteId}");
     }
+    void IrAEvaluacion(int pacienteId)
+    {
+        Navigation.NavigateTo($"/evaluacion/{pacienteId}");
+    }
+
+
 
     [Inject] IJSRuntime JS { get; set; }
 
@@ -255,6 +259,22 @@
         }
     }
 
+    //manda a la evaluacion existente }
+    void IrAEvaluacion(int pacienteId, bool formularioHecho)
+    {
+        if (formularioHecho)
+        {
+            // Ya existe evaluación → Editar/Ver evaluación
+            Navigation.NavigateTo($"/editar-evaluacion/{pacienteId}");
+            
+        }
+        else
+        {
+            // No existe evaluación → Crear evaluación
+            Navigation.NavigateTo($"/evaluacion/{pacienteId}");
+            
+        }
+    }
 
 
     private async Task CargarPacientes()

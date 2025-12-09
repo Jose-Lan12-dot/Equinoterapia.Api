@@ -17,48 +17,68 @@ namespace FRONTproyectoEquinoterapia.Services
         // ===========================
         // Subir archivo
         // ===========================
-        public async Task<(bool exito, string mensaje)> SubirArchivoAsync(int pacienteId, AddArchivoBlazorDto archivo)
+        public async Task<(bool exito, string mensaje)> SubirArchivoAsync(int pacienteId, IBrowserFile file, string nombreArchivo)
         {
-            using var formData = new MultipartFormDataContent();
+            try
+            {
+                // Validar tamaño máximo 20 MB
+                if (file.Size > 20_000_000)
+                    return (false, "El archivo es demasiado grande. Máximo permitido: 20 MB.");
 
-            // Enviar solo lo que el backend pide: Nombre + Archivo
-            formData.Add(new StringContent(archivo.Nombre ?? ""), "Nombre");
+                using var stream = file.OpenReadStream(maxAllowedSize: 20_000_000);
+                using var ms = new MemoryStream();
+                await stream.CopyToAsync(ms);
 
-            var streamContent = new StreamContent(archivo.Archivo.OpenReadStream(10 * 1024 * 1024));
-            streamContent.Headers.ContentType = new MediaTypeHeaderValue(archivo.Archivo.ContentType);
-            formData.Add(streamContent, "Archivo", archivo.Archivo.Name);
+                var dto = new AddArchivoBlazorDto
+                {
+                    Nombre = nombreArchivo,
+                    Archivo = ms.ToArray()
+                };
 
-            var response = await _http.PostAsync($"https://localhost:7280/api/pacientes/{pacienteId}/archivos", formData);
-            if (response.IsSuccessStatusCode)
-                return (true, "Archivo subido correctamente");
+                var response = await _http.PostAsJsonAsync($"api/pacientes/{pacienteId}/archivos", dto);
 
-            var error = await response.Content.ReadAsStringAsync();
-            return (false, $"Error: {response.StatusCode} - {error}");
+                if (!response.IsSuccessStatusCode)
+                    return (false, "Error al subir el archivo.");
+
+                return (true, "Archivo subido correctamente.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool exito, string mensaje)> ActualizarArchivoAsync(int pacienteId, IBrowserFile file, string nombreArchivo)
+        {
+            try
+            {
+                if (file.Size > 20_000_000)
+                    return (false, "El archivo es demasiado grande. Máximo permitido: 20 MB.");
+
+                using var stream = file.OpenReadStream(maxAllowedSize: 20_000_000);
+                using var ms = new MemoryStream();
+                await stream.CopyToAsync(ms);
+
+                var dto = new UpdateArchivoBlazorDto
+                {
+                    Nombre = nombreArchivo,
+                    Archivo = ms.ToArray()
+                };
+
+                var response = await _http.PutAsJsonAsync($"api/pacientes/{pacienteId}/archivos", dto);
+
+                if (!response.IsSuccessStatusCode)
+                    return (false, "Error al actualizar el archivo.");
+
+                return (true, "Archivo actualizado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}");
+            }
         }
 
 
-
-        // ===========================
-        // Actualizar archivo
-        // ===========================
-        public async Task<(bool exito, string mensaje)> ActualizarArchivoAsync(int pacienteId, UpdateArchivoBlazorDto archivo)
-        {
-            using var formData = new MultipartFormDataContent();
-
-            formData.Add(new StringContent(archivo.Nombre ?? ""), "Nombre");
-
-            var streamContent = new StreamContent(archivo.Archivo.OpenReadStream(10 * 1024 * 1024));
-            streamContent.Headers.ContentType = new MediaTypeHeaderValue(archivo.Archivo.ContentType);
-            formData.Add(streamContent, "Archivo", archivo.Archivo.Name);
-
-            var response = await _http.PutAsync($"https://localhost:7280/api/pacientes/{pacienteId}/archivos", formData);
-
-            if (response.IsSuccessStatusCode)
-                return (true, "Archivo actualizado correctamente");
-
-            var error = await response.Content.ReadAsStringAsync();
-            return (false, $"Error: {response.StatusCode} - {error}");
-        }
 
         // ===========================
         // Eliminar archivo

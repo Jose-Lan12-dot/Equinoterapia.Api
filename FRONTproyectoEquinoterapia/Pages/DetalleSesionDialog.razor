@@ -1,10 +1,14 @@
 ﻿@using FRONTproyectoEquinoterapia.Models
+@using FRONTproyectoEquinoterapia.Services
 @inject Radzen.DialogService DialogService
-@inject FRONTproyectoEquinoterapia.Services.AsistenciaService AsistenciaService
-@inject FRONTproyectoEquinoterapia.Services.SesionService SesionService
 @inject FRONTproyectoEquinoterapia.Services.InstructorService InstructorService
 @inject FRONTproyectoEquinoterapia.Services.CaballoService CaballoService
 @inject IJSRuntime JS
+@inject SesionesService SesionService
+@inject AsistenciasService AsistenciaService
+
+
+
 
 @if (Visible)
 {
@@ -16,9 +20,11 @@
                     <button type="button" class="btn-close" @onclick="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                    
-                    <p><strong>Fecha:</strong> @Sesion.Fecha.ToString("dd/MM/yyyy")</p>
-                    <p><strong>Hora:</strong> @Sesion.Hora.ToString(@"hh\:mm")</p>
+
+                    <p><strong>Fecha:</strong> @(DateOnly.Parse(Sesion.Fecha).ToString("dd/MM/yyyy"))</p>
+                    <p><strong>Hora:</strong> @(TimeOnly.Parse(Sesion.Hora).ToString(@"hh\:mm"))</p>
+                    <p><strong>Instructor:</strong> @Sesion.nombreInstructor</p>
+                    <p><strong>Caballo:</strong> @Sesion.nombreCaballo</p>
 
                     <h6>Pacientes:</h6>
                     <ul>
@@ -46,8 +52,8 @@
 
 @code {
     private bool Visible { get; set; }
-    private SesionDto Sesion { get; set; } = new();
-    private List<PacienteDto> Pacientes = new();
+    private GetOneSesionDto Sesion { get; set; } = new();
+    private List<AllPacienteDto> Pacientes { get; set; } = new();
 
     private AgregarPacientesDialog AgregarPacientesDialogRef;
     private bool ModalAgregarVisible = false;
@@ -62,26 +68,16 @@
             return;
         }
 
-        // Obtener la sesión desde el servicio
-        var resultado = await SesionService.ObtenerSesionPorIdAsync(appt.SesionId.Value);
-        SesionDto? sesionDto = resultado.Item1;
-        string mensaje = resultado.Item2;
-
-        if (sesionDto == null)
+        // Obtener sesión por ID usando SesionesService
+        Sesion = await SesionService.GetByIdAsync(appt.SesionId.Value);
+        if (Sesion == null)
         {
-            await JS.InvokeVoidAsync("alert", $"No se pudo obtener la sesión: {mensaje}");
+            await JS.InvokeVoidAsync("alert", "No se pudo obtener la sesión.");
             return;
         }
 
-        // Nombres nunca nulos
-        sesionDto.InstructorNombre ??= "Sin Instructor";
-        sesionDto.CaballoNombre ??= "Sin Caballo";
-
-        Sesion = sesionDto;
-
-        // Traer los pacientes de la sesión
-        var pacientesList = await AsistenciaService.ObtenerPacientesPorSesionAsync(appt.SesionId.Value);
-        Pacientes = pacientesList ?? new List<PacienteDto>();
+        // Traer pacientes de la sesión usando el servicio de Asistencias
+        Pacientes = await AsistenciaService.ObtenerPorSesionAsync(Sesion.SesionId) ?? new List<AllPacienteDto>();
 
         Visible = true;
         StateHasChanged();
@@ -95,8 +91,7 @@
 
     private async Task RecargarPacientes()
     {
-        var lista = await AsistenciaService.ObtenerPacientesPorSesionAsync(Sesion.SesionId);
-        Pacientes = lista ?? new List<PacienteDto>();
+        Pacientes = await AsistenciaService.ObtenerPorSesionAsync(Sesion.SesionId) ?? new List<AllPacienteDto>();
         StateHasChanged();
     }
 
@@ -108,13 +103,16 @@
 
     private async Task EliminarSesion()
     {
-        var exito = await SesionService.EliminarSesionAsync(Sesion.SesionId, JS);
+        bool exito = await SesionService.DeleteAsync(Sesion.SesionId);
         if (exito)
         {
             await Cerrar();
             if (OnSesionActualizada.HasDelegate)
                 await OnSesionActualizada.InvokeAsync();
         }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "No se pudo eliminar la sesión.");
+        }
     }
 }
-

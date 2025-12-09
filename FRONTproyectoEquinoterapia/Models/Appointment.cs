@@ -7,16 +7,15 @@
         public string Text { get; set; } = string.Empty;
         public string? ColorInstructor { get; set; }
 
-        // metadata que necesitamos en frontend
+        // metadata para frontend
         public int? SesionId { get; set; }
         public int? InstructorId { get; set; }
         public int? CaballoId { get; set; }
-        public List<int>? PacienteIds { get; set; }
+        public List<int> PacienteIds { get; set; } = new();
 
-        // nombre para mostrar (llenado en frontend)
+        // nombre para mostrar
         public string? InstructorNombre { get; set; }
     }
-
 
 }
 
