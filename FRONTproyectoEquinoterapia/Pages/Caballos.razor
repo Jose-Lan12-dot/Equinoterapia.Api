@@ -1,11 +1,9 @@
 ﻿@page "/caballos"
 @using FRONTproyectoEquinoterapia.Services
 @using FRONTproyectoEquinoterapia.Models
-@inject CaballoService caballoService
+@inject CaballoService CaballoService
 @inject HttpClient Http
 @inject NavigationManager Navigation
-@inject CaballoService caballoService
-@inject CaballoService CaballoService
 @inject NotificationService NotificationService
 @inject DialogService DialogService
 @using Radzen
@@ -34,16 +32,17 @@
                 AllowFiltering="true" AllowPaging="true" AllowSorting="true" PageSize="5">
     <Columns>
         <RadzenDataGridColumn TItem="CaballoDto" Property="CaballoId" Title="ID" />
-        <RadzenDataGridColumn TItem="CaballoDto" Property="Placa" Title="Placa" />
         <RadzenDataGridColumn TItem="CaballoDto" Property="Nombre" Title="Nombre" />
         <RadzenDataGridColumn TItem="CaballoDto" Property="Estado" Title="Estado" />
         <RadzenDataGridColumn TItem="CaballoDto" Property="FechaHerraje" Title="Fecha de Herraje" />
-        <RadzenDataGridColumn TItem="CaballoDto" Property="Padecimiento" Title="Padecimiento" />
         <RadzenDataGridColumn TItem="CaballoDto" Title="Operaciones">
             <Template Context="c">
                 <RadzenButton Icon="visibility" ButtonStyle="ButtonStyle.Info" Size="ButtonSize.Small" Click="@(() => VerCaballo(c.CaballoId))" />
-                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Click="@(() => EditarCaballo(c))" Style="margin-left:5px" />
-                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => EliminarCaballo(c))" />
+                 <RadzenButton Icon="delete"
+                              ButtonStyle="ButtonStyle.Danger"
+                              Click="@(args => ConfirmarEliminarConJs(c))"
+                              Size="ButtonSize.Small" />
+
             </Template>
         </RadzenDataGridColumn>
     </Columns>
@@ -117,6 +116,7 @@
 
     void VerCaballo(int id)
     {
+
         Navigation.NavigateTo($"/detalle-caballo/{id}");
     }
 
@@ -125,33 +125,39 @@
         Navigation.NavigateTo($"/editar-caballo/{caballo.CaballoId}");
     }
 
-    async void EliminarCaballo(CaballoDto caballo)
+    [Inject] IJSRuntime JS { get; set; }
+    
+
+    private async Task ConfirmarEliminarConJs(CaballoDto caballo)
     {
-        bool? confirmadoNullable = await DialogService.Confirm("¿Deseas eliminar este caballo?", "Confirmar");
-        bool confirmado = confirmadoNullable ?? false;
-        if (confirmado)
+        if (caballo == null) return;
+
+        bool confirm = await JS.InvokeAsync<bool>("confirm",
+            $"¿Seguro que deseas eliminar al caballo \"{caballo.Nombre}\"? Esta acción no se puede deshacer.");
+
+        if (!confirm) return;
+
+        bool exito = await CaballoService.DeleteAsync(caballo.CaballoId);
+
+        if (exito)
         {
-            bool exito = await CaballoService.DeleteAsync(caballo.CaballoId);
-            if (exito)
+            caballos.Remove(caballo);      // Eliminamos de la lista local
+            AplicarFiltros();              // Actualizamos la tabla
+            NotificationService.Notify(new NotificationMessage
             {
-                caballos.Remove(caballo);
-                AplicarFiltros();
-                NotificationService.Notify(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Success,
-                    Summary = "Éxito",
-                    Detail = "Caballo eliminado correctamente"
-                });
-            }
-            else
+                Severity = NotificationSeverity.Success,
+                Summary = "Caballo eliminado",
+                Detail = $"Se eliminó correctamente el caballo \"{caballo.Nombre}\"."
+            });
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage
             {
-                NotificationService.Notify(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Error,
-                    Summary = "Error",
-                    Detail = "No se pudo eliminar el caballo"
-                });
-            }
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = "No se pudo eliminar el caballo."
+            });
         }
     }
 }

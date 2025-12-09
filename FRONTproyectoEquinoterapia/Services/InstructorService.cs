@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using FRONTproyectoEquinoterapia.Models;
 
+
 namespace FRONTproyectoEquinoterapia.Services
 {
     public class InstructorService
@@ -12,23 +13,16 @@ namespace FRONTproyectoEquinoterapia.Services
             _http = http;
         }
 
-        private class InstructorResponse
-        {
-            public string Mensaje { get; set; } = "";
-            public List<InstructorDto> Instructores { get; set; } = new();
-        }
-
         public async Task<List<InstructorDto>> GetAllAsync()
         {
-            // Llama a la ruta correcta
             var response = await _http.GetFromJsonAsync<List<InstructorDto>>("api/instructores");
             return response ?? new List<InstructorDto>();
         }
 
         public async Task<InstructorDto?> GetByIdAsync(int id)
         {
-            var result = await _http.GetFromJsonAsync<InstructorDto>($"api/instructores/{id}");
-            return result;
+            var response = await _http.GetFromJsonAsync<InstructorDto>($"api/instructores/{id}");
+            return response;
         }
 
         public async Task<bool> AddAsync(AddInstructorDto dto)
@@ -37,7 +31,7 @@ namespace FRONTproyectoEquinoterapia.Services
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> UpdatePartialAsync(int id, InstructorDto dto)
+        public async Task<bool> UpdatePartialAsync(int id, UpdateInstructorDto dto)
         {
             var response = await _http.PatchAsJsonAsync($"api/instructores/{id}", dto);
             return response.IsSuccessStatusCode;

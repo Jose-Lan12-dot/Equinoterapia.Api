@@ -1,57 +1,92 @@
 ﻿@page "/agregar-caballo"
 @inject NavigationManager Navigation
-@using FRONTproyectoEquinoterapia.Models
 @inject FRONTproyectoEquinoterapia.Services.CaballoService CaballoService
 @inject IJSRuntime JS
+@using Radzen
+@using Radzen.Blazor
+@using FRONTproyectoEquinoterapia.Models
 
 <h3>Agregar Caballo</h3>
 
 <div class="mb-3">
     <label>Placa:</label>
-    <RadzenTextBox @bind-Value="NuevoCaballo.Placa" Style="width:250px" />
+    <RadzenTextBox @bind-Value="NuevoCaballo.Placa" Style="width:250px" Placeholder="Ingresa la placa" />
 </div>
 
 <div class="mb-3">
     <label>Nombre:</label>
-    <RadzenTextBox @bind-Value="NuevoCaballo.Nombre" Style="width:250px" />
+    <RadzenTextBox @bind-Value="NuevoCaballo.Nombre" Style="width:250px" Placeholder="Ingresa el nombre" />
 </div>
 
 <div class="mb-3">
     <label>Fecha de Herraje:</label>
-    <RadzenDatePicker @bind-Value="NuevoCaballo.FechaHerraje" Style="width:250px" />
+    <RadzenDatePicker @bind-Value="fechaHerrajeTemp" Style="width:250px" />
 </div>
 
 <div class="mb-3">
     <label>Padecimiento:</label>
-    <RadzenTextBox @bind-Value="NuevoCaballo.Padecimiento" Style="width:250px" />
+    <RadzenTextBox @bind-Value="NuevoCaballo.Padecimiento" Style="width:250px" Placeholder="Opcional" />
 </div>
 
 <RadzenButton Text="Guardar" Click="@GuardarCaballo" ButtonStyle="ButtonStyle.Primary" Style="margin-right:10px" />
 <RadzenButton Text="Cancelar" Click="@Cancelar" ButtonStyle="ButtonStyle.Secondary" />
 
 @code {
-    private AddCaballoDto NuevoCaballo = new AddCaballoDto
-    {
-        FechaHerraje = DateTime.Now
-    };
+    private AddCaballoDto NuevoCaballo = new AddCaballoDto();
+    // Para enlazar con RadzenDatePicker
+    private DateTime fechaHerrajeTemp = DateTime.Now;
+
 
     private async Task GuardarCaballo()
     {
-        if (string.IsNullOrWhiteSpace(NuevoCaballo.Placa) || string.IsNullOrWhiteSpace(NuevoCaballo.Nombre))
+        // Validaciones
+        if (string.IsNullOrWhiteSpace(NuevoCaballo.Placa))
         {
-            await JS.InvokeVoidAsync("alert", "Placa y Nombre son obligatorios.");
+            await JS.InvokeVoidAsync("alert", "La placa es obligatoria.");
+            return;
+        }
+        if (NuevoCaballo.Placa.Length != 10)
+        {
+            await JS.InvokeVoidAsync("alert", "La placa debe tener 10 caracteres.");
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(NuevoCaballo.Nombre))
+        {
+            await JS.InvokeVoidAsync("alert", "El nombre es obligatorio.");
+            return;
+        }
+        if (DateOnly.FromDateTime(fechaHerrajeTemp) > DateOnly.FromDateTime(DateTime.Now))
+        {
+            await JS.InvokeVoidAsync("alert", "La fecha de herraje no puede ser futura.");
             return;
         }
 
-        var exito = await CaballoService.AddAsync(NuevoCaballo);
-        if (exito)
+
+        
+        // Asignamos la fecha al DTO
+        NuevoCaballo.FechaHerraje = DateOnly.FromDateTime(fechaHerrajeTemp);
+
+
+
+
+        try
         {
-            await JS.InvokeVoidAsync("alert", "Caballo agregado correctamente.");
-            Navigation.NavigateTo("/caballos");
+            // Llamamos al servicio que ya maneja DateOnly con JsonConverter
+            var exito = await CaballoService.AddAsync(NuevoCaballo);
+
+            if (exito)
+            {
+                await JS.InvokeVoidAsync("alert", "Caballo agregado correctamente.");
+                Navigation.NavigateTo("/caballos");
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Error al agregar el caballo.");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            await JS.InvokeVoidAsync("alert", "Error al agregar el caballo.");
+            await JS.InvokeVoidAsync("alert", $"Error al agregar el caballo: {ex.Message}");
         }
     }
 
@@ -60,4 +95,3 @@
         Navigation.NavigateTo("/caballos");
     }
 }
-

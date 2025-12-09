@@ -51,14 +51,19 @@ namespace FRONTproyectoEquinoterapia.Services
         public async Task<(bool ok, string mensaje)> CreateAsync(AddSesionDto dto)
         {
             var res = await _http.PostAsJsonAsync("api/sesiones", dto);
+
             if (!res.IsSuccessStatusCode)
             {
-                var err = await res.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-                return (false, err?["Mensaje"] ?? "Error");
+                // Leer como Dictionary<string, object>
+                var err = await res.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+                return (false, err != null && err.ContainsKey("Mensaje") ? err["Mensaje"].ToString()! : "Error");
             }
-            var okObj = await res.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-            return (true, okObj?["Mensaje"] ?? "Creado");
+
+            // Para cuando es exitoso
+            var okObj = await res.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+            return (true, okObj != null && okObj.ContainsKey("Mensaje") ? okObj["Mensaje"].ToString()! : "Creado");
         }
+
 
         public async Task<bool> UpdateAsync(int id, UpdateSesionDto dto)
         {

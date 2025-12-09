@@ -7,9 +7,6 @@
 @inject SesionesService SesionService
 @inject AsistenciasService AsistenciaService
 
-
-
-
 @if (Visible)
 {
     <div class="modal show d-block" tabindex="-1">
@@ -21,83 +18,238 @@
                 </div>
                 <div class="modal-body">
 
-                    <p><strong>Fecha:</strong> @(DateOnly.Parse(Sesion.Fecha).ToString("dd/MM/yyyy"))</p>
-                    <p><strong>Hora:</strong> @(TimeOnly.Parse(Sesion.Hora).ToString(@"hh\:mm"))</p>
-                    <p><strong>Instructor:</strong> @Sesion.nombreInstructor</p>
-                    <p><strong>Caballo:</strong> @Sesion.nombreCaballo</p>
+                    @if (!EditarActivo)
+                    {
+                        <p><strong>Fecha:</strong> @(Fecha.ToString("dd/MM/yyyy"))</p>
+                        <p><strong>Hora:</strong> @(Hora.ToString(@"hh\:mm"))</p>
+                        <p><strong>Instructor:</strong> @Sesion.nombreInstructor</p>
+                        <p><strong>Caballo:</strong> @Sesion.nombreCaballo</p>
+                    }
+                    else
+                    {
+                        <EditForm Model="Sesion" OnValidSubmit="GuardarEdicion">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="mb-3">
+                                <label>Fecha</label>
+                                <InputDate @bind-Value="Fecha" class="form-control" />
+                            </div>
+                            <div class="mb-3">
+                                <label>Hora (HH:mm)</label>
+                                <InputTime @bind="Hora" class="form-control" />
+                            </div>
+                            <div class="mb-3">
+                                <label>Instructor</label>
+                                <InputSelect @bind-Value="Sesion.InstructorId" class="form-control">
+                                    @foreach (var i in Instructores)
+                                    {
+                                        <option value="@i.Id">@i.Nombre</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="mb-3">
+                                <label>Caballo</label>
+                                <InputSelect @bind-Value="Sesion.CaballoId" class="form-control">
+                                    @foreach (var c in Caballos)
+                                    {
+                                        <option value="@c.Id">@c.Nombre</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                            <button type="button" class="btn btn-secondary ms-2" @onclick="CancelarEdicion">Cancelar</button>
+                        </EditForm>
+                    }
 
                     <h6>Pacientes:</h6>
                     <ul>
                         @foreach (var p in Pacientes)
                         {
-                            <li>@p.Nombre</li>
+                            <li>
+                                @p.nombre
+                                @if (EditarActivo)
+                                {
+                                    <button class="btn btn-sm btn-danger ms-2" @onclick="() => QuitarPaciente(p)">Quitar</button>
+                                }
+                            </li>
                         }
                     </ul>
+
+                    <button class="btn btn-outline-secondary mt-2" @onclick="ActivarPaseLista">
+                        Pasar lista
+                    </button>
+
+                    @if (PasarListaActiva)
+                    {
+                        <ul>
+                            @foreach (var p in Pacientes)
+                            {
+                                <li>
+                                    @p.nombre
+                                    <input type="checkbox" @bind="p.Asistio" class="ms-2" /> Asistió
+                                </li>
+                            }
+                        </ul>
+                        <button class="btn btn-success mt-2" @onclick="GuardarAsistencia">Guardar lista</button>
+                    }
+
+                    <button class="btn btn-outline-primary btn-sm" @onclick="ActivarEdicion">
+                        <i class="bi bi-pencil"></i> Editar sesión
+                    </button>
 
                     <button class="btn btn-outline-primary" @onclick="AbrirAgregarPacientes">
                         <i class="bi bi-person-plus"></i> Agregar Paciente
                     </button>
 
-                    <AgregarPacientesDialog @ref="AgregarPacientesDialogRef"
-                                            OnPacientesAgregados="RecargarPacientes"
-                                            VisibleChanged="@((v) => ModalAgregarVisible = v)" />
-
                     <button class="btn btn-danger ms-2" @onclick="EliminarSesion">Eliminar Sesión</button>
+
                 </div>
             </div>
         </div>
     </div>
     <div class="modal-backdrop show"></div>
+
+    <!-- Dialog de agregar pacientes -->
+    <AgregarPacientesDialog @ref="AgregarPacientesDialogRef"
+                            OnPacientesAgregados="RecargarPacientes" />
 }
 
 @code {
     private bool Visible { get; set; }
     private GetOneSesionDto Sesion { get; set; } = new();
-    private List<AllPacienteDto> Pacientes { get; set; } = new();
-
+    private bool EditarActivo = false;
+    private bool PasarListaActiva = false;
+    private List<GetAsistenciaDto> Pacientes { get; set; } = new();
     private AgregarPacientesDialog AgregarPacientesDialogRef;
-    private bool ModalAgregarVisible = false;
+    private List<SimpleDto> Instructores { get; set; } = new();
+    private List<SimpleDto> Caballos { get; set; } = new();
+    private DateOnly Fecha { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+    private TimeOnly Hora { get; set; } = TimeOnly.FromDateTime(DateTime.Now);
 
     [Parameter] public EventCallback OnSesionActualizada { get; set; }
 
+    // Abrir modal y cargar datos
     public async Task Abrir(Appointment appt)
     {
-        if (appt.SesionId == null)
-        {
-            await JS.InvokeVoidAsync("alert", "La sesión no tiene un ID válido.");
-            return;
-        }
-
-        // Obtener sesión por ID usando SesionesService
         Sesion = await SesionService.GetByIdAsync(appt.SesionId.Value);
-        if (Sesion == null)
-        {
-            await JS.InvokeVoidAsync("alert", "No se pudo obtener la sesión.");
-            return;
-        }
+        Pacientes = await AsistenciaService.GetAsistenciasPorSesion(Sesion.SesionId) ?? new List<GetAsistenciaDto>();
 
-        // Traer pacientes de la sesión usando el servicio de Asistencias
-        Pacientes = await AsistenciaService.ObtenerPorSesionAsync(Sesion.SesionId) ?? new List<AllPacienteDto>();
+        Instructores = (await InstructorService.GetAllAsync())
+                        .Select(i => new SimpleDto { Id = i.InstructorId, Nombre = i.Nombre }).ToList();
+        Caballos = (await CaballoService.GetAllAsync())
+                        .Select(c => new SimpleDto { Id = c.CaballoId, Nombre = c.Nombre }).ToList();
+
+        Fecha = DateOnly.Parse(Sesion.Fecha);
+        Hora = TimeOnly.Parse(Sesion.Hora);
 
         Visible = true;
         StateHasChanged();
     }
 
+    private void ActivarEdicion() => EditarActivo = true;
+
+    private void CancelarEdicion()
+    {
+        EditarActivo = false;
+        Fecha = DateOnly.Parse(Sesion.Fecha);
+        Hora = TimeOnly.Parse(Sesion.Hora);
+    }
+
+    private async Task GuardarEdicion()
+    {
+        var updateDto = new UpdateSesionDto
+        {
+            Fecha = Fecha.ToString("yyyy-MM-dd"),
+            Hora = Hora.ToString("HH:mm"),
+            InstructorId = Sesion.InstructorId,
+            CaballoId = Sesion.CaballoId,
+            PacienteIds = Pacientes.Select(p => p.PacienteId).ToList() // Mantener los pacientes actuales
+        };
+
+        bool exito = await SesionService.UpdateAsync(Sesion.SesionId, updateDto);
+
+        if (exito)
+        {
+            EditarActivo = false;
+            await RecargarSesion();
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Error al guardar la sesión.");
+        }
+    }
+
+    private async Task QuitarPaciente(GetAsistenciaDto paciente)
+    {
+        if (paciente == null) return;
+
+        // Llamamos al servicio para eliminar la asistencia en el backend
+        var (ok, mensaje) = await AsistenciaService.DeleteAsistencias(new List<int> { paciente.AsistenciaId });
+
+        if (ok)
+        {
+            // Solo si se eliminó en el backend, lo quitamos de la lista local
+            Pacientes.Remove(paciente);
+            StateHasChanged();
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", $"No se pudo eliminar el paciente: {mensaje}");
+        }
+    }
+
+
+    private void ActivarPaseLista() => PasarListaActiva = true;
+
+    private async Task GuardarAsistencia()
+    {
+        var updateDto = new UpdateAsistenciaDto
+        {
+            Asistencias = Pacientes.Select(p => new UpdateAsistenciaItemDto
+            {
+                AsistenciasId = p.AsistenciaId,
+                Asistio = p.Asistio
+            }).ToList()
+        };
+
+        await AsistenciaService.UpdateAsistencias(updateDto);
+        PasarListaActiva = false;
+    }
+
     private async Task AbrirAgregarPacientes()
     {
-        int existentes = Pacientes?.Count ?? 0;
-        await AgregarPacientesDialogRef.Abrir(Sesion.SesionId, existentes);
+        if (AgregarPacientesDialogRef == null)
+        {
+            await JS.InvokeVoidAsync("alert", "El diálogo aún no está listo.");
+            return;
+        }
+
+        await AgregarPacientesDialogRef.Abrir(Sesion.SesionId, Pacientes.Count);
+    }
+
+    private async Task RecargarSesion()
+    {
+        Sesion = await SesionService.GetByIdAsync(Sesion.SesionId);
+        Pacientes = await AsistenciaService.GetAsistenciasPorSesion(Sesion.SesionId) ?? new List<GetAsistenciaDto>();
+        StateHasChanged();
+
+        if (OnSesionActualizada.HasDelegate)
+            await OnSesionActualizada.InvokeAsync();
     }
 
     private async Task RecargarPacientes()
     {
-        Pacientes = await AsistenciaService.ObtenerPorSesionAsync(Sesion.SesionId) ?? new List<AllPacienteDto>();
+        Pacientes = await AsistenciaService.GetAsistenciasPorSesion(Sesion.SesionId) ?? new List<GetAsistenciaDto>();
         StateHasChanged();
     }
 
     private async Task Cerrar()
     {
         Visible = false;
+        EditarActivo = false;
+        PasarListaActiva = false;
         await InvokeAsync(StateHasChanged);
     }
 
@@ -109,10 +261,6 @@
             await Cerrar();
             if (OnSesionActualizada.HasDelegate)
                 await OnSesionActualizada.InvokeAsync();
-        }
-        else
-        {
-            await JS.InvokeVoidAsync("alert", "No se pudo eliminar la sesión.");
         }
     }
 }

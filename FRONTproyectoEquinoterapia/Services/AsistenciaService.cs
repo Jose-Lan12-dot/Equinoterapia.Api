@@ -45,29 +45,47 @@ namespace FRONTproyectoEquinoterapia.Services
         {
             var res = await _http.PostAsJsonAsync("api/asistencias", dto);
 
-            var content = await res.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            // Deserializamos en un DTO en lugar de diccionario
+            var content = await res.Content.ReadFromJsonAsync<MensajeResponse>();
+            string mensaje = content?.Mensaje ?? "Operación completada";
 
-            if (!res.IsSuccessStatusCode)
-            {
-                return (false, content?["Mensaje"] ?? "Error");
-            }
-
-            return (true, content?["Mensaje"] ?? "Creado");
+            return (res.IsSuccessStatusCode, mensaje);
         }
+
+        public class MensajeResponse
+        {
+            public string Mensaje { get; set; } = string.Empty;
+        }
+
+
 
         public async Task<(bool ok, string mensaje)> UpdateAsistencias(UpdateAsistenciaDto dto)
         {
-            var res = await _http.PatchAsync("api/asistencias", JsonContent.Create(dto));
+            var response = await _http.PatchAsJsonAsync("api/asistencias", dto);
 
-            var content = await res.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-
-            if (!res.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                return (false, content?["Mensaje"] ?? "Error");
+                // error — intentamos leer el json
+                var error = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+
+                string msg = "";
+                if (error != null && error.ContainsKey("Mensaje"))
+                    msg = error["Mensaje"];
+
+                return (false, msg != "" ? msg : "Error desconocido al actualizar asistencias.");
             }
 
-            return (true, content?["Mensaje"] ?? "Actualizado");
+            // éxito — leer json
+            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+
+            string mensaje = "";
+            if (data != null && data.ContainsKey("Mensaje"))
+                mensaje = data["Mensaje"];
+
+            return (true, mensaje != "" ? mensaje : "Asistencias actualizadas correctamente.");
         }
+
+
 
         public async Task<(bool ok, string mensaje)> DeleteAsistencias(List<int> asistenciaIds)
         {
@@ -80,15 +98,20 @@ namespace FRONTproyectoEquinoterapia.Services
                 }
             );
 
-            var content = await res.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            Dictionary<string, string> content = null;
+            if (res.Content.Headers.ContentLength > 0)
+            {
+                content = await res.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            }
 
             if (!res.IsSuccessStatusCode)
             {
-                return (false, content?["Mensaje"] ?? "Error");
+                return (false, content != null && content.ContainsKey("Mensaje") ? content["Mensaje"] : "Error desconocido");
             }
 
-            return (true, content?["Mensaje"] ?? "Eliminado");
+            return (true, content != null && content.ContainsKey("Mensaje") ? content["Mensaje"] : "Eliminado correctamente");
         }
+
     }
 
 }

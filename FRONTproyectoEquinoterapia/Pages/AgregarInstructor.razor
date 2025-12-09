@@ -1,7 +1,10 @@
 ﻿@page "/agregar-instructor"
+@using FRONTproyectoEquinoterapia.Models
 @inject FRONTproyectoEquinoterapia.Services.InstructorService InstructorService
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
+@using Radzen
+@using Radzen.Blazor
 
 <h3>Agregar Instructor</h3>
 
@@ -15,15 +18,11 @@
     <RadzenTextBox @bind-Value="NuevoInstructor.Telefono" Style="width:300px" />
 </div>
 
-<div class="mb-3">
-    <label>Estado:</label>
-    
-</div>
-
 <RadzenButton Text="Guardar" ButtonStyle="ButtonStyle.Primary" Click="@GuardarInstructor" />
 <RadzenButton Text="Cancelar" ButtonStyle="ButtonStyle.Secondary" Click="@Cancelar" Style="margin-left:5px" />
 
-@code {
+@code 
+{
     private AddInstructorDto NuevoInstructor = new AddInstructorDto
     {
         Nombre = "",
@@ -35,6 +34,12 @@
         if (string.IsNullOrWhiteSpace(NuevoInstructor.Nombre))
         {
             await JS.InvokeVoidAsync("alert", "El nombre es obligatorio.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(NuevoInstructor.Telefono))
+        {
+            await JS.InvokeVoidAsync("alert", "El teléfono es obligatorio.");
             return;
         }
 
@@ -55,4 +60,3 @@
         Navigation.NavigateTo("/instructores");
     }
 }
-

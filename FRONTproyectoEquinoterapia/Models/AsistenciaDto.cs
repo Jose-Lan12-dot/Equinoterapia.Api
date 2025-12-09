@@ -13,7 +13,7 @@ public class GetAsistenciaDto
         public int PacienteId { get; set; }
         public string NombrePaciente { get; set; } = string.Empty;
         public int AsistenciaId { get; set; }
-        public string Nombre { get; set; } = string.Empty;
+        public string  nombre { get; set; } = string.Empty;
         public bool Asistio { get; set; }
     }
 
