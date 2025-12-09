@@ -57,14 +57,19 @@ namespace Equinoterapia.Infrastructure.Repositories
         {
             return await _context.sesion
                 .AsNoTracking()
+                .Include(s => s.Instructor) // traer datos del instructor
+                .Include(s => s.Caballo)    // traer datos del caballo
                 .Select(s => new GetAllSesionDto
                 {
                     SesionId = s.SesionId,
                     Fecha = s.Fecha,
                     Hora = s.Hora,
+                    nombreInstructor = s.Instructor != null ? s.Instructor.Nombre : "Sin Instructor",
+                    nombreCaballo = s.Caballo != null ? s.Caballo.Nombre : "Sin Caballo"
                 })
                 .ToListAsync();
         }
+
 
         public async Task<List<GetAllSesionDto>> GetByWeekDtosAsync(DateOnly startOfWeek)
         {

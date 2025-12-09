@@ -39,8 +39,7 @@
         <RadzenDataGridColumn TItem="InstructorDto" Title="Operaciones">
             <Template Context="i">
                 <RadzenButton Icon="visibility" ButtonStyle="ButtonStyle.Info" Click="@(() => VerInstructor(i.InstructorId))" />
-                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Click="@(() => EditarInstructor(i))" Style="margin-left:5px" />
-                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => EliminarInstructor(i))" />
+                 <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => ConfirmarEliminarInstructor(i))" />
             </Template>
         </RadzenDataGridColumn>
     </Columns>
@@ -120,33 +119,38 @@
         Navigation.NavigateTo($"/editar-instructor/{instructor.InstructorId}");
     }
 
-    async void EliminarInstructor(InstructorDto instructor)
+    [Inject] IJSRuntime JS { get; set; }
+
+    private async Task ConfirmarEliminarInstructor(InstructorDto instructor)
     {
-        bool? confirmadoNullable = await DialogService.Confirm("¿Deseas eliminar este instructor?", "Confirmar");
-        bool confirmado = confirmadoNullable ?? false; // si es null, se toma como false
-        if (confirmado)
+        if (instructor == null) return;
+
+        bool confirm = await JS.InvokeAsync<bool>("confirm",
+            $"¿Seguro que deseas eliminar al instructor \"{instructor.Nombre}\"? Esta acción no se puede deshacer.");
+
+        if (!confirm) return;
+
+        bool exito = await InstructorService.DeleteAsync(instructor.InstructorId);
+
+        if (exito)
         {
-            bool exito = await InstructorService.DeleteAsync(instructor.InstructorId);
-            if (exito)
+            instructores.Remove(instructor);  // Eliminamos de la lista local
+            AplicarFiltros();                 // Actualizamos la tabla
+            NotificationService.Notify(new NotificationMessage
             {
-                instructores.Remove(instructor);
-                AplicarFiltros();
-                NotificationService.Notify(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Success,
-                    Summary = "Éxito",
-                    Detail = "Instructor eliminado correctamente"
-                });
-            }
-            else
+                Severity = NotificationSeverity.Success,
+                Summary = "Instructor eliminado",
+                Detail = $"Se eliminó correctamente al instructor \"{instructor.Nombre}\"."
+            });
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage
             {
-                NotificationService.Notify(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Error,
-                    Summary = "Error",
-                    Detail = "No se pudo eliminar el instructor"
-                });
-            }
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = "No se pudo eliminar al instructor."
+            });
         }
     }
 }

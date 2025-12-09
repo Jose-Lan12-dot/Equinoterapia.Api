@@ -15,6 +15,13 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped<LoginService>();
+builder.Services.AddScoped(sp =>
+{
+    var client = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+    return client;
+});
+
 
 // 🌍 Configurar cultura en español (España o México)
 var cultura = new CultureInfo("es-MX"); // o "es-ES"

@@ -1,11 +1,27 @@
 ﻿namespace FRONTproyectoEquinoterapia.Models
 {
-    public class Instructor
+    public class AddInstructorDto
     {
-        public int instructor_id { get; set; }
-        public string nombre { get; set; }
-        public string telefono { get; set; }
-        
+        public string Nombre { get; set; } = string.Empty;
+        public string Telefono { get; set; } = string.Empty;
     }
+
+    public class InstructorDto
+    {
+        public int InstructorId { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string Telefono { get; set; } = string.Empty;
+        public string Estado { get; set; } = string.Empty;
+    }
+
+    public class UpdateInstructorDto
+    {
+        public string? Nombre { get; set; }
+        public string? Telefono { get; set; }
+        public string? Estado { get; set; }
+    }
+
+
+
 
 }

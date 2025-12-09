@@ -5,5 +5,12 @@
         public int SesionId { get; set; }
         public DateOnly Fecha { get; set; }
         public TimeOnly Hora { get; set; }
+
+        //  nombres para mostrar en el calendario
+       
+        public string nombreInstructor { get; set; } = string.Empty;
+        public string nombreCaballo { get; set; } = string.Empty;
     }
+
+
 }

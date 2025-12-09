@@ -92,26 +92,29 @@
 
     private async Task AgregarPacientes()
     {
-        if (!PacienteIdsSeleccionados.Any()) return;
+        if (!PacienteIdsSeleccionados.Any())
+            return;
 
-        var updateDto = new UpdateSesionDto
+        var dto = new AddAsistenciaDto
         {
-            PacienteIds = PacienteIdsSeleccionados.ToList()
+            SesionId = SesionId,
+            PacientesId = PacienteIdsSeleccionados
         };
 
-        bool exito = await SesionesService.UpdateAsync(SesionId, updateDto);
+        var (ok, mensaje) = await AsistenciasService.CreateAsistencias(dto);
 
-        if (exito)
+        if (ok)
         {
-            await JS.InvokeVoidAsync("alert", "Pacientes agregados correctamente.");
+            await JS.InvokeVoidAsync("alert", mensaje);
             await OnPacientesAgregados.InvokeAsync();
             await Cerrar();
         }
         else
         {
-            await JS.InvokeVoidAsync("alert", "Error al agregar pacientes.");
+            await JS.InvokeVoidAsync("alert", mensaje);
         }
     }
+
 
     private async Task Cerrar()
     {

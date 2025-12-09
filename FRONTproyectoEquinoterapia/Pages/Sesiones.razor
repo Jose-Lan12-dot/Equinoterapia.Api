@@ -46,16 +46,19 @@
 
     private async Task CargarSesiones()
     {
-        var sesiones = await SesionesService.GetAllAsync();
+        var sesiones = await SesionesService.GetAllAsync(); // aquí ya tienes la lista
 
         appointments = sesiones.Select(s => new Appointment
         {
             Start = CombinarFechaHora(s.Fecha, s.Hora),
             End = CombinarFechaHora(s.Fecha, s.Hora).AddHours(1),
-            Text = $"Sesión: {s.Hora}",
+            Text = $"{s.nombreInstructor} - {s.nombreCaballo} ({s.Hora:hh\\:mm})",
             SesionId = s.SesionId
         }).ToList();
     }
+
+
+
 
     private async Task RefrescarCalendario()
     {

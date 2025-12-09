@@ -23,10 +23,12 @@ public class GetAllSesionDto
         public int SesionId { get; set; }
         public string Fecha { get; set; } = string.Empty; // "yyyy-MM-dd"
         public string Hora { get; set; } = string.Empty;  // "HH:mm"
-}
+        public string nombreInstructor { get; set; } = string.Empty;
+        public string nombreCaballo { get; set; } = string.Empty;
+    }
 
 
-public class GetOneSesionDto
+    public class GetOneSesionDto
     {
         public int SesionId { get; set; }
         public string Fecha { get; set; } = string.Empty;
