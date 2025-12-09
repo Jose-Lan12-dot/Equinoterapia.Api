@@ -291,6 +291,9 @@ public partial class AppDbContext : DbContext
             entity.Property(im => im.Anio)
                 .HasColumnName("anio");
 
+            entity.Property(im => im.numeroTarjeta)
+                .HasColumnName("numero_tarjeta");
+
             entity.Property(im => im.FechaModificacion)
                 .HasColumnName("fecha_modificaccion");
 

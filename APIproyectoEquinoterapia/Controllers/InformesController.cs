@@ -1,5 +1,6 @@
 ﻿using Equinoterapia.Application.DTOs.Informes;
 using Equinoterapia.Application.Interfaces;
+using Equinoterapia.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,18 +11,20 @@ namespace Equinoterapia.Api.Controllers
     //[Authorize]
     public class InformesController : ControllerBase
     {
-        private readonly IInformeService _reporteService;
+        private readonly IInformeService _informeService;
+        private readonly IInformeExportService _exportService;
 
-        public InformesController(IInformeService reporteService)
+        public InformesController(IInformeService informeService, IInformeExportService exportService)
         {
-            _reporteService = reporteService;
+            _informeService = informeService;
+            _exportService = exportService;
         }
 
         // GET: api/informes?mes=9&anio=2025
         [HttpGet]
         public async Task<IActionResult> GetInforme([FromQuery] int mes, [FromQuery] int anio)
         {
-            var informe = await _reporteService.GetInformeAsync(mes, anio);
+            var informe = await _informeService.GetInformeAsync(mes, anio);
             return Ok(informe);
         }
 
@@ -29,7 +32,7 @@ namespace Equinoterapia.Api.Controllers
         [HttpGet("estadisticas")]
         public async Task<IActionResult> GetEstadisticas([FromQuery] int mes, [FromQuery] int anio)
         {
-            var stats = await _reporteService.GetEstadisticasAsync(mes, anio);
+            var stats = await _informeService.GetEstadisticasAsync(mes, anio);
             return Ok(stats);
         }
 
@@ -38,7 +41,7 @@ namespace Equinoterapia.Api.Controllers
         public async Task<IActionResult> GuardarInforme([FromBody] InformeDto informeDto)
         {
 
-            var (exito, mensaje) = await _reporteService.GuardarInformeAsync(informeDto);
+            var (exito, mensaje) = await _informeService.GuardarInformeAsync(informeDto);
 
             if (!exito)
             {
@@ -47,5 +50,34 @@ namespace Equinoterapia.Api.Controllers
 
             return Ok(new { Mensaje = mensaje });
         }
+
+        [HttpGet("download/pdf")]
+        public async Task<IActionResult> DescargarPdf(
+        [FromQuery] int mes,
+        [FromQuery] int anio)
+        {
+            var informe = await _informeService.GetInformeAsync(mes, anio);
+            var archivoBytes = _exportService.GenerarPdf(informe);
+
+            var nombreArchivo = $"Informe_{mes}_{anio}.pdf";
+            return File(archivoBytes, "application/pdf", nombreArchivo);
+        }
+
+        [HttpGet("download/excel")]
+        public async Task<IActionResult> DescargarExcel(
+            [FromQuery] int mes,
+            [FromQuery] int anio) 
+        {
+            var informe = await _informeService.GetInformeAsync(mes, anio);
+
+            var archivoBytes = _exportService.GenerarExcel(informe);
+
+            var nombreArchivo = $"Informe_{mes}_{anio}.xlsx";
+            var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+            return File(archivoBytes, contentType, nombreArchivo);
+        }
+
+
     }
 }

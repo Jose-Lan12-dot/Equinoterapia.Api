@@ -5,6 +5,7 @@
         public int InformeMensualId { get; set; }
         public int Mes { get; set; }
         public int Anio { get; set; }
+        public string numeroTarjeta { get; set; } = string.Empty;
         public DateTime FechaModificacion { get; set; }
 
 

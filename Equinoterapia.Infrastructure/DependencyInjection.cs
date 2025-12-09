@@ -94,6 +94,10 @@ namespace Equinoterapia.Infrastructure
             services.AddScoped<IInformeRepository, InformeRepository>();
 
 
+
+            services.AddScoped<IInformeExportService, ReportExportService>();
+
+
             return services;
         }
     }

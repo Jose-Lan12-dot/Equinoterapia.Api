@@ -7,7 +7,7 @@
         public string? Usuario { get; set; }
         public string? NombreCompleto { get; set; }
         public string? Mensaje { get; set; }
-        public string? Foto { get; set; }
+        public byte[]? Foto { get; set; }
         public int IdPerfil { get; set; }
         public string? Perfil { get; set; }
     }

@@ -31,6 +31,7 @@ namespace Equinoterapia.Application.Services
                 {
                     Mes = informeBd.Mes,
                     Anio = informeBd.Anio,
+                    numeroTarjeta = informeBd.numeroTarjeta,
                     Detalles = informeBd.Detalles.Select(d => new DetalleDto
                     {
                         NumeroOrden = d.NumeroOrden,
@@ -46,7 +47,7 @@ namespace Equinoterapia.Application.Services
 
             var stats = await GetEstadisticasAsync(mes, anio);
 
-            var informeSeed = new InformeDto { Mes = mes, Anio = anio };
+            var informeSeed = new InformeDto { Mes = mes, Anio = anio, numeroTarjeta = string.Empty };
 
             informeSeed.Detalles.Add(new DetalleDto
             {
@@ -80,7 +81,7 @@ namespace Equinoterapia.Application.Services
                 if (informeExistente != null)
                 {
                     informeExistente.FechaModificacion = DateTime.Now;
-
+                    informeExistente.numeroTarjeta = dto.numeroTarjeta;
 
                     if (informeExistente.Detalles.Any())
                     {
@@ -103,6 +104,7 @@ namespace Equinoterapia.Application.Services
                     {
                         Mes = dto.Mes,
                         Anio = dto.Anio,
+                        numeroTarjeta = dto.numeroTarjeta,
                         FechaModificacion = DateTime.Now,
                         Detalles = dto.Detalles.Select(d => new DetalleInforme
                         {

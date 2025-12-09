@@ -58,7 +58,7 @@ namespace Equinoterapia.Infrastructure.Migrations
                     b.Property<int>("AsistenciaId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasColumnName("aistencia_id");
+                        .HasColumnName("asistencia_id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AsistenciaId"));
 
@@ -222,6 +222,11 @@ namespace Equinoterapia.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("mes");
 
+                    b.Property<string>("numeroTarjeta")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("numero_tarjeta");
+
                     b.HasKey("InformeMensualId");
 
                     b.ToTable("informe_mensual", (string)null);
@@ -229,8 +234,8 @@ namespace Equinoterapia.Infrastructure.Migrations
 
             modelBuilder.Entity("Equinoterapia.Domain.Entities.InicioSesion", b =>
                 {
-                    b.Property<string>("Foto")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<byte[]>("Foto")
+                        .HasColumnType("image");
 
                     b.Property<int>("IdKronos")
                         .HasColumnType("int");
@@ -304,8 +309,8 @@ namespace Equinoterapia.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("estado");
 
-                    b.Property<DateOnly>("FechaNacimiento")
-                        .HasColumnType("date")
+                    b.Property<DateTime>("FechaNacimiento")
+                        .HasColumnType("datetime2")
                         .HasColumnName("fecha_nacimiento");
 
                     b.Property<DateTime>("FechaRegistro")
