@@ -9,44 +9,81 @@
 @using Radzen
 @using Radzen.Blazor
 
-<h3>Lista de Caballos</h3>
+<div class="card shadow-sm p-4 mt-3 custom-card">
 
-<RadzenStack Orientation="Orientation.Horizontal" Gap="10px" Style="margin-bottom:15px">
-    <RadzenButton Click="@AbrirAgregarCaballo" Text="Agregar Caballo" Icon="add_circle" ButtonStyle="ButtonStyle.Primary" />
+    <!-- Título con icono -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="m-0 text-primary icon-title">
+            <i class="material-icons">directions_run</i>
+            Lista de Caballos
+        </h3>
 
-    <RadzenDropDown Style="width: 100%; max-width: 300px;"
-                    TValue="string"
-                    @bind-Value="selectedOrder"
-                    Placeholder="Selecciona orden"
-                    Data="@ordenesDisponibles"
-                    TextProperty="Text"
-                    ValueProperty="Value"
-                    Change="@(args => AplicarFiltros())"
-                    AllowFiltering="true" />
-</RadzenStack>
+        <RadzenButton Click="@AbrirAgregarCaballo"
+                      Text="Registrar Un Nuevo Caballo"
+                      Icon="add_circle"
+                      ButtonStyle="ButtonStyle.Primary" />
+    </div>
 
-<RadzenTextBox @bind-Value="searchTerm" Placeholder="Buscar caballo..."
-               Style="margin-bottom:10px;width:250px" Change="@(args => AplicarFiltros())" />
+    <!-- Filtros -->
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="10px" Style="margin-bottom:15px">
+        <RadzenDropDown Style="width: 100%; max-width: 300px;"
+                        TValue="string"
+                        @bind-Value="selectedOrder"
+                        Placeholder="Selecciona orden"
+                        Data="@ordenesDisponibles"
+                        TextProperty="Text"
+                        ValueProperty="Value"
+                        Change="@(args => AplicarFiltros())"
+                        AllowFiltering="true" />
+    </RadzenStack>
 
-<RadzenDataGrid Data="@filteredCaballos" TItem="CaballoDto" ColumnWidth="200px"
-                AllowFiltering="true" AllowPaging="true" AllowSorting="true" PageSize="5">
-    <Columns>
-        <RadzenDataGridColumn TItem="CaballoDto" Property="CaballoId" Title="ID" />
-        <RadzenDataGridColumn TItem="CaballoDto" Property="Nombre" Title="Nombre" />
-        <RadzenDataGridColumn TItem="CaballoDto" Property="Estado" Title="Estado" />
-        <RadzenDataGridColumn TItem="CaballoDto" Property="FechaHerraje" Title="Fecha de Herraje" />
-        <RadzenDataGridColumn TItem="CaballoDto" Title="Operaciones">
-            <Template Context="c">
-                <RadzenButton Icon="visibility" ButtonStyle="ButtonStyle.Info" Size="ButtonSize.Small" Click="@(() => VerCaballo(c.CaballoId))" />
-                 <RadzenButton Icon="delete"
-                              ButtonStyle="ButtonStyle.Danger"
-                              Click="@(args => ConfirmarEliminarConJs(c))"
-                              Size="ButtonSize.Small" />
+    <RadzenTextBox @bind-Value="searchTerm"
+                   Placeholder="Buscar caballo..."
+                   Style="margin-bottom:15px; width:250px"
+                   Change="@(args => AplicarFiltros())" />
 
-            </Template>
-        </RadzenDataGridColumn>
-    </Columns>
-</RadzenDataGrid>
+    <!-- Grid -->
+    <RadzenDataGrid Data="@filteredCaballos" TItem="CaballoDto" ColumnWidth="200px"
+                    AllowFiltering="true" AllowPaging="true" AllowSorting="true" PageSize="5"
+                    class="shadow-sm rounded">
+        <Columns>
+            <RadzenDataGridColumn TItem="CaballoDto" Property="CaballoId" Title="ID" />
+            <RadzenDataGridColumn TItem="CaballoDto" Property="Nombre" Title="Nombre" />
+            <RadzenDataGridColumn TItem="CaballoDto" Property="Estado" Title="Estado" />
+            <RadzenDataGridColumn TItem="CaballoDto" Property="FechaHerraje" Title="Fecha de Herraje" />
+            <RadzenDataGridColumn TItem="CaballoDto" Title="Operaciones">
+                <Template Context="c">
+                    <div class="btn-group">
+                        <RadzenButton Icon="visibility" ButtonStyle="ButtonStyle.Info" Size="ButtonSize.Small" Click="@(() => VerCaballo(c.CaballoId))" />
+                        <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(args => ConfirmarEliminarConJs(c))" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+
+</div>
+
+<style>
+    .custom-card {
+        background-color: #f8f9fa; /* gris suave */
+    }
+
+    .icon-title i {
+        vertical-align: middle;
+        margin-right: 8px;
+        color: #061f6d; /* azul logo */
+    }
+
+    .btn-group .rz-button {
+        margin-right: 4px;
+    }
+
+    .rz-datagrid-table tr:hover {
+        background-color: #e9ecef;
+    }
+</style>
+
 
 @code {
     string searchTerm = "";

@@ -5,14 +5,16 @@
 @using Radzen
 @using Radzen.Blazor
 @using System.Globalization
-
 @inject ITokenProvider tokenProvider
 
-<h3 class="text-primary">Informes Mensuales</h3>
+@using System.Globalization
 
-<div class="row mb-3">
-    <div class="col-md-3">
-        <label for="mes">Mes:</label>
+<h3 class="text-primary mb-3">Informes Mensuales</h3>
+
+<!-- Filtros -->
+<div class="row mb-3 align-items-end">
+    <div class="col-md-3 mb-2">
+        <label for="mes" class="form-label">Mes:</label>
         <select id="mes" class="form-select" @bind="mesSeleccionado">
             @for (int m = 1; m <= 12; m++)
             {
@@ -20,8 +22,8 @@
             }
         </select>
     </div>
-    <div class="col-md-3">
-        <label for="anio">Año:</label>
+    <div class="col-md-3 mb-2">
+        <label for="anio" class="form-label">Año:</label>
         <select id="anio" class="form-select" @bind="anioSeleccionado">
             @for (int a = DateTime.Now.Year - 5; a <= DateTime.Now.Year; a++)
             {
@@ -29,12 +31,13 @@
             }
         </select>
     </div>
-    <div class="col-md-6 d-flex align-items-end">
-        <button class="btn btn-primary me-2" @onclick="CargarInforme">Generar Informe</button>
+    <div class="col-md-6 d-flex gap-2 mb-2">
+        <button class="btn btn-primary" @onclick="CargarInforme">Generar Informe</button>
         <button class="btn btn-secondary" @onclick="LimpiarInforme">Limpiar</button>
     </div>
 </div>
 
+<!-- Mensajes -->
 @if (mensajeGuardado != null)
 {
     <div class="alert @claseMensaje" role="alert">
@@ -53,10 +56,17 @@
     </div>
 }
 
+<!-- Número de tarjeta -->
 @if (informe != null)
 {
-    <div class="table-responsive">
-        <table class="table table-bordered">
+    <div class="card p-3 mb-3">
+        <label for="numeroTarjeta" class="form-label">Número de tarjeta:</label>
+        <input id="numeroTarjeta" class="form-control" @bind="informe.numeroTarjeta" />
+    </div>
+
+    <!-- Tabla de detalles -->
+    <div class="table-responsive mb-3">
+        <table class="table table-bordered table-striped align-middle">
             <thead class="table-light">
                 <tr>
                     <th>#</th>
@@ -73,11 +83,11 @@
                 {
                     <tr>
                         <td>@detalle.NumeroOrden</td>
-                        <td><input class="form-control" @bind="detalle.Situacion" /></td>
-                        <td><input class="form-control" @bind="detalle.Acciones" /></td>
-                        <td><input class="form-control" @bind="detalle.Avances" /></td>
-                        <td><input class="form-control" @bind="detalle.Tramite" /></td>
-                        <td><input class="form-control" @bind="detalle.Observaciones" /></td>
+                        <td><input class="form-control form-control-sm" @bind="detalle.Situacion" /></td>
+                        <td><input class="form-control form-control-sm" @bind="detalle.Acciones" /></td>
+                        <td><input class="form-control form-control-sm" @bind="detalle.Avances" /></td>
+                        <td><input class="form-control form-control-sm" @bind="detalle.Tramite" /></td>
+                        <td><input class="form-control form-control-sm" @bind="detalle.Observaciones" /></td>
                         <td>
                             <button class="btn btn-sm btn-danger" @onclick="@(() => EliminarDetalle(detalle))">Eliminar</button>
                         </td>
@@ -87,9 +97,12 @@
         </table>
     </div>
 
-    <div class="mb-3">
-        <button class="btn btn-success me-2" @onclick="GuardarInforme">Guardar Informe</button>
-        <button class="btn btn-warning" @onclick="AgregarDetalle">Agregar Detalle</button>
+    <!-- Botones de acciones -->
+    <div class="mb-3 d-flex flex-wrap gap-2">
+        <button class="btn btn-success btn-sm" @onclick="GuardarInforme">Guardar Informe</button>
+        <button class="btn btn-warning btn-sm" @onclick="AgregarDetalle">Agregar Detalle</button>
+        <button class="btn btn-info btn-sm" @onclick="DescargarPdf">Descargar PDF</button>
+        <button class="btn btn-info btn-sm" @onclick="DescargarExcel">Descargar Excel</button>
     </div>
 }
 
@@ -153,19 +166,37 @@
         informe.Detalles.Remove(detalle);
     }
 
+    private async Task DescargarPdf()
+    {
+        if (informe == null) return;
+
+        string nombreArchivo = $"Informe_{mesSeleccionado}_{anioSeleccionado}.pdf";
+        await informeService.DescargarPdfAsync(mesSeleccionado, anioSeleccionado, nombreArchivo);
+    }
+
+    private async Task DescargarExcel()
+    {
+        if (informe == null) return;
+
+        string nombreArchivo = $"Informe_{mesSeleccionado}_{anioSeleccionado}.xlsx";
+        await informeService.DescargarExcelAsync(mesSeleccionado, anioSeleccionado, nombreArchivo);
+    }
+
     private async Task GuardarInforme()
     {
         if (informe == null) return;
 
         try
         {
+            // Guardar cambios
             var (exito, mensaje) = await informeService.GuardarInformeAsync(informe);
             mensajeGuardado = mensaje;
             claseMensaje = exito ? "alert-success" : "alert-danger";
 
             if (exito)
             {
-                // Refrescar estadísticas después de guardar
+                // Refrescar informe y estadísticas después de guardar
+                informe = await informeService.GetInformeAsync(mesSeleccionado, anioSeleccionado);
                 estadisticas = await informeService.GetEstadisticasAsync(mesSeleccionado, anioSeleccionado);
             }
         }

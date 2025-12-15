@@ -19,7 +19,7 @@
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FRONTproyectoEquinoterapia</title>
+    <title>Equinoterapia</title>
     <base href="/" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
@@ -56,6 +56,18 @@
     <script src="_framework/blazor.webassembly.js"></script>
 
 
+    <script>
+        window.focusElement = (el) => {
+            try {
+                if (el) {
+                    // ElementReference llega como objeto, focusará correctamente
+                    el.focus();
+                }
+            } catch (e) {
+                console.warn("focusElement error:", e);
+            }
+        };
+    </script>
 
 
 

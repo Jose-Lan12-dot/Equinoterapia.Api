@@ -6,20 +6,39 @@
 @using Radzen
 @using Radzen.Blazor
 
-<h3>Agregar Instructor</h3>
 
-<div class="mb-3">
-    <label>Nombre:</label>
-    <RadzenTextBox @bind-Value="NuevoInstructor.Nombre" Style="width:300px" />
+
+<!-- COLUMNA DERECHA CON UNA TARJETA -->
+<div class="row justify-content-end">
+<div class="col-md-6">
+    <div class="p-3 border rounded bg-light">
+        <h5 class="text-secondary mb-2">Información general</h5>
+        <p class="small text-muted m-0">
+            Aqui registraras un nuevo instructor, asegurate de no dejar campos vacios,
+            al terminar usa el selector correspondiente.
+        </p>
+    </div>
+</div>
 </div>
 
-<div class="mb-3">
-    <label>Teléfono:</label>
-    <RadzenTextBox @bind-Value="NuevoInstructor.Telefono" Style="width:300px" />
-</div>
+<div class="card shadow-sm p-4 mt-3" style="max-width: 500px; margin-left: 20px;">
+    <h3 class="text-primary mb-4">Agregar Instructor</h3>
 
-<RadzenButton Text="Guardar" ButtonStyle="ButtonStyle.Primary" Click="@GuardarInstructor" />
-<RadzenButton Text="Cancelar" ButtonStyle="ButtonStyle.Secondary" Click="@Cancelar" Style="margin-left:5px" />
+    <div class="mb-3">
+        <label>Nombre:</label>
+        <RadzenTextBox @bind-Value="NuevoInstructor.Nombre" Style="width:100%" />
+    </div>
+
+    <div class="mb-3">
+        <label>Teléfono:</label>
+        <RadzenTextBox @bind-Value="NuevoInstructor.Telefono" Style="width:100%" />
+    </div>
+
+    <div class="d-flex justify-content-end">
+        <RadzenButton Text="Guardar" ButtonStyle="ButtonStyle.Primary" Click="@GuardarInstructor" />
+        <RadzenButton Text="Cancelar" ButtonStyle="ButtonStyle.Secondary" Click="@Cancelar" Style="margin-left:10px" />
+    </div>
+</div>
 
 @code 
 {

@@ -1,0 +1,217 @@
+﻿@page "/agregar-paciente"
+@using FRONTproyectoEquinoterapia.Models
+@using FRONTproyectoEquinoterapia.Services
+@using Radzen
+@using Microsoft.AspNetCore.Components.Forms
+@inject PacienteService PacienteService
+@inject ArchivoService ArchivoService
+@inject NotificationService NotificationService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<div class="card shadow-sm p-4 mt-3">
+
+    <h3 class="mb-3 text-primary">Agregar paciente</h3>
+
+    <div class="row">
+
+        <!-- Columna izquierda: datos -->
+        <div class="col-md-7">
+            <div class="mb-3">
+                <label>Nombre:</label>
+                <RadzenTextBox @bind-Value="nuevoPaciente.Nombre" Style="width:100%" />
+            </div>
+
+            <div class="mb-3">
+                <label>Fecha de nacimiento:</label>
+                <RadzenDatePicker @bind-Value="nuevoPaciente.FechaNacimiento" Style="width:100%" />
+            </div>
+
+            <div class="mb-3">
+                <label>Tutor:</label>
+                <RadzenTextBox @bind-Value="nuevoPaciente.Tutor" Style="width:100%" />
+            </div>
+
+            <div class="mb-3">
+                <label>Teléfono del tutor:</label>
+                <RadzenTextBox @bind-Value="nuevoPaciente.TelefonoTutor" Style="width:100%" />
+            </div>
+
+            <div class="mb-3">
+                <label>Género:</label>
+                <RadzenDropDown @bind-Value="nuevoPaciente.Genero"
+                                Data="@generos"
+                                Placeholder="Seleccione un género"
+                                AllowClear="true"
+                                Style="width:100%" />
+            </div>
+
+            <!--  -->
+            <div class="mt-4">
+                <RadzenButton Text="Guardar paciente" ButtonStyle="ButtonStyle.Primary" Click="@GuardarPaciente" />
+                <RadzenButton Text="Cancelar" ButtonStyle="ButtonStyle.Secondary" Click="@Cancelar" Style="margin-left:5px" />
+            </div>
+        </div>
+
+        
+
+        <!-- Columna derecha: archivos -->
+        <div class="col-md-5">
+
+            <h5 class="mb-3">Archivos (opcionales)</h5>
+
+            @foreach (var tipo in tiposArchivos)
+            {
+                <div class="p-3 mb-2 border rounded archivo-card">
+
+                    <label class="fw-bold">@tipo.Nombre (@tipo.Extension)</label>
+
+                    <InputFile OnChange="e => OnArchivoSeleccionado(e, tipo.Nombre)" class="form-control mt-1" />
+
+                    @if (mensajeErrorArchivo.ContainsKey(tipo.Nombre) && !string.IsNullOrEmpty(mensajeErrorArchivo[tipo.Nombre]))
+                    {
+                        <div class="text-danger small mt-1">@mensajeErrorArchivo[tipo.Nombre]</div>
+                    }
+
+                    @if (archivosSeleccionados.ContainsKey(tipo.Nombre))
+                    {
+                        <div class="text-success small mt-2">
+                            Archivo seleccionado: @archivosSeleccionados[tipo.Nombre].Name
+                        </div>
+
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger mt-2"
+                                @onclick="() => QuitarArchivo(tipo.Nombre)">
+                            Quitar archivo
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+
+    </div>
+
+   
+
+</div>
+
+
+@code {
+    private PacienteFormDTO nuevoPaciente = new();
+    private readonly string[] generos = { "", "Masculino", "Femenino", "Otro" };
+
+    private List<ArchivoService.TipoArchivoDto> tiposArchivos = new();
+    private Dictionary<string, IBrowserFile> archivosSeleccionados = new();
+    private Dictionary<string, string> mensajeErrorArchivo = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        nuevoPaciente.Genero = null;
+        tiposArchivos = await ArchivoService.ObtenerTiposAsync();
+    }
+
+    private void OnArchivoSeleccionado(InputFileChangeEventArgs e, string tipoNombre)
+    {
+        var archivo = e.File;
+
+        // Validación de extensión
+        var tipo = tiposArchivos.FirstOrDefault(t => t.Nombre == tipoNombre);
+        if (tipo == null) return;
+        if (!archivo.Name.EndsWith(tipo.Extension, StringComparison.OrdinalIgnoreCase))
+        {
+            mensajeErrorArchivo[tipoNombre] = $"Debe ser un archivo {tipo.Extension}";
+            return;
+        }
+
+        // Validación de tamaño máximo 5 MB
+        if (archivo.Size > 5 * 1024 * 1024)
+        {
+            mensajeErrorArchivo[tipoNombre] = "Archivo demasiado grande (máx 5 MB)";
+            return;
+        }
+
+        archivosSeleccionados[tipoNombre] = archivo;
+        mensajeErrorArchivo[tipoNombre] = "";
+    }
+
+    void QuitarArchivo(string tipo)
+    {
+        if (archivosSeleccionados.ContainsKey(tipo))
+            archivosSeleccionados.Remove(tipo);
+    }
+
+    private async Task GuardarPaciente()
+    {
+        List<string> errores = new();
+
+        if (string.IsNullOrWhiteSpace(nuevoPaciente.Nombre))
+            errores.Add("Nombre");
+
+        if (nuevoPaciente.FechaNacimiento == null)
+            errores.Add("Fecha de nacimiento");
+
+        if (string.IsNullOrWhiteSpace(nuevoPaciente.Tutor))
+            errores.Add("Tutor");
+
+        if (string.IsNullOrWhiteSpace(nuevoPaciente.TelefonoTutor))
+            errores.Add("Teléfono del tutor");
+
+        if (string.IsNullOrWhiteSpace(nuevoPaciente.Genero))
+            errores.Add("Género");
+
+        if (errores.Count > 0)
+        {
+            string mensaje = "Faltan los siguientes datos:\n - "
+                             + string.Join("\n - ", errores);
+
+            await JS.InvokeVoidAsync("alert", mensaje);
+            return;
+        }
+
+
+        var pacienteDto = new AddPacienteDto
+        {
+            Nombre = nuevoPaciente.Nombre,
+            FechaNacimiento = nuevoPaciente.FechaNacimiento.Value,
+            Tutor = nuevoPaciente.Tutor,
+            TelefonoTutor = nuevoPaciente.TelefonoTutor,
+            Genero = nuevoPaciente.Genero
+        };
+
+        var pacienteConArchivos = new AddPacienteConArchivosDto
+        {
+            Paciente = pacienteDto,
+            Archivos = new List<AddArchivoBlazorDto>()
+        };
+
+        foreach (var kvp in archivosSeleccionados)
+        {
+            using var ms = new MemoryStream();
+            await kvp.Value.OpenReadStream(5 * 1024 * 1024).CopyToAsync(ms);
+
+            pacienteConArchivos.Archivos.Add(new AddArchivoBlazorDto
+            {
+                Nombre = kvp.Key,
+                Archivo = ms.ToArray()
+            });
+        }
+
+        var (exito, mensaje2) = await PacienteService.AgregarPacienteAsync(pacienteConArchivos);
+
+        if (exito)
+        {
+            await JS.InvokeVoidAsync("alert", "Paciente agregado correctamente.");
+            Navigation.NavigateTo("/pacientes");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", $"Error: {mensaje2}");
+        }
+    }
+
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/pacientes");
+    }
+}

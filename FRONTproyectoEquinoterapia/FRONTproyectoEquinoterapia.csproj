@@ -12,13 +12,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BlazorDownloadFile" Version="2.4.0.2" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.20" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.20" PrivateAssets="all" />
+    <PackageReference Include="QuestPDF" Version="2025.7.4" />
     <PackageReference Include="Radzen.Blazor" Version="7.3.5" />
   </ItemGroup> 
 
   <ItemGroup>
+    <Folder Include="Components\Sesiones\" />
     <Folder Include="wwwroot\icons\" />
   </ItemGroup>
 

@@ -8,6 +8,7 @@ using Microsoft.JSInterop;
 using Radzen;
 using System.Globalization;
 using Blazored.LocalStorage;
+using BlazorDownloadFile;
 
 
 
@@ -21,6 +22,8 @@ builder.Services.AddScoped(sp =>
     client.DefaultRequestHeaders.Add("Accept", "application/json");
     return client;
 });
+
+
 
 
 // 🌍 Configurar cultura en español (España o México)
@@ -49,6 +52,9 @@ builder.Services.AddScoped<ArchivoService>(); // <--- obligatorio para poder iny
 builder.Services.AddScoped<CaballoService>();
 builder.Services.AddScoped<SesionesService>();
 builder.Services.AddScoped<AsistenciasService>();
+builder.Services.AddBlazorDownloadFile();
+builder.Services.AddScoped<IExportService, ExportService>();
+
 
 
 

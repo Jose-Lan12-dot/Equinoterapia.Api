@@ -6,30 +6,58 @@
 @using Radzen.Blazor
 @using FRONTproyectoEquinoterapia.Models
 
-<h3>Agregar Caballo</h3>
+<div class="row justify-content-end">
+    <div class="col-md-6">
+        <div class="p-3 border rounded bg-light">
+            <h5 class="text-secondary mb-2">Información general</h5>
+            <p class="small text-muted m-0">
+                Aquí registrarás un nuevo caballo, asegúrate de no dejar campos vacíos.
+                Al terminar usa el selector correspondiente.
+            </p>
+        </div>
+    </div>
+</div>
+<div class="card shadow-sm p-4 mt-3" style="max-width: 500px; margin-left: 20px;">
 
-<div class="mb-3">
-    <label>Placa:</label>
-    <RadzenTextBox @bind-Value="NuevoCaballo.Placa" Style="width:250px" Placeholder="Ingresa la placa" />
+    <h3 class="mb-4 text-primary">
+        <i class="material-icons" style="vertical-align: middle;">directions_run</i>
+        Agregar Caballo
+    </h3>
+
+    
+
+    <!-- Placa -->
+    <div class="mb-3">
+        <label class="form-label">Placa:</label>
+        <RadzenTextBox @bind-Value="NuevoCaballo.Placa" Style="width:100%" Placeholder="Ingresa la placa" />
+    </div>
+
+    <!-- Nombre -->
+    <div class="mb-3">
+        <label class="form-label">Nombre:</label>
+        <RadzenTextBox @bind-Value="NuevoCaballo.Nombre" Style="width:100%" Placeholder="Ingresa el nombre" />
+    </div>
+
+    <!-- Fecha de Herraje -->
+    <div class="mb-3">
+        <label class="form-label">Fecha de Herraje:</label>
+        <RadzenDatePicker @bind-Value="fechaHerrajeTemp" Style="width:100%" />
+    </div>
+
+    <!-- Padecimiento -->
+    <div class="mb-3">
+        <label class="form-label">Padecimiento:</label>
+        <RadzenTextBox @bind-Value="NuevoCaballo.Padecimiento" Style="width:100%" Placeholder="Opcional" />
+    </div>
+
+    <!-- Botones -->
+    <div class="mt-3">
+        <RadzenButton Text="Guardar" Click="@GuardarCaballo" ButtonStyle="ButtonStyle.Primary" Style="margin-right:10px" />
+        <RadzenButton Text="Cancelar" Click="@Cancelar" ButtonStyle="ButtonStyle.Secondary" />
+    </div>
+
 </div>
 
-<div class="mb-3">
-    <label>Nombre:</label>
-    <RadzenTextBox @bind-Value="NuevoCaballo.Nombre" Style="width:250px" Placeholder="Ingresa el nombre" />
-</div>
-
-<div class="mb-3">
-    <label>Fecha de Herraje:</label>
-    <RadzenDatePicker @bind-Value="fechaHerrajeTemp" Style="width:250px" />
-</div>
-
-<div class="mb-3">
-    <label>Padecimiento:</label>
-    <RadzenTextBox @bind-Value="NuevoCaballo.Padecimiento" Style="width:250px" Placeholder="Opcional" />
-</div>
-
-<RadzenButton Text="Guardar" Click="@GuardarCaballo" ButtonStyle="ButtonStyle.Primary" Style="margin-right:10px" />
-<RadzenButton Text="Cancelar" Click="@Cancelar" ButtonStyle="ButtonStyle.Secondary" />
 
 @code {
     private AddCaballoDto NuevoCaballo = new AddCaballoDto();

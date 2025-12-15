@@ -1,27 +1,63 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">FRONTproyectoEquinoterapia</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+﻿<div class="@NavMenuCssClass sidebar">
+    <!-- Logo arriba -->
+    <div class="sidebar-logo">
+        <img src="/imagenes/logo.png" alt="Logo Equinoterapia" />
     </div>
-</div>
-
-<div class="@NavMenuCssClass nav-scrollable">
-    <RadzenPanelMenu Click="OnParentClicked" Style="width:100%;" Multiple="@multiple">
-        <RadzenPanelMenuItem Text="Home" Path="home" Icon="home"></RadzenPanelMenuItem>
-        <RadzenPanelMenuItem Text="Informes" Path="Informes" Icon="Assessment"></RadzenPanelMenuItem>
+    <RadzenPanelMenu Style="width:100%; background-color:transparent; color:#061f6d;"
+                     Click="OnParentClicked" Multiple="@multiple">
+        <RadzenPanelMenuItem Text="Inicio" Path="inicio" Icon="home"></RadzenPanelMenuItem>
         <RadzenPanelMenuItem Text="Pacientes" Path="Pacientes" Icon="account_circle"></RadzenPanelMenuItem>
         <RadzenPanelMenuItem Text="Instructores" Path="Instructores" Icon="Psychology"></RadzenPanelMenuItem>
         <RadzenPanelMenuItem Text="Caballos" Path="Caballos" Icon="Psychology"></RadzenPanelMenuItem>
-        <RadzenPanelMenuItem Text="Sesiones" Path="/sesiones" Icon="event_note" />
-        <RadzenPanelMenuItem Text="Weather" Path="weather" Icon="list"></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Text="Sesiones" Path="/sesiones" Icon="event_note"></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Text="Informes" Path="Informes" Icon="Assessment"></RadzenPanelMenuItem>
     </RadzenPanelMenu>
 </div>
 
+<style>
+    .sidebar {
+        width: 200px;
+        min-height: 100vh;
+        background-color: #eff1f6; /* gris de fondo */
+        color: #0000; /* texto azul oscuro */
+        transition: all 0.3s ease;
+        overflow-y: auto;
+    }
+
+        .sidebar .rz-panelmenu-item {
+            color: #061f6d !important;
+            padding: 0.5rem 1rem;
+            width: 250px;
+        }
+
+            .sidebar .rz-panelmenu-item:hover {
+                background-color: #5a8c3f; /* verde hover */
+                color: #ffffff !important;
+            }
+
+        .sidebar .rz-panelmenu-item-selected {
+            background-color: #eeb636; /* naranja selección */
+            color: #061f6d !important;
+        }
+
+    .collapse {
+        display: none;
+    }
+
+    /* Logo centrado sin círculo */
+    .sidebar-logo {
+        text-align: center;
+        padding: 1.5rem 0;
+    }
+
+        .sidebar-logo img {
+            max-width: 50%;
+            height: auto;
+        }
+</style>
 
 @code {
-    private bool collapseNavMenu = true;
+    private bool collapseNavMenu = false;
     private bool multiple = true;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;

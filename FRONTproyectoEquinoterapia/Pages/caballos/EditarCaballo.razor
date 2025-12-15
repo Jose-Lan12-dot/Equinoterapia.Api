@@ -1,0 +1,281 @@
+﻿@page "/detalle-caballo/{CaballoId:int}"
+@inject FRONTproyectoEquinoterapia.Services.CaballoService CaballoService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject NotificationService NotificationService
+@using Radzen
+@using Radzen.Blazor
+@using FRONTproyectoEquinoterapia.Models
+
+<div class="card shadow-sm p-4 mt-3">
+
+    <!-- Encabezado con icono -->
+    <div class="d-flex align-items-center mb-3">
+        <i class="material-icons text-primary me-2">pets</i>
+        <h3 class="m-0">Detalle del Caballo</h3>
+    </div>
+
+    @if (caballo == null)
+    {
+        <p>Cargando...</p>
+    }
+    else
+    {
+        <div class="row">
+
+            <!-- COLUMNA IZQUIERDA -->
+            <div class="col-md-6">
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Placa:</label>
+                    <RadzenTextBox @bind-Value="caballo.Placa"
+                                   Style="width:100%"
+                                   Disabled="@(!modoEdicion)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nombre:</label>
+                    <RadzenTextBox @bind-Value="caballo.Nombre"
+                                   Style="width:100%"
+                                   Disabled="@(!modoEdicion)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Fecha de Herraje:</label>
+                    <RadzenDatePicker @bind-Value="fechaHerrajeTemp"
+                                      Style="width:100%"
+                                      Disabled="@(!modoEdicion)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Padecimiento:</label>
+                    <RadzenTextBox @bind-Value="caballo.Padecimiento"
+                                   Style="width:100%"
+                                   Disabled="@(!modoEdicion)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Estado:</label>
+
+                    @if (modoEdicion)
+                    {
+                        <RadzenDropDown @bind-Value="caballo.Estado"
+                                        Data="@estadosDisponibles"
+                                        TextProperty="Text"
+                                        ValueProperty="Value"
+                                        Style="width:100%" />
+                    }
+                    else
+                    {
+                        <RadzenTextBox Value="@caballo.Estado"
+                                       Style="width:100%"
+                                       ReadOnly="true" />
+                    }
+                </div>
+
+            </div>
+
+            <!-- COLUMNA DERECHA -->
+            <div class="col-md-6">
+                <div class="p-3 border rounded bg-light">
+                    <h5 class="text-secondary mb-2">Información veterinaria</h5>
+                    <p class="small text-muted m-0">
+                        Aquí puedes revisar y actualizar los datos del caballo, como su placa,
+                        fecha de herraje y cualquier padecimiento registrado.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BOTONES -->
+        <div class="mt-4">
+
+            @if (!modoEdicion)
+            {
+                <RadzenButton Text="Editar"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Click="@ActivarEdicion" />
+
+                <RadzenButton Text="Regresar"
+                              ButtonStyle="ButtonStyle.Secondary"
+                              Click="@Regresar"
+                              Style="margin-left:5px" />
+                <RadzenButton Text="Eliminar El Caballo"
+                              Icon="delete"
+                              ButtonStyle="ButtonStyle.Danger"
+                              Click="@ConfirmarEliminarCaballo"
+                              Style="margin-left:5px" /> 
+
+            }
+            else
+            {
+                <RadzenButton Text="Guardar"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Click="@GuardarCambios"
+                              Style="margin-right:5px" />
+
+                <RadzenButton Text="Cancelar"
+                              ButtonStyle="ButtonStyle.Secondary"
+                              Click="@CancelarEdicion" />
+            }
+
+        </div>
+
+    }
+</div>
+
+
+@code {
+    [Parameter] public int CaballoId { get; set; }
+   
+    private CaballoDto? caballo;
+    private bool modoEdicion = false;
+    private DateTime fechaHerrajeTemp;
+
+    // Lista de estados permitidos
+    private List<Estado> estadosDisponibles = new()
+    {
+        new Estado { Value = "Activo", Text = "Activo" },
+        new Estado { Value = "Disponible", Text = "Disponible" },
+        new Estado { Value = "EnTratamiento", Text = "EnTratamiento" },
+        new Estado { Value = "Descansando", Text = "Descansando" },
+        new Estado { Value = "Retirado", Text = "Retirado" }
+    };
+
+    public class Estado
+    {
+        public string Value { get; set; } = "";
+        public string Text { get; set; } = "";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            caballo = await CaballoService.GetByIdAsync(CaballoId);
+            if (caballo != null)
+            {
+                fechaHerrajeTemp = caballo.FechaHerraje.ToDateTime(TimeOnly.MinValue);
+            }
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("alert", $"Error al cargar el caballo: {ex.Message}");
+        }
+    }
+
+    private void ActivarEdicion()
+    {
+        modoEdicion = true;
+    }
+
+    async Task ConfirmarEliminarCaballo()
+    {
+        if (caballo == null)
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = "No se pudo cargar la información del caballo."
+            });
+            return;
+        }
+
+        bool confirm = await JS.InvokeAsync<bool>("confirm",
+            $"¿Seguro que deseas eliminar al caballo \"{caballo.Nombre}\"? Esta acción no se puede deshacer.");
+
+        if (!confirm) return;
+
+        bool exito = await CaballoService.DeleteAsync(caballo.CaballoId);
+
+        if (exito)
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Caballo eliminado",
+                Detail = $"Se eliminó correctamente el caballo \"{caballo.Nombre}\"."
+            });
+
+            Navigation.NavigateTo("/caballos");
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = "No se pudo eliminar el caballo."
+            });
+        }
+    }
+
+
+    private void CancelarEdicion()
+    {
+        modoEdicion = false;
+        _ = OnInitializedAsync(); // restauramos los datos originales
+    }
+
+    private async Task GuardarCambios()
+    {
+        if (caballo == null) return;
+
+        // Validaciones
+        if (string.IsNullOrWhiteSpace(caballo.Placa) || caballo.Placa.Length != 10)
+        {
+            await JS.InvokeVoidAsync("alert", "La placa es obligatoria y debe tener 10 caracteres.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(caballo.Nombre))
+        {
+            await JS.InvokeVoidAsync("alert", "El nombre es obligatorio.");
+            return;
+        }
+
+        if (fechaHerrajeTemp > DateTime.Now)
+        {
+            await JS.InvokeVoidAsync("alert", "La fecha de herraje no puede ser futura.");
+            return;
+        }
+
+        // Convertimos la fecha
+        caballo.FechaHerraje = DateOnly.FromDateTime(fechaHerrajeTemp);
+
+        var updateDto = new UpdateCaballoDto
+        {
+            Placa = caballo.Placa,
+            Nombre = caballo.Nombre,
+            Estado = caballo.Estado,
+            FechaHerraje = caballo.FechaHerraje,
+            Padecimiento = caballo.Padecimiento
+        };
+
+        try
+        {
+            bool exito = await CaballoService.UpdatePartialAsync(CaballoId, updateDto);
+            if (exito)
+            {
+                modoEdicion = false;
+                await JS.InvokeVoidAsync("alert", "Caballo actualizado correctamente.");
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Error al actualizar el caballo.");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("alert", $"Error al actualizar: {ex.Message}");
+        }
+    }
+
+    private void Regresar()
+    {
+        Navigation.NavigateTo("/caballos");
+    }
+}
+

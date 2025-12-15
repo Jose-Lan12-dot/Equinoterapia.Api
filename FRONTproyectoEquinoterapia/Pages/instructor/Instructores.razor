@@ -10,40 +10,81 @@
 @using Radzen
 @using Radzen.Blazor
 
-<h3>Lista de Instructores</h3>
+<div class="card shadow-sm p-4 mt-3 custom-card">
 
-<RadzenStack Orientation="Orientation.Horizontal" Gap="10px" Style="margin-bottom:15px">
-    <RadzenButton Click="@AbrirAgregarInstructor" Text="Agregar instructor" Icon="add_circle" ButtonStyle="ButtonStyle.Primary" />
+    <!-- Título con icono -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="m-0 text-primary icon-title">
+            <i class="material-icons">school</i>
+            Lista de Instructores
+        </h3>
 
-    <RadzenDropDown Style="width: 100%; max-width: 300px;"
-                    TValue="string"
-                    @bind-Value="selectedOrder"
-                    Placeholder="Selecciona orden"
-                    Data="@ordenesDisponibles"
-                    TextProperty="Text"
-                    ValueProperty="Value"
-                    Change="@(args => AplicarFiltros())"
-                    AllowFiltering="true" />
-</RadzenStack>
+        <RadzenButton Click="@AbrirAgregarInstructor"
+                      Text="Registrar Un Nuevo Instructor"
+                      Icon="add_circle"
+                      ButtonStyle="ButtonStyle.Primary" />
+    </div>
 
-<RadzenTextBox @bind-Value="searchTerm" Placeholder="Buscar instructor..."
-               Style="margin-bottom:10px;width:250px" Change="@(args => AplicarFiltros())" />
+    <!-- Filtros -->
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="10px" Style="margin-bottom:15px">
+        <RadzenDropDown Style="width: 100%; max-width: 300px;"
+                        TValue="string"
+                        @bind-Value="selectedOrder"
+                        Placeholder="Selecciona orden"
+                        Data="@ordenesDisponibles"
+                        TextProperty="Text"
+                        ValueProperty="Value"
+                        Change="@(args => AplicarFiltros())"
+                        AllowFiltering="true" />
+    </RadzenStack>
 
-<RadzenDataGrid Data="@filteredInstructores" TItem="InstructorDto" ColumnWidth="200px"
-                AllowFiltering="true" AllowPaging="true" AllowSorting="true" PageSize="5">
-    <Columns>
-        <RadzenDataGridColumn TItem="InstructorDto" Property="InstructorId" Title="ID" />
-        <RadzenDataGridColumn TItem="InstructorDto" Property="Nombre" Title="Nombre" />
-        <RadzenDataGridColumn TItem="InstructorDto" Property="Telefono" Title="Teléfono" />
-        <RadzenDataGridColumn TItem="InstructorDto" Property="Estado" Title="Estado" />
-        <RadzenDataGridColumn TItem="InstructorDto" Title="Operaciones">
-            <Template Context="i">
-                <RadzenButton Icon="visibility" ButtonStyle="ButtonStyle.Info" Click="@(() => VerInstructor(i.InstructorId))" />
-                 <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => ConfirmarEliminarInstructor(i))" />
-            </Template>
-        </RadzenDataGridColumn>
-    </Columns>
-</RadzenDataGrid>
+    <RadzenTextBox @bind-Value="searchTerm"
+                   Placeholder="Buscar instructor..."
+                   Style="margin-bottom:15px; width:250px"
+                   Change="@(args => AplicarFiltros())" />
+
+    <!-- Grid -->
+    <RadzenDataGrid Data="@filteredInstructores" TItem="InstructorDto" ColumnWidth="200px"
+                    AllowFiltering="true" AllowPaging="true" AllowSorting="true" PageSize="5"
+                    class="shadow-sm rounded">
+        <Columns>
+            <RadzenDataGridColumn TItem="InstructorDto" Property="InstructorId" Title="ID" />
+            <RadzenDataGridColumn TItem="InstructorDto" Property="Nombre" Title="Nombre" />
+            <RadzenDataGridColumn TItem="InstructorDto" Property="Telefono" Title="Teléfono" />
+            <RadzenDataGridColumn TItem="InstructorDto" Property="Estado" Title="Estado" />
+            <RadzenDataGridColumn TItem="InstructorDto" Title="Operaciones">
+                <Template Context="i">
+                    <div class="btn-group">
+                        <RadzenButton Icon="visibility" ButtonStyle="ButtonStyle.Info" Click="@(() => VerInstructor(i.InstructorId))" Size="ButtonSize.Small" />
+                        <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => ConfirmarEliminarInstructor(i))" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+
+</div>
+
+<style>
+    .custom-card {
+        background-color: #f8f9fa; /* gris suave */
+    }
+
+    .icon-title i {
+        vertical-align: middle;
+        margin-right: 8px;
+        color: #061f6d; /* azul logo */
+    }
+
+    .btn-group .rz-button {
+        margin-right: 4px;
+    }
+
+    .rz-datagrid-table tr:hover {
+        background-color: #e9ecef;
+    }
+</style>
+
 
 @code {
     string searchTerm = "";

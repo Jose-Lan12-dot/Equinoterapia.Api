@@ -1,6 +1,5 @@
 ﻿@page "/pacientes"
 @using FRONTproyectoEquinoterapia.Services
-@using FRONTproyectoEquinoterapia.Components
 @using FRONTproyectoEquinoterapia.Models
 @inject NavigationManager Navigation
 @inject HttpClient Http
@@ -11,24 +10,23 @@
 @using Radzen.Blazor
 
 
-<div class="card shadow-sm p-4 mt-3">
+<div class="card shadow-sm p-4 mt-3 custom-card">
 
     <!-- Título con icono -->
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="m-0 text-primary">
-            <i class="material-icons" style="vertical-align: middle;">group</i>
+        <h3 class="m-0 text-primary icon-title">
+            <i class="material-icons">group</i>
             Lista de Pacientes
         </h3>
 
         <RadzenButton Click="@AbrirAgregarPaciente"
-                      Text="Agregar paciente"
+                      Text="Registrar Un Nuevo Paciente"
                       Icon="add_circle"
                       ButtonStyle="ButtonStyle.Primary" />
     </div>
 
     <!-- Filtros -->
     <div class="row g-3 mb-3">
-
         <div class="col-md-4">
             <RadzenTextBox @bind-Value="searchTerm"
                            Placeholder="Buscar paciente..."
@@ -47,7 +45,6 @@
                             Change="@(args => AplicarFiltros())"
                             AllowFiltering="true" />
         </div>
-
     </div>
 
     <!-- Grid -->
@@ -61,13 +58,9 @@
                     class="shadow-sm rounded">
 
         <Columns>
-
             <RadzenDataGridColumn TItem="AllPacienteDto" Property="PacienteId" Title="ID" />
-
             <RadzenDataGridColumn TItem="AllPacienteDto" Property="Nombre" Title="Nombre" />
-
             <RadzenDataGridColumn TItem="AllPacienteDto" Property="NumeroFaltas" Title="Faltas" />
-
             <RadzenDataGridColumn TItem="AllPacienteDto" Property="Estado" Title="Estado" />
 
             <RadzenDataGridColumn TItem="AllPacienteDto" Title="Operaciones">
@@ -87,17 +80,34 @@
                                       Click="@(args => IrAEvaluacion(p.PacienteId, p.FormularioHecho))"
                                       Size="ButtonSize.Small"
                                       Text="@(p.FormularioHecho ? "Evaluación Completada" : "Realizar Evaluación")" />
-
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-
-
         </Columns>
 
     </RadzenDataGrid>
 
 </div>
+
+<style>
+    .custom-card {
+        background-color: #f8f9fa; /* gris suave */
+    }
+
+    .icon-title i {
+        vertical-align: middle;
+        margin-right: 8px;
+        color: #061f6d; /* azul logo */
+    }
+
+    .btn-group .rz-button {
+        margin-right: 4px;
+    }
+
+    .rz-datagrid-table tr:hover {
+        background-color: #e9ecef;
+    }
+</style>
 
 
 @code {
@@ -218,46 +228,6 @@
         }
     }
 
-    async Task EliminarPaciente(AllPacienteDto paciente)
-    {
-        // Confirmación con DialogService (Radzen)
-        bool? confirmar = await DialogService.Confirm(
-            $"¿Seguro que deseas eliminar al paciente \"{paciente.Nombre}\"? Esta acción eliminará también TODOS sus archivos y registros asociados.",
-            "Confirmar eliminación",
-            new ConfirmOptions()
-            {
-                OkButtonText = "Eliminar",
-                CancelButtonText = "Cancelar"
-                // <-- NO pongas ButtonStyle aquí; ConfirmOptions no lo tiene
-            }
-        );
-
-        if (confirmar != true)
-            return;
-
-        // Llamada al servicio
-        var (exito, mensaje) = await pacienteService.EliminarPacienteAsync(paciente.PacienteId);
-
-        if (exito)
-        {
-            await CargarPacientes();
-            NotificationService.Notify(new NotificationMessage
-            {
-                Severity = NotificationSeverity.Success,
-                Summary = "Paciente eliminado",
-                Detail = mensaje
-            });
-        }
-        else
-        {
-            NotificationService.Notify(new NotificationMessage
-            {
-                Severity = NotificationSeverity.Error,
-                Summary = "Error",
-                Detail = mensaje
-            });
-        }
-    }
 
     //manda a la evaluacion existente }
     void IrAEvaluacion(int pacienteId, bool formularioHecho)
