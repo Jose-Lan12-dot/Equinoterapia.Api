@@ -1,13 +1,42 @@
 using Equinoterapia.Application;
+using Equinoterapia.Application.Interfaces;
 using Equinoterapia.Infrastructure;
+using Equinoterapia.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Controllers
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
+//builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = JwtBearerDefaults.AuthenticationScheme,
+        In = ParameterLocation.Header,
+        BearerFormat = "JWT",
+        Description = "JWT Authorization header",
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = JwtBearerDefaults.AuthenticationScheme
+                }
+            },
+            new string[] { "Bearer "}
+     }
+});
+});
 // Obtener AllowedOrigins como arreglo
 var allowedOrigins = builder.Configuration
     .GetSection("CorsSettings:AllowedOrigins")
@@ -33,6 +62,9 @@ builder.Services.AddCors(options =>
 // Servicios de la app
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 

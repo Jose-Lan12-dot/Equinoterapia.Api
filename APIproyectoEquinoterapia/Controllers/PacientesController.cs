@@ -1,12 +1,13 @@
 ﻿using Equinoterapia.Application.DTOs.Pacientes; 
 using Equinoterapia.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
 
 namespace Equinoterapia.Api.Controllers
 {
-    // [Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class PacientesController : ControllerBase

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Equinoterapia.Api.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/pacientes/{pacienteId}/evaluacion")]
     public class EvaluacionController : ControllerBase

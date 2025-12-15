@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Equinoterapia.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     //[Authorize]

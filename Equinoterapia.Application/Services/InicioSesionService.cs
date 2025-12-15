@@ -44,8 +44,8 @@ namespace Equinoterapia.Application.Services
             var respuesta = new LoginResponseDto
             {
                 Token = token,
-                NombreUsuario = usuario.Usuario, // O usuario.Nombre si tienes esa propiedad
-                FotoPerfil = usuario.Foto,       // Aquí pasas los bytes de la imagen
+                NombreUsuario = acceso.Usuario, // O usuario.Nombre si tienes esa propiedad
+                FotoPerfil = acceso.Foto,       // Aquí pasas los bytes de la imagen
                 Mensaje = "Inicio de sesión exitoso"
             };
 
