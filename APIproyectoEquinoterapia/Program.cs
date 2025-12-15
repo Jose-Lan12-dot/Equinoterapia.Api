@@ -40,7 +40,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// CORS DEBE IR AQUÍ (ANTES DE AUTH)
+
 app.UseCors("AllowFront");
 
 app.UseHttpsRedirection();

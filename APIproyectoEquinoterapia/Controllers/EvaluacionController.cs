@@ -24,13 +24,13 @@ namespace Equinoterapia.Api.Controllers
 
             if (evaluacion == null)
             {
-                return NotFound(new { Mensaje = mensaje });
+                return NotFound( mensaje );
             }
 
 
             return Ok(new
             {
-                dataEvaluacion = evaluacion,
+                Data = evaluacion,
                 Mensaje = mensaje
             });
         }
@@ -45,11 +45,11 @@ namespace Equinoterapia.Api.Controllers
             if (!exito)
             {
 
-                return BadRequest(new { Mensaje = mensaje });
+                return BadRequest( mensaje );
             }
 
 
-            return Ok(new { Mensaje = mensaje }); 
+            return Ok(mensaje); 
         }
 
         [HttpPatch]
@@ -60,7 +60,7 @@ namespace Equinoterapia.Api.Controllers
             if (!exito)
             {
 
-                return NotFound(new { Mensaje = mensaje });
+                return NotFound(mensaje);
             }
 
             return NoContent(); 
@@ -73,7 +73,7 @@ namespace Equinoterapia.Api.Controllers
 
             if (!exito)
             {
-                return NotFound(new { Mensaje = mensaje }); 
+                return NotFound(mensaje); 
             }
 
             return NoContent(); 
@@ -88,7 +88,7 @@ namespace Equinoterapia.Api.Controllers
 
             if (!preguntas.Any())
             {
-                return NotFound(new { Mensaje = mensaje });
+                return NotFound(mensaje);
             }
 
             return Ok(preguntas);

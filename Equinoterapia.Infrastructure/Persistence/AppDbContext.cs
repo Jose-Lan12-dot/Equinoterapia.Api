@@ -137,6 +137,9 @@ public partial class AppDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("tutor");
 
+            entity.Property(e => e.FechaUltimoReingreso)
+                .HasColumnName("fecha_ultimo_registro");
+
         });
 
         modelBuilder.Entity<Sesion>(entity =>

@@ -32,6 +32,7 @@ namespace Equinoterapia.Domain.Entities
         public required Generos Genero { get; set; }
 
         public required DateTime FechaRegistro { get; set; }
+        public DateTime? FechaUltimoReingreso { get; set; }
 
 
 

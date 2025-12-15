@@ -38,8 +38,18 @@ namespace Equinoterapia.Infrastructure.Repositories
 
         public async Task<int> GetFaltasCountAsync(int pacienteId)
         {
+            //return await _context.asistencia
+            //    .CountAsync(c => c.PacienteId == pacienteId && c.Asistio == false);
+            var paciente = await _context.paciente.FindAsync(pacienteId);
+            var fechaCorte = paciente.FechaUltimoReingreso ?? DateTime.MinValue;
+
             return await _context.asistencia
-                .CountAsync(c => c.PacienteId == pacienteId && c.Asistio == false);
+                .Include(a => a.Sesion)
+                .CountAsync(a =>
+                    a.PacienteId == pacienteId &&
+                    a.Asistio == false &&
+                    a.Sesion.Fecha >= DateOnly.FromDateTime(fechaCorte) 
+                );
         }
 
         public async Task<bool> HasEvaluacionAsync(int pacienteId)

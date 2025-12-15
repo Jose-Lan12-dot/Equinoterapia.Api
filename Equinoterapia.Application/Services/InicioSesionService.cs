@@ -21,14 +21,14 @@ namespace Equinoterapia.Application.Services
             _tokenGenerator = tokenGenerator;
         }
 
-        public async Task<(bool, string, string)> LoginAsync(CredencialesDto inicioSesionDataDto)
+        public async Task<(bool, string, LoginResponseDto?)> LoginAsync(CredencialesDto inicioSesionDataDto)
         {
             var usuario = await _authRepository.ValidateUserAsync(inicioSesionDataDto.Usuario);
             if (IsNull(usuario) || IsNull(usuario.IdUsuario) || usuario.IdUsuario == 0)
-                return (false, "Usuario no encontrado", "");
+                return (false, "Usuario no encontrado", null);
 
-            string encryptedPassword = _encryptionService.EncryptPassword(inicioSesionDataDto.contrasena);
-            //string encryptedPassword = inicioSesionDataDto.contrasena; 
+            //string encryptedPassword = _encryptionService.EncryptPassword(inicioSesionDataDto.contrasena);
+            string encryptedPassword = inicioSesionDataDto.contrasena; 
 
             var acceso = await _authRepository.ValidateAccessAsync(
                                     inicioSesionDataDto.Usuario,
@@ -36,13 +36,20 @@ namespace Equinoterapia.Application.Services
                                     usuario.IdUsuario);
 
             if (IsNull(acceso) || acceso.IdUsuario == 0)
-                return (false, "Credenciales incorrectas", "");
+                return (false, "Credenciales incorrectas", null);
 
 
             var accesoDto = MapToDto(acceso);
             var token = _tokenGenerator.GenerateToken(accesoDto);
+            var respuesta = new LoginResponseDto
+            {
+                Token = token,
+                NombreUsuario = usuario.Usuario, // O usuario.Nombre si tienes esa propiedad
+                FotoPerfil = usuario.Foto,       // Aquí pasas los bytes de la imagen
+                Mensaje = "Inicio de sesión exitoso"
+            };
 
-            return (true, "Usuario encontrado", token);
+            return (true, "Usuario encontrado", respuesta);
         }
 
 
@@ -50,7 +57,10 @@ namespace Equinoterapia.Application.Services
 
 
         // --- MÉTODOS PRIVADOS (Helper) ---
-        private bool IsNull(object? obj) => obj is null;
+        private bool IsNull(object? obj) { 
+            if (obj == null) return true;
+            return false;
+        }
 
         private GetDataUsuarioDto MapToDto(InicioSesion usuario)
         {

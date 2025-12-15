@@ -21,10 +21,11 @@ namespace Equinoterapia.Infrastructure.Repositories
                     EXEC dbo.Sp_LoginNovedades 
                         @User = {usuario}, 
                         @Password = '', 
-                        @IdSistema = {2130}, 
+                        @IdSistema = {1}, 
                         @IdPerfil = {0}, 
                         @Accion = {1}")
                 .ToListAsync();
+            //@IdSistema = {2130},
 
             return resultados.SingleOrDefault();
         }
@@ -36,7 +37,7 @@ namespace Equinoterapia.Infrastructure.Repositories
                     EXEC dbo.Sp_LoginNovedades 
                         @User = {usuario}, 
                         @Password = {password}, 
-                        @IdSistema = {2130}, 
+                        @IdSistema = {1}, 
                         @IdPerfil = {idUsuario}, 
                         @Accion = {2}")
                 .ToListAsync();

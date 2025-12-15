@@ -21,14 +21,14 @@ namespace Equinoterapia.Api.Controllers
         public async Task<IActionResult> Login([FromBody] CredencialesDto inicioSesionDataDto)
         {
 
-            var (exito, mensaje, token) = await _inicioSesionService.LoginAsync(inicioSesionDataDto);
+            var (exito, mensaje, data) = await _inicioSesionService.LoginAsync(inicioSesionDataDto);
 
             if (!exito)
             {
-                return Unauthorized(new { Mensaje = mensaje });
+                return Unauthorized( mensaje );
             }
 
-            return Ok(new { Token = token, Mensaje = mensaje });
+            return Ok(new { Data = data, Mensaje = mensaje });
         }
     }
 }

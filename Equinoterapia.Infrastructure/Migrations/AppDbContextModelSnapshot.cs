@@ -319,6 +319,10 @@ namespace Equinoterapia.Infrastructure.Migrations
                         .HasColumnName("fecha_registro")
                         .HasDefaultValueSql("(getdate())");
 
+                    b.Property<DateTime?>("FechaUltimoReingreso")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("fecha_ultimo_registro");
+
                     b.Property<string>("Genero")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")

@@ -249,9 +249,16 @@ namespace Equinoterapia.Application.Services
             }
 
             paciente.Estado = EstadoPaciente.EnTratamiento;
+            paciente.FechaUltimoReingreso = DateTime.Today;
+
 
             try
             {
+                var asistencias = await _asistenciaRepository.GetByPacienteIdAsync(pacienteId);
+                if (asistencias.Any())
+                {
+                    _asistenciaRepository.RemoveRange(asistencias);
+                }
                 await _pacienteRepository.SaveChangesAsync();
                 return (true, "Paciente reactivado correctamente");
             }

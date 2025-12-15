@@ -4,6 +4,6 @@ namespace Equinoterapia.Application.Interfaces
 {
     public interface IInicioSesionService
     {
-        Task<(bool, string, string)> LoginAsync(CredencialesDto inicioSesionDataDto);
+        Task<(bool, string, LoginResponseDto?)> LoginAsync(CredencialesDto inicioSesionDataDto);
     }
 }
