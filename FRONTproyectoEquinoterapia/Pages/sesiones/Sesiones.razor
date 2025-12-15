@@ -3,34 +3,53 @@
 
 @inject FRONTproyectoEquinoterapia.Services.SesionesService SesionesService
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>Sesiones</h3>
-    <button class="btn btn-primary" @onclick="() => agregarDialog.Abrir()">Agregar Sesión</button>
+<div class="card shadow-sm p-3 mb-3 d-flex justify-content-between align-items-center">
+    <h3 class="m-0">Sesiones</h3>
+    <button class="btn btn-primary btn-sm" @onclick="() => agregarDialog.Abrir()">
+        Agregar Sesión
+    </button>
 </div>
 
-<RadzenScheduler @ref="scheduler" TItem="Appointment"
-                 Data="@appointments"
-                 StartProperty="Start"
-                 EndProperty="End"
-                 TextProperty="Text"
-                 AppointmentMove="@OnAppointmentMove"
-                 AppointmentSelect="@OnAppointmentSelect"
-                 DaySelect="@OnDaySelect"
-                 Style="height: 700px;">
-    <RadzenDayView />
-    <RadzenWeekView />
-    <RadzenMonthView />
-</RadzenScheduler>
+<div class="card shadow-sm p-3">
+    <RadzenScheduler @ref="scheduler"
+                     TItem="Appointment"
+                     Data="@appointments"
+                     StartProperty="Start"
+                     EndProperty="End"
+                     TextProperty="Text"
+                     AppointmentRender="@OnAppointmentRender"
+                     AppointmentMove="@OnAppointmentMove"
+                     AppointmentSelect="@OnAppointmentSelect"
+                     DaySelect="@OnDaySelect"
+                     Style="height:700px; border-radius:8px;">
+        <RadzenDayView />
+        <RadzenWeekView />
+        <RadzenMonthView />
+    </RadzenScheduler>
+</div>
 
+<!-- Diálogos -->
 <AgregarSesionDialog @ref="agregarDialog" OnSesionAgregada="RefrescarCalendario" />
 <DetalleSesionDialog @ref="detallesDialog" OnSesionActualizada="RefrescarCalendario" />
 
 @code {
+
     private RadzenScheduler<Appointment> scheduler;
     private AgregarSesionDialog agregarDialog;
     private DetalleSesionDialog detallesDialog;
 
     private IList<Appointment> appointments = new List<Appointment>();
+
+    // 🎨 PALETA DE COLORES (puedes ajustar)
+    private readonly List<string> PaletaColores = new()
+    {
+        "#061f6d", // azul fuerte
+        "#5a8c3f", // verde
+        "#eeb636", // naranja
+        "#de6d6c", // rojo
+        "#3b82f6", // azul alterno
+        "#9333ea"  // morado
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -44,21 +63,34 @@
         return f.Date + h;
     }
 
+    // 🔑 MISMO INSTRUCTOR = MISMO COLOR
+    private string ObtenerColorPorInstructor(string instructor)
+    {
+        if (string.IsNullOrWhiteSpace(instructor))
+            return "#eff1f6";
+
+        int hash = instructor.GetHashCode();
+        int index = Math.Abs(hash) % PaletaColores.Count;
+
+        return PaletaColores[index];
+    }
+
     private async Task CargarSesiones()
     {
-        var sesiones = await SesionesService.GetAllAsync(); // aquí ya tienes la lista
+        var sesiones = await SesionesService.GetAllAsync();
 
         appointments = sesiones.Select(s => new Appointment
         {
             Start = CombinarFechaHora(s.Fecha, s.Hora),
             End = CombinarFechaHora(s.Fecha, s.Hora).AddHours(1),
             Text = $"{s.nombreInstructor} - {s.nombreCaballo} ({s.Hora:hh\\:mm})",
-            SesionId = s.SesionId
+            SesionId = s.SesionId,
+
+            // 🎨 COLOR ASIGNADO AQUÍ
+            ColorHex = ObtenerColorPorInstructor(s.nombreInstructor)
+
         }).ToList();
     }
-
-
-
 
     private async Task RefrescarCalendario()
     {
@@ -97,4 +129,12 @@
 
         await RefrescarCalendario();
     }
+
+    // 🎨 AQUÍ SE PINTA LA SESIÓN
+    void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<Appointment> args)
+    {
+        args.Attributes["style"] =
+            $"background-color:{args.Data.ColorHex}; color:white; border-radius:6px;";
+    }
 }
+

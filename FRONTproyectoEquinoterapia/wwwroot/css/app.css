@@ -101,19 +101,68 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
-.sidebar .rz-panelmenu {
-    background-color: #0d6efd !important;
-    color: white !important;
+
+/* =========================
+   RADZEN - PALETA DEL LOGO
+   ========================= */
+
+/* Base */
+.rz-button {
+    border-radius: 10px;
+    font-weight: 500;
 }
 
-    .sidebar .rz-panelmenu .rz-panelmenu-item {
-        color: white !important;
+/* PRIMARY - Azul institucional */
+.rz-button-primary {
+    background-color: #061f6d !important;
+    border-color: #061f6d !important;
+    color: #ffffff !important;
+}
+
+    .rz-button-primary:hover {
+        background-color: #04184f !important;
     }
 
-        .sidebar .rz-panelmenu .rz-panelmenu-item:hover {
-            background-color: #1456c2 !important;
-        }
+/* SUCCESS - Verde */
+.rz-button-success {
+    background-color: #5a8c3f !important;
+    border-color: #5a8c3f !important;
+    color: #ffffff !important;
+}
 
-        .sidebar .rz-panelmenu .rz-panelmenu-item i {
-            color: white !important;
-        }
+    .rz-button-success:hover {
+        background-color: #4b7535 !important;
+    }
+
+/* WARNING - Naranja */
+.rz-button-warning {
+    background-color: #eeb636 !important;
+    border-color: #eeb636 !important;
+    color: #000000 !important;
+}
+
+    .rz-button-warning:hover {
+        background-color: #d6a32f !important;
+    }
+
+/* DANGER - Rojo */
+.rz-button-danger {
+    background-color: #de6d6c !important;
+    border-color: #de6d6c !important;
+    color: #ffffff !important;
+}
+
+    .rz-button-danger:hover {
+        background-color: #c95f5e !important;
+    }
+
+/* SECONDARY - Azul claro */
+.rz-button-secondary {
+    background-color: #eff1f6 !important;
+    border-color: #cfd6e4 !important;
+    color: #061f6d !important;
+}
+
+    .rz-button-secondary:hover {
+        background-color: #dfe3ef !important;
+    }

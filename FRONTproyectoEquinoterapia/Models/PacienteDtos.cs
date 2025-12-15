@@ -27,21 +27,6 @@ namespace FRONTproyectoEquinoterapia.Models
         public bool FaltanArchivos { get; set; }
     }
 
-    public class AddPacienteDto
-    {
-        public string Nombre { get; set; } = string.Empty;
-        public DateOnly FechaNacimiento { get; set; }
-        public string Tutor { get; set; } = string.Empty;
-        public string TelefonoTutor { get; set; } = string.Empty;
-        public string Genero { get; set; } = string.Empty;
-    }
-
-
-    public class AddPacienteConArchivosDto
-    {
-        public AddPacienteDto Paciente { get; set; } = new();
-        public List<AddArchivoBlazorDto> Archivos { get; set; } = new(); // lista vacía si no hay archivos
-    }
 
     public class UpdatePacienteDto
     {

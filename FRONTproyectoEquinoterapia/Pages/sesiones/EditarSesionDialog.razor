@@ -10,7 +10,7 @@
 @if (Visible && Sesion != null)
 {
     <div class="modal show d-block" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Editar Sesión</h5>
@@ -21,49 +21,52 @@
                         <DataAnnotationsValidator />
                         <ValidationSummary />
 
-                        <div class="mb-3">
-                            <label>Fecha</label>
-                            <InputDate @bind-Value="Fecha" class="form-control" />
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label>Fecha</label>
+                                <InputDate @bind-Value="Fecha" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label>Hora (HH:mm)</label>
+                                <InputText @bind-Value="Hora" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label>Instructor</label>
+                                <InputSelect @bind-Value="Sesion.InstructorId" class="form-select">
+                                    @foreach (var i in Instructores ?? new List<SimpleDto>())
+                                    {
+                                        <option value="@i.Id">@i.Nombre</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Caballo</label>
+                                <InputSelect @bind-Value="Sesion.CaballoId" class="form-select">
+                                    @foreach (var c in Caballos ?? new List<SimpleDto>())
+                                    {
+                                        <option value="@c.Id">@c.Nombre</option>
+                                    }
+                                </InputSelect>
+                            </div>
                         </div>
 
                         <div class="mb-3">
-                            <label>Hora (HH:mm)</label>
-                            <InputText @bind-Value="Hora" class="form-control" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label>Instructor</label>
-                            <InputSelect @bind-Value="Sesion.InstructorId" class="form-control">
-                                @foreach (var i in Instructores ?? new List<SimpleDto>())
+                            <h6>Pacientes</h6>
+                            <ul class="list-group">
+                                @foreach (var p in Pacientes ?? new List<GetAsistenciaDto>())
                                 {
-                                    <option value="@i.Id">@i.Nombre</option>
+                                    <li class="list-group-item">@p.nombre</li>
                                 }
-                            </InputSelect>
+                            </ul>
+                            <button type="button" class="btn btn-outline-primary btn-sm mt-2" @onclick="AbrirAgregarPacientes">
+                                <i class="bi bi-person-plus"></i> Agregar/Quitar Pacientes
+                            </button>
                         </div>
 
-                        <div class="mb-3">
-                            <label>Caballo</label>
-                            <InputSelect @bind-Value="Sesion.CaballoId" class="form-control">
-                                @foreach (var c in Caballos ?? new List<SimpleDto>())
-                                {
-                                    <option value="@c.Id">@c.Nombre</option>
-                                }
-                            </InputSelect>
+                        <div class="d-flex gap-2 mt-3">
+                            <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+                            <button type="button" class="btn btn-secondary btn-sm" @onclick="Cerrar">Cancelar</button>
                         </div>
-
-                        <h6>Pacientes</h6>
-                        <ul>
-                            @foreach (var p in Pacientes ?? new List<GetAsistenciaDto>())
-                            {
-                                <li>@p.nombre</li>
-                            }
-                        </ul>
-                        <button type="button" class="btn btn-outline-primary mb-3" @onclick="AbrirAgregarPacientes">
-                            <i class="bi bi-person-plus"></i> Agregar/Quitar Pacientes
-                        </button>
-
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                        <button type="button" class="btn btn-secondary ms-2" @onclick="Cerrar">Cancelar</button>
                     </EditForm>
                 </div>
             </div>
@@ -75,6 +78,7 @@
                             OnPacientesAgregados="RecargarPacientes"
                             VisibleChanged="@((v) => ModalAgregarVisible = v)" />
 }
+
 
 @code {
     [Parameter] public bool Visible { get; set; }

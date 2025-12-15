@@ -13,42 +13,64 @@
 @if (Visible)
 {
     <div class="modal show d-block" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Agregar Pacientes</h5>
+                    <h5 class="modal-title">Agregar Pacientes a la Sesión</h5>
                     <button type="button" class="btn-close" @onclick="Cerrar"></button>
                 </div>
+
                 <div class="modal-body">
                     <p>Selecciona uno o varios pacientes (máx. @MaximoSeleccionables).</p>
 
-                    <div class="d-flex flex-wrap gap-2">
+                    <div class="d-flex flex-wrap justify-content-start gap-3">
                         @foreach (var paciente in PacientesDisponibles)
                         {
                             bool seleccionado = PacienteIdsSeleccionados.Contains(paciente.PacienteId);
-                            <div class="card p-2 shadow-sm"
-                                 style="width:160px;cursor:pointer;border:@(seleccionado ? "2px solid #0d6efd" : "1px solid #ccc");"
+                            <div class="card p-2 shadow-sm paciente-card text-center"
+                                 style="width:140px; cursor:pointer; border:@(seleccionado ? "2px solid #0d6efd" : "1px solid #ccc");"
                                  @onclick="() => TogglePaciente(paciente.PacienteId)">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <span>@paciente.Nombre</span>
-                                    @if (seleccionado)
-                                    {
-                                        <i class="bi bi-check-circle-fill text-primary"></i>
-                                    }
-                                </div>
+                                <span class="fw-bold">@paciente.Nombre</span>
+                                @if (seleccionado)
+                                {
+                                    <i class="bi bi-check-circle-fill text-primary mt-1"></i>
+                                }
                             </div>
                         }
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" @onclick="AgregarPacientes">Agregar</button>
-                    <button class="btn btn-secondary" @onclick="Cerrar">Cancelar</button>
+
+                <div class="modal-footer justify-content-start">
+                    <button class="btn btn-primary btn-sm" @onclick="AgregarPacientes">Agregar</button>
+                    <button class="btn btn-secondary btn-sm" @onclick="Cerrar">Cancelar</button>
                 </div>
             </div>
         </div>
     </div>
     <div class="modal-backdrop show"></div>
 }
+
+<style>
+    .paciente-card {
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .paciente-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+    .modal-body p {
+        margin-bottom: 1rem;
+        font-weight: 500;
+    }
+</style>
+
+
 
 @code {
     public bool Visible { get; set; }

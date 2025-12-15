@@ -8,52 +8,107 @@
 @using Radzen.Blazor
 @using FRONTproyectoEquinoterapia.Models
 
-<h3>Detalle del Instructor</h3>
+<div class="card shadow-sm p-4 mt-3">
 
-@if (instructor == null)
-{
-    <p>Cargando...</p>
-}
-else
-{
-    <div class="mb-3">
-        <label>Nombre:</label>
-        <RadzenTextBox @bind-Value="instructor.Nombre" Style="width:250px" Disabled="@(!editarActivo)" />
+    <div class="d-flex align-items-center mb-3">
+        <i class="material-icons text-primary me-2">person</i>
+        <h3 class="m-0">Detalle del Instructor</h3>
     </div>
 
-    <div class="mb-3">
-        <label>Teléfono:</label>
-        <RadzenTextBox @bind-Value="instructor.Telefono" Style="width:250px" Disabled="@(!editarActivo)" />
-    </div>
-
-    <div class="mb-3">
-        <label>Estado:</label>
-        @if (editarActivo)
-        {
-            <RadzenDropDown @bind-Value="instructor.Estado"
-                            Data="@estadosDisponibles"
-                            TextProperty="Text"
-                            ValueProperty="Value"
-                            Style="width:250px" />
-        }
-        else
-        {
-            <RadzenTextBox Value="@instructor.Estado" Style="width:250px" ReadOnly="true" />
-        }
-    </div>
-
-    @if (!editarActivo)
+    @if (instructor == null)
     {
-        <RadzenButton Text="Editar" ButtonStyle="ButtonStyle.Primary" Click="@ActivarEdicion" />
-        <RadzenButton Text="Regresar" ButtonStyle="ButtonStyle.Secondary" Click="@Regresar" Style="margin-left:5px" />
-        <RadzenButton Text="Eliminar" ButtonStyle="ButtonStyle.Danger" Click="@ConfirmarEliminar" Style="margin-left:5px" />
+        <p>Cargando...</p>
     }
     else
     {
-        <RadzenButton Text="Guardar" ButtonStyle="ButtonStyle.Primary" Click="@GuardarCambios" Style="margin-right:5px" />
-        <RadzenButton Text="Cancelar" ButtonStyle="ButtonStyle.Secondary" Click="@CancelarEdicion" />
+        <div class="row">
+
+            <!-- COLUMNA IZQUIERDA -->
+            <div class="col-md-6">
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nombre:</label>
+                    <RadzenTextBox @bind-Value="instructor.Nombre"
+                                   Style="width:100%"
+                                   Disabled="@(!editarActivo)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Teléfono:</label>
+                    <RadzenTextBox @bind-Value="instructor.Telefono"
+                                   Style="width:100%"
+                                   Disabled="@(!editarActivo)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Estado:</label>
+
+                    @if (editarActivo)
+                    {
+                        <RadzenDropDown @bind-Value="instructor.Estado"
+                                        Data="@estadosDisponibles"
+                                        TextProperty="Text"
+                                        ValueProperty="Value"
+                                        Style="width:100%" />
+                    }
+                    else
+                    {
+                        <RadzenTextBox Value="@instructor.Estado"
+                                       Style="width:100%"
+                                       ReadOnly="true" />
+                    }
+                </div>
+
+            </div>
+
+            <!-- COLUMNA DERECHA CON UNA TARJETA -->
+            <div class="col-md-6">
+                <div class="p-3 border rounded bg-light">
+                    <h5 class="text-secondary mb-2">Información general</h5>
+                    <p class="small text-muted m-0">
+                        Aquí puedes ver o editar los datos del instructor.
+                        Si necesitas actualizar su estado, usa el selector correspondiente.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BOTONES ABAJO -->
+        <div class="mt-4">
+
+            @if (!editarActivo)
+            {
+                <RadzenButton Text="Editar"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Click="@ActivarEdicion" />
+
+                <RadzenButton Text="Regresar"
+                              ButtonStyle="ButtonStyle.Secondary"
+                              Click="@Regresar"
+                              Style="margin-left:5px" />
+
+                <RadzenButton Text="Eliminar El Instructor"
+                              ButtonStyle="ButtonStyle.Danger"
+                              Click="@ConfirmarEliminar"
+                              Style="margin-left:5px" />
+            }
+            else
+            {
+                <RadzenButton Text="Guardar"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Click="@GuardarCambios"
+                              Style="margin-right:5px" />
+
+                <RadzenButton Text="Cancelar"
+                              ButtonStyle="ButtonStyle.Secondary"
+                              Click="@CancelarEdicion" />
+            }
+        </div>
+
     }
-}
+</div>
+
 
 @code {
     [Parameter] public int InstructorId { get; set; }

@@ -1,8 +1,9 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading.Tasks;
 using FRONTproyectoEquinoterapia.Models;
 using FRONTproyectoEquinoterapia.Services;
-using System.Threading.Tasks;
+using BlazorDownloadFile;
 
 namespace FRONTproyectoEquinoterapia.Services
 {
@@ -10,18 +11,30 @@ namespace FRONTproyectoEquinoterapia.Services
     {
         private readonly HttpClient _httpClient;
         private readonly ITokenProvider _tokenProvider;
+        private readonly IExportService _exportService;
+        private readonly IBlazorDownloadFileService _downloadService;
+        
 
-        public InformeService(HttpClient httpClient, ITokenProvider tokenProvider)
+        public InformeService(
+            HttpClient httpClient,
+            ITokenProvider tokenProvider,
+            IExportService exportService,
+            IBlazorDownloadFileService downloadService)
         {
             _httpClient = httpClient;
             _tokenProvider = tokenProvider;
+            _exportService = exportService;
+            _downloadService = downloadService;
         }
 
         private async Task AddAuthHeaderAsync()
         {
             var token = await _tokenProvider.GetTokenAsync();
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
         }
 
         public async Task<InformeDto?> GetInformeAsync(int mes, int anio)
@@ -61,6 +74,29 @@ namespace FRONTproyectoEquinoterapia.Services
                 var result = await response.Content.ReadFromJsonAsync<ResponseMessage>();
                 return (false, result?.Mensaje ?? "Error al guardar.");
             }
+        }
+
+        // Descargar PDF
+        public async Task DescargarPdfAsync(int mes, int anio, string nombreArchivo)
+        {
+            await AddAuthHeaderAsync();
+            var response = await _httpClient.GetAsync($"/api/Informes/download/pdf?mes={mes}&anio={anio}");
+            response.EnsureSuccessStatusCode();
+
+            var contenido = await response.Content.ReadAsByteArrayAsync();
+            await _downloadService.DownloadFile(nombreArchivo, contenido, "application/pdf");
+        }
+
+        // Descargar Excel
+        public async Task DescargarExcelAsync(int mes, int anio, string nombreArchivo)
+        {
+            await AddAuthHeaderAsync();
+            var response = await _httpClient.GetAsync($"/api/Informes/download/excel?mes={mes}&anio={anio}");
+            response.EnsureSuccessStatusCode();
+
+            var contenido = await response.Content.ReadAsByteArrayAsync();
+            await _downloadService.DownloadFile(nombreArchivo, contenido,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
     }
 

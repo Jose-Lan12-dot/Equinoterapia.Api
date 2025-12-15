@@ -5,8 +5,9 @@
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
         public string Text { get; set; } = string.Empty;
-        public string? ColorInstructor { get; set; }
 
+        // SOLO PARA EL FRONT (color de la sesión)
+        public string ColorHex { get; set; } = "#eff1f6";
         // metadata para frontend
         public int? SesionId { get; set; }
         public int? InstructorId { get; set; }

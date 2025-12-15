@@ -8,52 +8,58 @@
 @if (Visible)
 {
     <div class="modal show d-block" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Agregar Nueva Sesión</h5>
                     <button type="button" class="btn-close" @onclick="Cerrar"></button>
                 </div>
+
                 <div class="modal-body">
                     <EditForm Model="NuevaSesion" OnValidSubmit="AgregarSesion">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
 
-                        <div class="mb-3">
-                            <label>Instructor</label>
-                            <select class="form-select" @bind="NuevaSesion.InstructorId">
-                                <option value="">-- Selecciona Instructor --</option>
-                                @foreach (var i in Instructores)
-                                {
-                                    <option value="@i.InstructorId">@i.Nombre</option>
-                                }
-                            </select>
+                        <div class="row g-3 mb-3">
+                            <!-- Instructor -->
+                            <div class="col-md-6">
+                                <label class="form-label">Instructor</label>
+                                <select class="form-select" @bind="NuevaSesion.InstructorId">
+                                    <option value="">-- Selecciona Instructor --</option>
+                                    @foreach (var i in Instructores)
+                                    {
+                                        <option value="@i.InstructorId">@i.Nombre</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Caballo -->
+                            <div class="col-md-6">
+                                <label class="form-label">Caballo</label>
+                                <select class="form-select" @bind="NuevaSesion.CaballoId">
+                                    <option value="">-- Selecciona Caballo --</option>
+                                    @foreach (var c in Caballos)
+                                    {
+                                        <option value="@c.CaballoId">@c.Nombre</option>
+                                    }
+                                </select>
+                            </div>
                         </div>
 
+                        <!-- Fecha y hora -->
                         <div class="mb-3">
-                            <label>Caballo</label>
-                            <select class="form-select" @bind="NuevaSesion.CaballoId">
-                                <option value="">-- Selecciona Caballo --</option>
-                                @foreach (var c in Caballos)
-                                {
-                                    <option value="@c.CaballoId">@c.Nombre</option>
-                                }
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label>Fecha y Hora</label>
+                            <label class="form-label">Fecha y Hora</label>
                             <input type="datetime-local" class="form-control" @bind="FechaHoraTemporal" />
                         </div>
 
-
+                        <!-- Selección de pacientes -->
                         <div class="mb-3">
                             <label class="fw-bold">Pacientes (máx. 4)</label>
-                            <div class="d-flex flex-wrap gap-2">
+                            <div class="d-flex flex-wrap gap-2 mt-2">
                                 @foreach (var paciente in pacientesDisponibles)
                                 {
                                     bool seleccionado = PacienteIdsSeleccionados.Contains(paciente.PacienteId);
-                                    <div class="card p-2 shadow-sm"
+                                    <div class="card p-2 shadow-sm paciente-card"
                                          style="width: 160px; cursor: pointer; border: @(seleccionado ? "2px solid #0d6efd" : "1px solid #ccc");"
                                          @onclick="() => TogglePaciente(paciente.PacienteId)">
                                         <div class="d-flex align-items-center justify-content-between">
@@ -68,15 +74,40 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Agregar</button>
-                        <button type="button" class="btn btn-secondary ms-2" @onclick="Cerrar">Cancelar</button>
+                        <!-- Botones compactos -->
+                        <div class="mt-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-sm">Agregar</button>
+                            <button type="button" class="btn btn-secondary btn-sm" @onclick="Cerrar">Cancelar</button>
+                        </div>
+
                     </EditForm>
                 </div>
             </div>
         </div>
     </div>
+
     <div class="modal-backdrop show"></div>
 }
+
+<style>
+    .paciente-card {
+        transition: all 0.2s;
+    }
+
+        .paciente-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+    .modal-lg .form-label {
+        font-weight: 500;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.75rem;
+        font-size: 0.875rem;
+    }
+</style>
 
 @code {
     public bool Visible { get; set; }
