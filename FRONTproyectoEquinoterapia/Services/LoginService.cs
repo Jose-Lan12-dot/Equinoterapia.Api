@@ -3,24 +3,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using FRONTproyectoEquinoterapia.Models;
 
-namespace FRONTproyectoEquinoterapia.Services //simulacion mientras no tengamos backend
-{
-    public class LoginService
-    {
-        // Método simulado que reemplaza la llamada real a la API
-        public async Task<bool> LoginAsync(LoginModel login)
-        {
-            await Task.Delay(500); // Simula tiempo de respuesta
 
-            // 🔹 Simulación: usuario correcto = "admin", contraseña = "1234"
-            if (login.Usuario == "admin" && login.Contrasena == "1234")
-            {
-                return true;
-            }
-            return false;
-        }
-    }
-}
 
 /*
 namespace Equinoterapia2.Services

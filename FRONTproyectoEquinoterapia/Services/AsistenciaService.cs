@@ -11,9 +11,9 @@ namespace FRONTproyectoEquinoterapia.Services
     {
         private readonly HttpClient _http;
 
-        public AsistenciasService(HttpClient http)
+        public AsistenciasService(IHttpClientFactory factory)
         {
-            _http = http;
+            _http = factory.CreateClient("API"); // ✅ ESTE SÍ LLEVA TOKEN
         }
 
         public async Task<List<AllPacienteDto>> ObtenerPorSesionAsync(int sesionId)

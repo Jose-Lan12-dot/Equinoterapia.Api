@@ -8,11 +8,10 @@ namespace FRONTproyectoEquinoterapia.Services
         public class EvaluacionService
         {
             private readonly HttpClient _http;
-
-            public EvaluacionService(HttpClient http)
-            {
-                _http = http;
-            }
+        public EvaluacionService(IHttpClientFactory factory)
+        {
+            _http = factory.CreateClient("API"); // ✅ ESTE SÍ LLEVA TOKEN
+        }
 
             // Obtener evaluación completa de un paciente
             public async Task<GetEvaluacionDto?> GetEvaluacionAsync(int pacienteId)
