@@ -28,7 +28,7 @@ namespace Equinoterapia.Api.Controllers
                 return Unauthorized( mensaje );
             }
 
-            return Ok(new { Data = data, Mensaje = mensaje });
+            return Ok(data);
         }
     }
 }

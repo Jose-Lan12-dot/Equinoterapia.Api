@@ -48,16 +48,29 @@ if (allowedOrigins == null || allowedOrigins.Length == 0)
 }
 
 // Configurar CORS
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowFront", policy =>
+//    {
+//        policy.WithOrigins(allowedOrigins)
+//              .AllowAnyHeader()
+//              .AllowAnyMethod()
+//              .AllowCredentials();
+//    });
+//});
+
+// En el builder.Services
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFront", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.SetIsOriginAllowed(_ => true) // <--- ESTA es la clave: acepta dinámicamente cualquier origen
               .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowAnyMethod();
+              //.AllowCredentials(); // Funciona porque no usamos AllowAnyOrigin explícito
     });
 });
+
 
 // Servicios de la app
 builder.Services.AddApplicationServices();
@@ -73,7 +86,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 
-app.UseCors("AllowFront");
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 
