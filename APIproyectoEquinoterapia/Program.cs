@@ -64,10 +64,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.SetIsOriginAllowed(_ => true) // <--- ESTA es la clave: acepta dinámicamente cualquier origen
+        policy.SetIsOriginAllowed(_ => true) 
               .AllowAnyHeader()
-              .AllowAnyMethod();
-              //.AllowCredentials(); // Funciona porque no usamos AllowAnyOrigin explícito
+              .AllowAnyMethod()
+              .AllowCredentials(); 
     });
 });
 
