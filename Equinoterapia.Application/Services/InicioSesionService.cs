@@ -27,8 +27,8 @@ namespace Equinoterapia.Application.Services
             if (IsNull(usuario) || IsNull(usuario.IdUsuario) || usuario.IdUsuario == 0)
                 return (false, "Usuario no encontrado", null);
 
-            string encryptedPassword = _encryptionService.EncryptPassword(inicioSesionDataDto.contrasena);
-            //string encryptedPassword = inicioSesionDataDto.contrasena; 
+            //string encryptedPassword = _encryptionService.EncryptPassword(inicioSesionDataDto.contrasena);
+            string encryptedPassword = inicioSesionDataDto.contrasena; 
 
             var acceso = await _authRepository.ValidateAccessAsync(
                                     inicioSesionDataDto.Usuario,

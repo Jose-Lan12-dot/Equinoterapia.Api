@@ -32,7 +32,7 @@ namespace Equinoterapia.Api.Controllers
         }
         [HttpGet("obtener-perfil")]
         [AllowAnonymous]
-        public async Task<IActionResult> ObtenerPerfil([FromBody] CredencialesDto inicioSesionDataDto)
+        public async Task<IActionResult> ObtenerPerfil([FromQuery] CredencialesDto inicioSesionDataDto)
         {
 
             var (exito, nombreUsuario, foto) = await _inicioSesionService.ObtenerPerfilAsync(inicioSesionDataDto);
@@ -42,7 +42,7 @@ namespace Equinoterapia.Api.Controllers
                 return Unauthorized( "No se pudo obtener el perfil" );
             }
 
-            return Ok(new {nombreUsuario, foto });
+            return Ok(new {nombreUsuario = nombreUsuario, foto = foto });
         }
     }
 }
