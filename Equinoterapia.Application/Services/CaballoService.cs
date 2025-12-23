@@ -179,10 +179,6 @@ namespace Equinoterapia.Application.Services
 
 
 
-
-
-
-
         // --- MÉTODOS PRIVADOS (Helper) ---
 
         private bool IsNull(object? objeto) => objeto is null;

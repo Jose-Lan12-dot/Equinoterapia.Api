@@ -20,17 +20,9 @@ namespace Equinoterapia.Application.Validators.Caballos
 
             RuleFor(x => x.Estado)
                 .NotEmpty().WithMessage("El estado no puede estar vacío.")
-                .Must(BeValidEstado).WithMessage("El estado debe ser 'Disponible', 'Ocupado', 'Mantenimiento' o 'Baja'.")
+                .Must(BeValidEstado).WithMessage("El estado debe ser 'Disponible', 'En Tratamiento', 'En Descanso' o 'Retirado'.")
                 .When(x => x.Estado is not null);
 
-            RuleFor(x => x.FechaHerraje)
-                .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.Today))
-                .WithMessage("La fecha de herraje no puede ser futura.")
-                .When(x => x.FechaHerraje.HasValue);
-
-            RuleFor(RuleFor => RuleFor.Padecimiento)
-                .NotEmpty().WithMessage("El padecimiento no puede estar vacío.")
-                .When(x => x.Padecimiento is not null);
         }
 
         private bool BeValidEstado(string? estado)

@@ -28,6 +28,7 @@ namespace Equinoterapia.Infrastructure.Repositories
                       (asistencia, paciente) => new GetAsistenciaDto 
                       {
                           AsistenciaId = asistencia.AsistenciaId,
+                          PacienteId = paciente.PacienteId,
                           nombre = paciente.Nombre, 
                           Asistio = asistencia.Asistio
                       })

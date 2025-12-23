@@ -15,12 +15,7 @@ namespace Equinoterapia.Application.Validators.Caballos
                 .NotEmpty().WithMessage("El nombre es requerido.");
 
             RuleFor(x => x.FechaHerraje)
-                .NotEmpty().WithMessage("La fecha de herraje es requerida.")
-                .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.Today))
-                .WithMessage("La fecha de herraje no puede ser futura.");
-
-            RuleFor(x => x.Padecimiento)
-                .NotEmpty().WithMessage("El padecimiento es requerido.");
+                .NotEmpty().WithMessage("La fecha de herraje es requerida.");
         }
     }
 }
