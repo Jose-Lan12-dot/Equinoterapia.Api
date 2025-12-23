@@ -56,29 +56,37 @@ namespace FRONTproyectoEquinoterapia.Services
                 return (false, result?.Mensaje ?? "Error al guardar.");
             }
         }
-
+        //se modifico descargar pdf y ecxel, REPORTAR BAKEN 
         // Descargar PDF
         public async Task DescargarPdfAsync(int mes, int anio, string nombreArchivo)
         {
-            var response = await _httpClient.GetAsync($"/api/Informes/download/pdf?mes={mes}&anio={anio}");
+            var url = $"https://aplicaciones.utsistemas.gob.mx/ApiEquinoterapia/api/Informes/download/pdf?mes={mes}&anio={anio}";
+
+            var response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
 
             var contenido = await response.Content.ReadAsByteArrayAsync();
             await _downloadService.DownloadFile(nombreArchivo, contenido, "application/pdf");
         }
 
+
         // Descargar Excel
         public async Task DescargarExcelAsync(int mes, int anio, string nombreArchivo)
         {
-            var response = await _httpClient.GetAsync($"/api/Informes/download/excel?mes={mes}&anio={anio}");
+            var url = $"https://aplicaciones.utsistemas.gob.mx/ApiEquinoterapia/api/Informes/download/excel?mes={mes}&anio={anio}";
+
+            var response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
 
             var contenido = await response.Content.ReadAsByteArrayAsync();
+
             await _downloadService.DownloadFile(
                 nombreArchivo,
                 contenido,
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            );
         }
+
     }
 
     // Clase auxiliar para leer mensajes del backend

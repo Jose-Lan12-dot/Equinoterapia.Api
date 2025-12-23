@@ -19,36 +19,23 @@ namespace FRONTproyectoEquinoterapia.Services
         {
             var token = await _localStorage.GetItemAsync<string>("token");
 
+            Console.WriteLine($"[AUTH] Token existe: {!string.IsNullOrEmpty(token)}");
+
             if (string.IsNullOrWhiteSpace(token))
             {
+                Console.WriteLine("[AUTH] Token VACÍO");
                 return Anonymous();
             }
 
-            JwtSecurityToken? jwt = null;
-            try
-            {
-                var handler = new JwtSecurityTokenHandler();
-                jwt = handler.ReadJwtToken(token);
-            }
-            catch
-            {
-                await LogoutAsync();
-                return Anonymous();
-            }
+            var handler = new JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(token);
 
-            // Token vencido
-            if (jwt.ValidTo < DateTime.UtcNow)
-            {
-                await LogoutAsync();
-                return Anonymous();
-            }
+            Console.WriteLine($"[AUTH] Token válido hasta: {jwt.ValidTo}");
 
-            // Creamos Claims del JWT
             var identity = new ClaimsIdentity(jwt.Claims, "jwt");
-            var user = new ClaimsPrincipal(identity);
-
-            return new AuthenticationState(user);
+            return new AuthenticationState(new ClaimsPrincipal(identity));
         }
+
 
         public async Task MarkUserAsAuthenticated(string token)
         {
@@ -77,8 +64,10 @@ namespace FRONTproyectoEquinoterapia.Services
 
         public async Task<UsuarioSesionDto?> ObtenerUsuarioDesdeToken()
         {
+            Console.WriteLine("[JWT] Entró a ObtenerUsuarioDesdeToken");
+
             var token = await _localStorage.GetItemAsync<string>("token");
-            if (string.IsNullOrEmpty(token))
+            if (string.IsNullOrWhiteSpace(token))
                 return null;
 
             var handler = new JwtSecurityTokenHandler();
@@ -87,10 +76,13 @@ namespace FRONTproyectoEquinoterapia.Services
             var nombre = jwt.Claims.FirstOrDefault(c => c.Type == "nombre")?.Value;
             var foto = jwt.Claims.FirstOrDefault(c => c.Type == "foto")?.Value;
 
+            Console.WriteLine($"[JWT] Nombre: {nombre}");
+            Console.WriteLine($"[JWT] Foto null?: {string.IsNullOrEmpty(foto)}");
+
             return new UsuarioSesionDto
             {
                 Nombre = nombre ?? "",
-                FotoBase64 = foto
+                FotoBase64 = string.IsNullOrEmpty(foto) ? null : foto
             };
         }
 

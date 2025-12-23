@@ -1,4 +1,5 @@
-﻿@using FRONTproyectoEquinoterapia.Models
+﻿@attribute [Authorize]
+@using FRONTproyectoEquinoterapia.Models
 @using FRONTproyectoEquinoterapia.Services
 
 @inject InstructorService InstructorService
@@ -159,13 +160,33 @@
     public async Task Abrir(Appointment appt)
     {
         Sesion = await SesionService.GetByIdAsync(appt.SesionId!.Value);
+
         Pacientes = await AsistenciaService.GetAsistenciasPorSesion(Sesion.SesionId) ?? [];
 
-        Instructores = (await InstructorService.GetAllAsync())
-            .Select(i => new SimpleDto { Id = i.InstructorId, Nombre = i.Nombre }).ToList();
+        var todosInstructores = await InstructorService.GetAllAsync();
 
-        Caballos = (await CaballoService.GetAllAsync())
-            .Select(c => new SimpleDto { Id = c.CaballoId, Nombre = c.Nombre }).ToList();
+        Instructores = todosInstructores
+            .Where(i => i.Estado != "Baja"
+                     && i.Estado != "EnDescanso")
+            .Select(i => new SimpleDto
+            {
+                Id = i.InstructorId,
+                Nombre = i.Nombre
+            })
+            .ToList();
+
+        var todosCaballos = await CaballoService.GetAllAsync();
+
+        Caballos = todosCaballos
+            .Where(c => c.Estado != "Descansando"
+                     && c.Estado != "Retirado")
+            .Select(c => new SimpleDto
+            {
+                Id = c.CaballoId,
+                Nombre = c.Nombre
+            })
+            .ToList();
+
 
         Fecha = DateOnly.Parse(Sesion.Fecha);
         Hora = TimeOnly.Parse(Sesion.Hora);
@@ -266,4 +287,45 @@
         EditarActivo = false;
         await InvokeAsync(StateHasChanged);
     }
+
+    public async Task Abrir(int sesionId)
+    {
+        Sesion = await SesionService.GetByIdAsync(sesionId);
+        Pacientes = await AsistenciaService.GetAsistenciasPorSesion(sesionId) ?? [];
+
+        var todosInstructores = await InstructorService.GetAllAsync();
+
+        Instructores = todosInstructores
+            .Where(i => i.Estado != "Baja"
+                     && i.Estado != "EnDescanso")
+            .Select(i => new SimpleDto
+            {
+                Id = i.InstructorId,
+                Nombre = i.Nombre
+            })
+            .ToList();
+
+
+        var todosCaballos = await CaballoService.GetAllAsync();
+
+        Caballos = todosCaballos
+            .Where(c => c.Estado != "Descansando"
+                     && c.Estado != "Retirado")
+            .Select(c => new SimpleDto
+            {
+                Id = c.CaballoId,
+                Nombre = c.Nombre
+            })
+            .ToList();
+
+
+        Fecha = DateOnly.Parse(Sesion.Fecha);
+        Hora = TimeOnly.Parse(Sesion.Hora);
+
+        Visible = true;
+        EditarActivo = false;
+
+        StateHasChanged();
+    }
+
 }

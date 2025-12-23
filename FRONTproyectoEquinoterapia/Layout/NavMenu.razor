@@ -2,7 +2,7 @@
 @using FRONTproyectoEquinoterapia.Services
 @implements IDisposable
 @inject AuthenticationStateProvider AuthProvider
-@inject CustomAuthStateProvider Auth
+@inject CustomAuthStateProvider CustomAuth
 @inject UsuarioSesionService UsuarioSesionService
 @inject NavigationManager NavigationManager
 
@@ -168,22 +168,16 @@
 
             private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-            protected override async Task OnInitializedAsync()
-            {
-                UsuarioSesionService.OnChange += StateHasChanged;
+        protected override void OnInitialized()
+        {
+        UsuarioSesionService.OnChange += StateHasChanged;
+        }
 
-                if (UsuarioSesionService.Usuario == null)
-                {
-                    var customAuth = (CustomAuthStateProvider)AuthProvider;
-                    UsuarioSesionService.Usuario =
-                    await customAuth.ObtenerUsuarioDesdeToken();
-                }
-            }
+        public void Dispose()
+        {
+        UsuarioSesionService.OnChange -= StateHasChanged;
+        }
 
-            public void Dispose()
-            {
-                UsuarioSesionService.OnChange -= StateHasChanged;
-            }
 
 
 
@@ -199,8 +193,9 @@
 
             private async Task Logout()
             {
-                await Auth.LogoutAsync();
+                await CustomAuth.LogoutAsync();
                 UsuarioSesionService.Usuario = null;
                 NavigationManager.NavigateTo("/", true);
             }
+
         }

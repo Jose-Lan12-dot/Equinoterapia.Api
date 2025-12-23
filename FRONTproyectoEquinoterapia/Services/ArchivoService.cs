@@ -86,7 +86,7 @@ namespace FRONTproyectoEquinoterapia.Services
         // ===========================
         public async Task<(bool exito, string mensaje)> EliminarArchivoAsync(int pacienteId, string nombreArchivo)
         {
-            var response = await _http.DeleteAsync($"https://localhost:7280/api/pacientes/{pacienteId}/archivos/{nombreArchivo}");
+            var response = await _http.DeleteAsync($"/api/pacientes/{pacienteId}/archivos/{nombreArchivo}");
 
             if (response.IsSuccessStatusCode)
                 return (true, "Archivo eliminado correctamente");
@@ -100,7 +100,7 @@ namespace FRONTproyectoEquinoterapia.Services
         // ===========================
         public async Task<(byte[]? contenido, string mensaje, string extension)> DescargarArchivoAsync(int pacienteId, string nombreArchivo)
         {
-            var response = await _http.GetAsync($"https://localhost:7280/api/pacientes/{pacienteId}/archivos/{nombreArchivo}");
+            var response = await _http.GetAsync($"api/pacientes/{pacienteId}/archivos/{nombreArchivo}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -118,7 +118,7 @@ namespace FRONTproyectoEquinoterapia.Services
         // Obtener tipos de archivo desde backend
         public async Task<List<TipoArchivoDto>> ObtenerTiposAsync()
         {
-            var response = await _http.GetFromJsonAsync<List<TipoArchivoDto>>("https://localhost:7280/api/archivos/obtener-tipoarchivo");
+            var response = await _http.GetFromJsonAsync<List<TipoArchivoDto>>("api/archivos/obtener-tipoarchivo");
             return response ?? new List<TipoArchivoDto>();
         }
 

@@ -1,4 +1,7 @@
-﻿<CascadingAuthenticationState>
+﻿
+@using FRONTproyectoEquinoterapia.Components.Auth
+
+<CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData"

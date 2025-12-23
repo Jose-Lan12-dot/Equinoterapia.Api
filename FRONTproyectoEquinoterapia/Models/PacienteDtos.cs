@@ -63,7 +63,9 @@ namespace FRONTproyectoEquinoterapia.Models
         public string Estado { get; set; } = "";
         public int NumeroFaltas { get; set; }
         public bool FaltaEvaluacion { get; set; }
-        public List<ArchivoDTO> Archivos { get; set; } = new();
+
+        //SE CAMBIO, REPORTAR AL SERVIDOR.
+        public List<string> ArchivosPendientes { get; set; } = new();
     }
 
 

@@ -1,4 +1,6 @@
 ﻿@page "/pacientes/detalle/{id:int}"
+@attribute [Authorize]
+
 @using FRONTproyectoEquinoterapia.Services
 @using FRONTproyectoEquinoterapia.Models
 @using Microsoft.AspNetCore.Components.Forms
@@ -250,17 +252,20 @@
         tiposArchivo = await ArchivoService.ObtenerTiposAsync();
         await CargarPaciente();
     }
-
+    //se cambio CargarPaciente = REPORTAR AL SERVIDOR junto con el cambio del dtopacientes public List<string> ArchivosPendientes { get; set; } = new();
     private async Task CargarPaciente()
     {
         cargando = true;
         pacienteDetalle = await PacienteService.ObtenerPorIdAsync(id);
 
         ArchivoExisteDict.Clear();
+
         foreach (var tipo in tiposArchivo)
         {
-            ArchivoExisteDict[tipo.Nombre] = await ArchivoExiste(tipo.Nombre);
+            ArchivoExisteDict[tipo.Nombre] =
+                !pacienteDetalle.ArchivosPendientes.Contains(tipo.Nombre);
         }
+
 
         cargando = false;
     }
@@ -276,11 +281,20 @@
     {
         try
         {
-            var response = await Http.GetAsync($"api/pacientes/{id}/archivos/{nombreArchivo}", HttpCompletionOption.ResponseHeadersRead);
+            var request = new HttpRequestMessage(
+                HttpMethod.Head,
+                $"api/pacientes/{id}/archivos/{nombreArchivo}"
+            );
+
+            var response = await Http.SendAsync(request);
             return response.IsSuccessStatusCode;
         }
-        catch { return false; }
+        catch
+        {
+            return false;
+        }
     }
+
 
     private async Task SubirArchivo(string nombreArchivo)
     {

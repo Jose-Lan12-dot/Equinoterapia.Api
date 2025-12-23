@@ -1,15 +1,44 @@
-﻿@inject AuthenticationStateProvider AuthProvider
+﻿@using FRONTproyectoEquinoterapia.Services
+@inject AuthenticationStateProvider AuthProvider
+@inject UsuarioSesionService UsuarioSesionService
 @inject NavigationManager NavigationManager
 
 @inherits LayoutComponentBase
 
 <div class="app @(usuarioAutenticado ? "page-layout" : "")">
+    @if (usuarioAutenticado)
+    {
+        <NavMenu />
+    }
 
-    <NavMenu />
     <main>
         @Body
     </main>
 </div>
+
+@code {
+    private bool usuarioAutenticado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthProvider.GetAuthenticationStateAsync();
+        usuarioAutenticado = auth.User.Identity?.IsAuthenticated == true;
+
+        if (usuarioAutenticado && UsuarioSesionService.Usuario == null)
+        {
+            try
+            {
+                await UsuarioSesionService.CargarPerfilAsync();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Token expirado o inválido
+                UsuarioSesionService.Usuario = null;
+                NavigationManager.NavigateTo("/", true);
+            }
+        }
+    }
+}
 
 <style>
     .page-layout {
@@ -25,18 +54,3 @@
         flex: 1;
     }
 </style>
-
-@code {
-    private bool usuarioAutenticado;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthProvider.GetAuthenticationStateAsync();
-        usuarioAutenticado = authState.User.Identity?.IsAuthenticated ?? false;
-    }
-
-    private void CerrarSesion()
-    {
-        NavigationManager.NavigateTo("/", true);
-    }
-}

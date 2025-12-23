@@ -1,4 +1,5 @@
-﻿@using FRONTproyectoEquinoterapia.Models
+﻿@attribute [Authorize]
+@using FRONTproyectoEquinoterapia.Models
 @inject FRONTproyectoEquinoterapia.Services.SesionesService SesionesService
 @inject FRONTproyectoEquinoterapia.Services.InstructorService InstructorService
 @inject FRONTproyectoEquinoterapia.Services.CaballoService CaballoService
@@ -117,6 +118,8 @@
     private List<CaballoDto> Caballos = new();
     private List<AllPacienteDto> pacientesDisponibles = new();
     private List<int> PacienteIdsSeleccionados = new();
+    private List<HorarioOcupadoDto> HorariosOcupados = new();
+
 
     [Parameter] public EventCallback OnSesionAgregada { get; set; }
 
@@ -142,10 +145,36 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Instructores = await InstructorService.GetAllAsync();
-        Caballos = await CaballoService.GetAllAsync();
-        pacientesDisponibles = await PacienteService.ObtenerTodosAsync();
+        var todosInstructores = await InstructorService.GetAllAsync();
+
+        Instructores = todosInstructores
+            .Where(c => c.Estado != "Baja"
+                     && c.Estado != "EnDescanso")
+            .ToList();
+
+            var todosCaballos = await CaballoService.GetAllAsync();
+        Caballos = todosCaballos
+     .Where(c => c.Estado != "Descansando"
+              && c.Estado != "Retirado")
+     .ToList();
+
+        
+        var todos = await PacienteService.ObtenerTodosAsync();
+        pacientesDisponibles = todos
+            .Where(p => !p.Estado.Equals("Baja"))
+            .ToList();
+
     }
+
+    private async Task CargarHorariosOcupados()
+    {
+        if (DateTime.TryParse(NuevaSesion.Fecha, out var fecha))
+        {
+            HorariosOcupados =
+                await SesionesService.GetHorariosOcupadosAsync(fecha);
+        }
+    }
+
 
     public async Task Abrir(Appointment? appt = null)
     {
@@ -168,8 +197,11 @@
             NuevaSesion.Hora = now.ToString("HH:mm");
         }
 
+
         // Siempre mantener la lista actualizada en el DTO
         NuevaSesion.PacienteIds = PacienteIdsSeleccionados.ToList();
+
+        await CargarHorariosOcupados();
 
         Visible = true;
         StateHasChanged();
@@ -205,6 +237,28 @@
     {
         NuevaSesion.PacienteIds = PacienteIdsSeleccionados.ToList();
 
+        // VALIDACIÓN FECHA + HORA
+        //  VALIDACIÓN FECHA + HORA (RANGO)
+        var horaNueva = TimeOnly.Parse(NuevaSesion.Hora);
+
+        var existeConflicto = HorariosOcupados.Any(h =>
+        {
+            var inicio = TimeOnly.Parse(h.HoraInicio);
+            var fin = TimeOnly.Parse(h.HoraFin);
+
+            return horaNueva >= inicio && horaNueva < fin;
+        });
+
+        if (existeConflicto)
+        {
+            await JS.InvokeVoidAsync(
+                "alert",
+                "Ya existe una sesión programada en ese horario."
+            );
+            return;
+        }
+
+
         var (exito, mensaje) = await SesionesService.CreateAsync(NuevaSesion);
 
         if (exito)
@@ -216,7 +270,6 @@
         {
             await JS.InvokeVoidAsync("alert", mensaje);
         }
-
     }
 
 }

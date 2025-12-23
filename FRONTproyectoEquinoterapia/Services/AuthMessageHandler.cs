@@ -11,8 +11,8 @@ public class AuthMessageHandler : DelegatingHandler
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request,
-        CancellationToken cancellationToken)
+    HttpRequestMessage request,
+    CancellationToken cancellationToken)
     {
         var token = await _localStorage.GetItemAsync<string>("token");
 
@@ -22,8 +22,20 @@ public class AuthMessageHandler : DelegatingHandler
                 new AuthenticationHeaderValue("Bearer", token);
         }
 
-        return await base.SendAsync(request, cancellationToken);
+        var response = await base.SendAsync(request, cancellationToken);
+
+        //  TOKEN EXPIRADO
+        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            await _localStorage.RemoveItemAsync("token");
+
+            // Forzar logout
+            throw new UnauthorizedAccessException("Token expirado");
+        }
+
+        return response;
     }
+
 }
 
 

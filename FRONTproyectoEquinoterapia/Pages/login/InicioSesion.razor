@@ -119,6 +119,18 @@
     private string contrasena = string.Empty;
     private string mensaje = string.Empty;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            // Ya está logueado → fuera del login
+            NavigationManager.NavigateTo("/inicio", true);
+        }
+    }
+
+
     private async Task IniciarSesion()
     {
         var datos = new InicioSesionModel
@@ -135,7 +147,7 @@
             // Guardar token
             await localStorage.SetItemAsync("token", data.Token);
 
-            // Notificar autenticación (ESTA ES LA ÚNICA)
+            // Notificar autenticación
             var customAuth = (CustomAuthStateProvider)AuthProvider;
             await customAuth.MarkUserAsAuthenticated(data.Token);
 
@@ -150,7 +162,6 @@
 
             UsuarioSesionService.NotifyStateChanged();
 
-            //  NAVEGA A UNA PÁGINA PROTEGIDA
             NavigationManager.NavigateTo("/inicio");
         }
         else
