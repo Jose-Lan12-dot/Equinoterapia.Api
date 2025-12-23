@@ -9,10 +9,11 @@ namespace FRONTproyectoEquinoterapia.Services
     {
         private readonly HttpClient _http;
 
-        public ArchivoService(HttpClient http)
+        public ArchivoService(IHttpClientFactory factory)
         {
-            _http = http;
+            _http = factory.CreateClient("API"); // ✅ ESTE SÍ LLEVA TOKEN
         }
+        
 
         // ===========================
         // Subir archivo

@@ -1,5 +1,4 @@
-﻿
-using FRONTproyectoEquinoterapia;
+﻿using FRONTproyectoEquinoterapia;
 using FRONTproyectoEquinoterapia.Models;
 using FRONTproyectoEquinoterapia.Services;
 using Microsoft.AspNetCore.Components.Web;
@@ -9,19 +8,16 @@ using Radzen;
 using System.Globalization;
 using Blazored.LocalStorage;
 using BlazorDownloadFile;
+using Microsoft.AspNetCore.Components.Authorization;
+
 
 
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
-builder.Services.AddScoped<LoginService>();
-builder.Services.AddScoped(sp =>
-{
-    var client = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
-    client.DefaultRequestHeaders.Add("Accept", "application/json");
-    return client;
-});
+
+
 
 
 
@@ -37,11 +33,11 @@ CultureInfo.CurrentUICulture = cultura;
 
 //Radzen services registrados
 builder.Services.AddScoped<InicioSesionService>();
+builder.Services.AddScoped<UsuarioSesionService>();
 builder.Services.AddScoped<InformeService>();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<ITokenProvider, TokenProvider>();
 builder.Services.AddScoped<EvaluacionService>();
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7280/") });
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<TooltipService>();
@@ -54,6 +50,27 @@ builder.Services.AddScoped<SesionesService>();
 builder.Services.AddScoped<AsistenciasService>();
 builder.Services.AddBlazorDownloadFile();
 builder.Services.AddScoped<IExportService, ExportService>();
+
+builder.Services.AddBlazoredLocalStorage();
+
+builder.Services.AddAuthorizationCore();
+
+builder.Services.AddScoped<CustomAuthStateProvider>();
+
+builder.Services.AddScoped<AuthenticationStateProvider>(
+    sp => sp.GetRequiredService<CustomAuthStateProvider>());
+
+
+builder.Services.AddScoped<AuthMessageHandler>();
+
+
+builder.Services.AddHttpClient("API", client =>
+{
+    //client.BaseAddress = new Uri("https://localhost:7280/");
+    //client.BaseAddress = new Uri("https://aplicaciones.utsistemas.gob.mx/apiequinoterapia/api/");
+    //client.BaseAddress = new Uri("https://aplicaciones.utsistemas.gob.mx/apiequinoterapia/");
+})
+.AddHttpMessageHandler<AuthMessageHandler>();
 
 
 

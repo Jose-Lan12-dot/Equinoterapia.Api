@@ -87,13 +87,39 @@
     {
         SesionId = sesionId;
         MaximoSeleccionables = 4 - pacientesExistentes;
-        PacientesDisponibles = await pacienteService.ObtenerTodosAsync();
+
+        // 1️⃣ Obtener todos los pacientes del sistema
+        var todosPacientes = await pacienteService.ObtenerTodosAsync();
+
+        // 2️⃣ Obtener los pacientes que ya están en la sesión
+        var pacientesEnSesion = await AsistenciasService.GetAsistenciasPorSesion(SesionId);
+        var pacientesEnSesionIds = pacientesEnSesion.Select(p => p.PacienteId).ToList();
+
+        // 3️⃣ Filtrar los pacientes que NO están en la sesión
+        PacientesDisponibles = todosPacientes
+            .Where(p => !pacientesEnSesionIds.Contains(p.PacienteId))
+            .ToList();
+
+        // 4️⃣ Limpiar selección previa
         PacienteIdsSeleccionados.Clear();
 
+        // 5️⃣ Mostrar el diálogo
         Visible = true;
         await VisibleChanged.InvokeAsync(Visible);
+
+        // 6️⃣ Logs de diagnóstico opcionales
+        Console.WriteLine($"Sesión {sesionId} - Pacientes en sesión: {string.Join(",", pacientesEnSesionIds)}");
+        Console.WriteLine($"Pacientes disponibles: {string.Join(",", PacientesDisponibles.Select(p => p.PacienteId))}");
+
         StateHasChanged();
     }
+
+
+
+
+
+
+
 
     private void TogglePaciente(int pacienteId)
     {

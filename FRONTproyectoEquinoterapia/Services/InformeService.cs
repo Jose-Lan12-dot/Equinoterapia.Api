@@ -10,60 +10,41 @@ namespace FRONTproyectoEquinoterapia.Services
     public class InformeService
     {
         private readonly HttpClient _httpClient;
-        private readonly ITokenProvider _tokenProvider;
         private readonly IExportService _exportService;
         private readonly IBlazorDownloadFileService _downloadService;
-        
 
         public InformeService(
-            HttpClient httpClient,
-            ITokenProvider tokenProvider,
+            IHttpClientFactory factory,
             IExportService exportService,
             IBlazorDownloadFileService downloadService)
         {
-            _httpClient = httpClient;
-            _tokenProvider = tokenProvider;
+            _httpClient = factory.CreateClient("API"); // el handler ya agrega el token
             _exportService = exportService;
             _downloadService = downloadService;
         }
 
-        private async Task AddAuthHeaderAsync()
-        {
-            var token = await _tokenProvider.GetTokenAsync();
-            if (!string.IsNullOrEmpty(token))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            }
-        }
-
+        // Obtener informe
         public async Task<InformeDto?> GetInformeAsync(int mes, int anio)
         {
-            await AddAuthHeaderAsync();
             var response = await _httpClient.GetAsync($"api/Informes?mes={mes}&anio={anio}");
             if (response.IsSuccessStatusCode)
-            {
                 return await response.Content.ReadFromJsonAsync<InformeDto>();
-            }
             return null;
         }
 
+        // Obtener estadísticas
         public async Task<GetEstadisticasDto?> GetEstadisticasAsync(int mes, int anio)
         {
-            await AddAuthHeaderAsync();
             var response = await _httpClient.GetAsync($"api/Informes/estadisticas?mes={mes}&anio={anio}");
             if (response.IsSuccessStatusCode)
-            {
                 return await response.Content.ReadFromJsonAsync<GetEstadisticasDto>();
-            }
             return null;
         }
 
+        // Guardar informe
         public async Task<(bool exito, string mensaje)> GuardarInformeAsync(InformeDto informe)
         {
-            await AddAuthHeaderAsync();
             var response = await _httpClient.PostAsJsonAsync("api/Informes", informe);
-
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadFromJsonAsync<ResponseMessage>();
@@ -79,7 +60,6 @@ namespace FRONTproyectoEquinoterapia.Services
         // Descargar PDF
         public async Task DescargarPdfAsync(int mes, int anio, string nombreArchivo)
         {
-            await AddAuthHeaderAsync();
             var response = await _httpClient.GetAsync($"/api/Informes/download/pdf?mes={mes}&anio={anio}");
             response.EnsureSuccessStatusCode();
 
@@ -90,12 +70,13 @@ namespace FRONTproyectoEquinoterapia.Services
         // Descargar Excel
         public async Task DescargarExcelAsync(int mes, int anio, string nombreArchivo)
         {
-            await AddAuthHeaderAsync();
             var response = await _httpClient.GetAsync($"/api/Informes/download/excel?mes={mes}&anio={anio}");
             response.EnsureSuccessStatusCode();
 
             var contenido = await response.Content.ReadAsByteArrayAsync();
-            await _downloadService.DownloadFile(nombreArchivo, contenido,
+            await _downloadService.DownloadFile(
+                nombreArchivo,
+                contenido,
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
     }

@@ -1,99 +1,40 @@
-﻿@inherits LayoutComponentBase
+﻿@inject AuthenticationStateProvider AuthProvider
 @inject NavigationManager NavigationManager
 
-<div class="page-layout">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+@inherits LayoutComponentBase
 
+<div class="app @(usuarioAutenticado ? "page-layout" : "")">
+
+    <NavMenu />
     <main>
-        <!-- Encabezado fijo -->
-        <header class="top-header">
-            <h3>Sistema de Equinoterapia</h3>
-            <button class="btn-logout" @onclick="CerrarSesion">Cerrar Sesion</button>
-        </header>
-
-        <article class="content px-4">
-            @Body
-        </article>
+        @Body
     </main>
 </div>
 
 <style>
-    /* Fondo global */
     .page-layout {
         display: flex;
         min-height: 100vh;
-        background-image: url('/imagenes/fondogeneral.png'); /* ruta desde wwwroot */
+        background-image: url('/imagenes/fondogeneral.png');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    /* Header */
-    .top-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #e9e9e9; /* gris claro */
-        color: #061f6d; /* azul logo */
-        padding: 0.5rem 1rem;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-        .top-header h3 {
-            margin: 0;
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-    .btn-logout {
-        background: linear-gradient(90deg, #061f6d); /* degradado azul */
-        color: white;
-        border: none;
-        padding: 6px 14px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-        .btn-logout:hover {
-            filter: brightness(1.1);
-        }
-
-    /* Sidebar */
-    .sidebar {
-        width: 220px;
-        min-height: 100vh;
-        background-color: white; /* gris claro */
-        color: #061f6d; /* texto azul logo */
-        transition: all 0.3s ease;
-        overflow-y: auto;
-    }
-
-        .sidebar .rz-panelmenu-item {
-            color: #061f6d !important;
-            padding: 0.5rem 1rem;
-        }
-
-            .sidebar .rz-panelmenu-item:hover {
-                background-color: #5a8c3f; /* verde hover */
-                color: #ffffff !important;
-            }
-
-        .sidebar .rz-panelmenu-item-selected {
-            background-color: #eeb636; /* naranja selección */
-            color: #061f6d !important;
-        }
-
-    .collapse {
-        display: none;
+    main {
+        flex: 1;
     }
 </style>
 
 @code {
+    private bool usuarioAutenticado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        usuarioAutenticado = authState.User.Identity?.IsAuthenticated ?? false;
+    }
+
     private void CerrarSesion()
     {
         NavigationManager.NavigateTo("/", true);

@@ -1,8 +1,9 @@
 ﻿@page "/pacientes"
+@attribute [Authorize]
+@layout MainLayout
 @using FRONTproyectoEquinoterapia.Services
 @using FRONTproyectoEquinoterapia.Models
 @inject NavigationManager Navigation
-@inject HttpClient Http
 @inject NotificationService NotificationService
 @inject PacienteService pacienteService
 @inject DialogService DialogService

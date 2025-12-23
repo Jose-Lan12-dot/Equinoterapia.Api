@@ -1,12 +1,22 @@
 ﻿@page "/"
+@attribute [AllowAnonymous]
 @layout LoginLayout
+
+
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using Blazored.LocalStorage
 @using FRONTproyectoEquinoterapia.Models
 @using FRONTproyectoEquinoterapia.Services
 @using Radzen
 @using Radzen.Blazor
+
 @inject InicioSesionService InicioSesionService
-@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject ILocalStorageService localStorage
+@inject AuthenticationStateProvider AuthProvider
+@inject UsuarioSesionService UsuarioSesionService
 @inject NavigationManager NavigationManager
+
 
 
 
@@ -111,13 +121,37 @@
 
     private async Task IniciarSesion()
     {
-        var datos = new InicioSesionModel { usuario = usuario, contrasena = contrasena };
-        var (mensajeServidor, estado,token) = await InicioSesionService.AccesoAsync(datos);
-
-        if (estado)
+        var datos = new InicioSesionModel
         {
-            await localStorage.SetItemAsync("token", token);
-            NavigationManager.NavigateTo("/home");
+            usuario = usuario,
+            contrasena = contrasena
+        };
+
+        var (exito, mensajeServidor, data) =
+            await InicioSesionService.AccesoAsync(datos);
+
+        if (exito && data != null)
+        {
+            // Guardar token
+            await localStorage.SetItemAsync("token", data.Token);
+
+            // Notificar autenticación (ESTA ES LA ÚNICA)
+            var customAuth = (CustomAuthStateProvider)AuthProvider;
+            await customAuth.MarkUserAsAuthenticated(data.Token);
+
+            // Datos para UI
+            UsuarioSesionService.Usuario = new UsuarioSesionDto
+            {
+                Nombre = data.NombreUsuario,
+                FotoBase64 = data.FotoPerfil != null
+                    ? Convert.ToBase64String(data.FotoPerfil)
+                    : null
+            };
+
+            UsuarioSesionService.NotifyStateChanged();
+
+            //  NAVEGA A UNA PÁGINA PROTEGIDA
+            NavigationManager.NavigateTo("/inicio");
         }
         else
         {
@@ -125,8 +159,11 @@
         }
     }
 
+
+
     private void RecuperarContrasena()
     {
         NavigationManager.NavigateTo("/recuperarContrase");
     }
 }
+

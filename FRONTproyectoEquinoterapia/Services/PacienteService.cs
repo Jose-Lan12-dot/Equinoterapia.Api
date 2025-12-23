@@ -19,27 +19,35 @@ namespace FRONTproyectoEquinoterapia.Services
     {
         private readonly HttpClient _http;
 
-        public PacienteService(HttpClient http)
+        public PacienteService(IHttpClientFactory factory)
         {
-            _http = http;
+            _http = factory.CreateClient("API"); // ✅ ESTE SÍ LLEVA TOKEN
         }
+
 
         // 🔹 Obtener todos los pacientes
         public async Task<List<AllPacienteDto>> ObtenerTodosAsync()
         {
-            var response = await _http.GetFromJsonAsync<ResponseWrapper<List<AllPacienteDto>>>("https://localhost:7280/api/Pacientes");
+            var response =
+                await _http.GetFromJsonAsync<ResponseWrapper<List<AllPacienteDto>>>(
+                    "/api/Pacientes"
+                );
+
             return response?.Data ?? new List<AllPacienteDto>();
         }
+
 
         // 🔹 Obtener detalle de un paciente por ID
         public async Task<PacienteDetailsDto?> ObtenerPorIdAsync(int pacienteId)
         {
-            var response = await _http.GetFromJsonAsync<ResponseWrapper<PacienteDetailsDto>>(
-                $"https://localhost:7280/api/Pacientes/{pacienteId}");
+            var response =
+                await _http.GetFromJsonAsync<ResponseWrapper<PacienteDetailsDto>>(
+                    $"/api/Pacientes/{pacienteId}"
+                );
 
-            // Retorna solo el objeto Data (PacienteDetailsDto)
             return response?.Data;
         }
+
 
 
         // Crear paciente solo con datos
@@ -63,9 +71,11 @@ namespace FRONTproyectoEquinoterapia.Services
             try
             {
                 var response = await _http.PostAsJsonAsync(
-                    "https://localhost:7280/api/Pacientes",
+                 "/api/Pacientes",
                     pacienteConArchivos
-                );
+                 );
+
+               
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -87,8 +97,10 @@ namespace FRONTproyectoEquinoterapia.Services
         public async Task<(bool exito, string mensaje)> ActualizarPacienteAsync(UpdatePacienteDto paciente)
         {
             var response = await _http.PatchAsJsonAsync(
-                $"https://localhost:7280/api/Pacientes/{paciente.PacienteId}",
-                paciente);
+            $"/api/Pacientes/{paciente.PacienteId}",
+            paciente
+            );
+
 
             if (response.IsSuccessStatusCode)
                 return (true, "Paciente actualizado correctamente.");
@@ -117,7 +129,10 @@ namespace FRONTproyectoEquinoterapia.Services
         // 🔹 Eliminar un paciente por ID
         public async Task<(bool exito, string mensaje)> EliminarPacienteAsync(int pacienteId)
         {
-            var response = await _http.DeleteAsync($"https://localhost:7280/api/Pacientes/{pacienteId}");
+            var response = await _http.DeleteAsync(
+            $"/api/Pacientes/{pacienteId}"
+            );
+
             if (response.IsSuccessStatusCode)
                 return (true, "Paciente eliminado correctamente.");
 

@@ -7,9 +7,9 @@ namespace FRONTproyectoEquinoterapia.Services
     {
         private readonly HttpClient _http;
 
-        public CaballoService(HttpClient http)
+        public CaballoService(IHttpClientFactory factory)
         {
-            _http = http;
+            _http = factory.CreateClient("API"); // ✅ ESTE SÍ LLEVA TOKEN
         }
 
         public async Task<List<CaballoDto>> GetAllAsync()
