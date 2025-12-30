@@ -8,7 +8,7 @@ namespace FRONTproyectoEquinoterapia.Models
 
         public InicioSesionService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClientFactory.CreateClient("API");
+             _httpClient = httpClientFactory.CreateClient("PublicClient");
         }
 
         public async Task<(bool exito, string mensaje, RespuestaLoginDto? data)>

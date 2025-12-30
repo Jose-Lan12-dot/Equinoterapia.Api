@@ -65,17 +65,21 @@ builder.Services.AddScoped<AuthenticationStateProvider>(
     sp => sp.GetRequiredService<CustomAuthStateProvider>());
 
 
-builder.Services.AddScoped<AuthMessageHandler>();
+
 
 
 builder.Services.AddHttpClient("API", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7280/");
-    //client.BaseAddress = new Uri("https://aplicaciones.utsistemas.gob.mx/apiequinoterapia/api/");
-    //client.BaseAddress = new Uri("https://aplicaciones.utsistemas.gob.mx/apiequinoterapia/");
+    client.BaseAddress = new Uri("https://aplicaciones.utsistemas.gob.mx/apiequinoterapia/");
 })
 .AddHttpMessageHandler<AuthMessageHandler>();
 
+builder.Services.AddHttpClient("PublicClient", client =>
+{
+    client.BaseAddress = new Uri("https://aplicaciones.utsistemas.gob.mx/apiequinoterapia/");
+});
 
+//de manera  local 
+//client.BaseAddress = new Uri("https://localhost:7280/");
 
 await builder.Build().RunAsync();

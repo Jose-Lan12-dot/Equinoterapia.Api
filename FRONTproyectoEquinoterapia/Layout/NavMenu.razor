@@ -1,14 +1,15 @@
 ﻿@using FRONTproyectoEquinoterapia.Models
 @using FRONTproyectoEquinoterapia.Services
+@using Blazored.LocalStorage
+@inject ILocalStorageService localStorage
+
 @implements IDisposable
-@inject AuthenticationStateProvider AuthProvider
-@inject CustomAuthStateProvider CustomAuth
+
 @inject UsuarioSesionService UsuarioSesionService
 @inject NavigationManager NavigationManager
 
 
-<AuthorizeView>
-    <Authorized>
+
         <div class="@NavMenuCssClass sidebar">
 
             <!-- Logo arriba -->
@@ -62,8 +63,7 @@
            
 
         </div>
-    </Authorized>
-</AuthorizeView>
+    
         <style>
             .sidebar {
                 width: 200px;
@@ -168,20 +168,18 @@
 
             private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-        protected override void OnInitialized()
-        {
+    protected override void OnInitialized()
+    {
         UsuarioSesionService.OnChange += StateHasChanged;
-        }
+    }
 
-        public void Dispose()
-        {
+    public void Dispose()
+    {
         UsuarioSesionService.OnChange -= StateHasChanged;
-        }
+    }
 
 
-
-
-            private void ToggleNavMenu()
+          private void ToggleNavMenu()
             {
                 collapseNavMenu = !collapseNavMenu;
             }
@@ -191,11 +189,14 @@
                 Console.WriteLine($"{args.Text} clicked from parent");
             }
 
-            private async Task Logout()
-            {
-                await CustomAuth.LogoutAsync();
-                UsuarioSesionService.Usuario = null;
-                NavigationManager.NavigateTo("/", true);
-            }
+    private async Task Logout()
+    {
+        await localStorage.RemoveItemAsync("token");
+        await localStorage.RemoveItemAsync("usuarioNombre");
+        await localStorage.RemoveItemAsync("usuarioFoto");
+
+        UsuarioSesionService.LimpiarUsuario();
+        NavigationManager.NavigateTo("/", true);
+    }
 
         }

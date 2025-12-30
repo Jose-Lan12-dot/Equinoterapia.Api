@@ -1,36 +1,43 @@
-﻿using FRONTproyectoEquinoterapia.Models;
+﻿using Blazored.LocalStorage;
+using FRONTproyectoEquinoterapia.Models;
 using FRONTproyectoEquinoterapia.Services;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.Net;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using static System.Net.WebRequestMethods;
-using System.Net.Http.Json;
-
 public class UsuarioSesionService
 {
-    private readonly HttpClient _http;
-
-    public UsuarioSesionDto? Usuario { get; set; }
+    public UsuarioSesionDto? Usuario { get; private set; }
     public event Action? OnChange;
 
-    public UsuarioSesionService(HttpClient http)
+    public void SetUsuario(UsuarioSesionDto usuario)
     {
-        _http = http;
+        Usuario = usuario;
+        OnChange?.Invoke();
     }
 
-    public void NotifyStateChanged() => OnChange?.Invoke();
-
-    public async Task CargarPerfilAsync()
-    {
-        Usuario = await _http.GetFromJsonAsync<UsuarioSesionDto>(
-            "api/usuarios/perfil"
-        );
-
-        NotifyStateChanged();
-    }
-
-    public void LimpiarSesion()
+    public void LimpiarUsuario()
     {
         Usuario = null;
-        NotifyStateChanged();
+        OnChange?.Invoke();
+    }
+
+    public async Task CargarDesdeLocalStorageAsync(ILocalStorageService localStorage)
+    {
+        var nombre = await localStorage.GetItemAsync<string>("usuarioNombre");
+        var foto = await localStorage.GetItemAsync<string>("usuarioFoto");
+
+        if (!string.IsNullOrEmpty(nombre))
+        {
+            Usuario = new UsuarioSesionDto
+            {
+                Nombre = nombre,
+                FotoBase64 = foto
+            };
+
+            OnChange?.Invoke();
+        }
     }
 }
+
