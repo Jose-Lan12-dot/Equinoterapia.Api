@@ -9,5 +9,6 @@
         public required int NumeroFaltas { get; set; }
         public required bool FormularioHecho { get; set; }
         public required bool FaltanArchivos { get; set; }
+        public DateTime FechaRegistro { get; set; }
     }
 }

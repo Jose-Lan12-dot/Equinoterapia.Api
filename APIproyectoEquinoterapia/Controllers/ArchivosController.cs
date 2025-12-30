@@ -33,7 +33,7 @@ namespace Equinoterapia.Api.Controllers
                 _ => "application/octet-stream"
             };
 
-            return File(archivo.Archivo, contentType);
+            return File(archivo.Archivo,contentType) ;
         }
 
 

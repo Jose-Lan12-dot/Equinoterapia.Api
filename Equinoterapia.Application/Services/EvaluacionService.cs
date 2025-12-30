@@ -20,6 +20,38 @@ namespace Equinoterapia.Application.Services
             _respuestasService = respuestasService;
         }
 
+
+        //public async Task<(GetAllEvaluacionesAsyncDto, string)> GetAllAsync(int pacienteId)
+        //{
+        //    var evaluacion = await _evaluacionRepository.GetEvaluacionByPacienteIdAsync(pacienteId);
+        //    if (evaluacion == null)
+        //    {
+        //        return (null, "Evaluacion no encontrada");
+        //    }
+
+        //    var nombrePaciente = await _evaluacionRepository.GetPacienteNombreAsync(pacienteId);
+
+        //    var (preguntas, msgPreg) = await GetPreguntasAsync();
+        //    if (!preguntas.Any())
+        //    {
+        //        return (null, msgPreg);
+        //    }
+
+        //    var (respuestas, msgResp) = await _respuestasService.Get(evaluacion.EvaluacionId);
+        //    if (!respuestas.Any())
+        //    {
+        //        return (null, msgResp);
+        //    }
+
+        //    return (new GetEvaluacionDto
+        //    {
+        //        Fecha = evaluacion.Fecha,
+        //        Preguntas = preguntas,
+        //        Respuestas = respuestas,
+        //        nombrePaciente = nombrePaciente ?? string.Empty
+        //    }, "Evaluacion Encontrada");
+        //}
+
         public async Task<(GetEvaluacionDto?, string)> GetAsync(int pacienteId)
         {   
             var evaluacion = await _evaluacionRepository.GetEvaluacionByPacienteIdAsync(pacienteId);

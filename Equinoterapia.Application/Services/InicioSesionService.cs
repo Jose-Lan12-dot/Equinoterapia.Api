@@ -27,8 +27,8 @@ namespace Equinoterapia.Application.Services
             if (IsNull(usuario) || IsNull(usuario.IdUsuario) || usuario.IdUsuario == 0)
                 return (false, "Usuario no encontrado", null);
 
-            //string encryptedPassword = _encryptionService.EncryptPassword(inicioSesionDataDto.contrasena);
-            string encryptedPassword = inicioSesionDataDto.contrasena; 
+            string encryptedPassword = _encryptionService.EncryptPassword(inicioSesionDataDto.contrasena);
+            //string encryptedPassword = inicioSesionDataDto.contrasena; 
 
             var acceso = await _authRepository.ValidateAccessAsync(
                                     inicioSesionDataDto.Usuario,
@@ -53,25 +53,6 @@ namespace Equinoterapia.Application.Services
         }
         
 
-        public async Task<(bool, string?, byte[]?)> ObtenerPerfilAsync(CredencialesDto inicioSesionDataDto)
-        {
-            var usuario = await _authRepository.ValidateUserAsync(inicioSesionDataDto.Usuario);
-            if (IsNull(usuario) || IsNull(usuario.IdUsuario) || usuario.IdUsuario == 0)
-                return (false, "Usuario no encontrado", null);
-
-            //string encryptedPassword = _encryptionService.EncryptPassword(inicioSesionDataDto.contrasena);
-            string encryptedPassword = inicioSesionDataDto.contrasena; 
-
-            var acceso = await _authRepository.ValidateAccessAsync(
-                                    inicioSesionDataDto.Usuario,
-                                    encryptedPassword,
-                                    usuario.IdUsuario);
-
-            if (IsNull(acceso) || acceso.IdUsuario == 0)
-                return (false, "Credenciales incorrectas", null);
-
-            return (true, acceso.Usuario, acceso.Foto);
-        }
 
 
 

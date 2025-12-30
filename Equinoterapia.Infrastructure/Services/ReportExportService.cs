@@ -58,14 +58,10 @@ namespace Equinoterapia.Infrastructure.Services
                                 // Izquierda: Logo
                                 row.ConstantItem(4, Unit.Centimetre).Image(logoBytes).FitArea();
 
-                                // Centro: Lema del año
-                                //row.RelativeItem().AlignCenter()
-                                //   .Text($"\"{informe.Anio}, Año de Rosario Castellanos Figueroa\"")
-                                //   .FontSize(10).FontColor(Colors.Grey.Medium);
 
                                 // Derecha: Coordinación (Rojo)
                                 row.RelativeItem().AlignRight().AlignMiddle()
-                                   .Text("COORDINACIÓN TÉCNICA")
+                                   .Text("CENTRO DE EQUINOTERRARIA ")
                                    .FontSize(11).Bold().FontColor("#D9534F"); 
                             });
 

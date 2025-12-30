@@ -24,14 +24,14 @@ namespace Equinoterapia.Infrastructure
             {
 
             ////////////SERVICIO DBCONTEXT Y MIGRACIONES
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)
-            ));
-
             //services.AddDbContext<AppDbContext>(options =>
-            //    options.UseSqlServer("Server=192.168.105.212;Database=EquinoterapiaDB;User ID=equinoterapia;Password=equino2025; Encrypt=False"
+            //    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
+            //        b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)
             //));
+
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer("Server=192.168.105.212;Database=EquinoterapiaDB;User ID=equinoterapia;Password=equino2025; Encrypt=False"
+            ));
 
             ////////////SERVICIO JWT
             services.AddAuthentication(options =>

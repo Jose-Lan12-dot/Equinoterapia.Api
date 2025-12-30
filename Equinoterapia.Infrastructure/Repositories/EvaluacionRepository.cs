@@ -1,9 +1,10 @@
-﻿using Equinoterapia.Domain.Entities;
+﻿using Equinoterapia.Application.DTOs.Evaluaciones;
+using Equinoterapia.Application.DTOs.Shared;
+using Equinoterapia.Application.Interfaces;
+using Equinoterapia.Domain.Entities;
 using Equinoterapia.Domain.Interfaces;
 using Equinoterapia.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Equinoterapia.Application.Interfaces;
-using Equinoterapia.Application.DTOs.Evaluaciones;
 
 namespace Equinoterapia.Infrastructure.Repositories
 {
@@ -16,7 +17,7 @@ namespace Equinoterapia.Infrastructure.Repositories
             _context = context;
         }
 
-        // --- Lectura ---
+
         public async Task<bool> PacienteExistsAsync(int pacienteId)
         {
             return await _context.paciente.AnyAsync(p => p.PacienteId == pacienteId);
@@ -26,6 +27,13 @@ namespace Equinoterapia.Infrastructure.Repositories
         {
             return await _context.evaluacion
                 .FirstOrDefaultAsync(e => e.PacienteId == pacienteId);
+        }
+
+        public async Task<List<Evaluacion>> GetEvaluacionesByPacienteIdAsync(int pacienteId)
+        {
+            return await _context.evaluacion
+                .Where(p => p.PacienteId == pacienteId)
+                .ToListAsync();
         }
 
         public async Task<string?> GetPacienteNombreAsync(int pacienteId)

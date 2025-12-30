@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace Equinoterapia.Application.DTOs.Asistencias
 {
     public class GetAsistenciaDto

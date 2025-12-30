@@ -99,9 +99,11 @@ namespace Equinoterapia.Infrastructure.Repositories
                     p.PacienteId,
                     p.Nombre,
                     p.Tutor,
-                    EstadoEnum = p.Estado, 
+                    EstadoEnum = p.Estado,
+                    p.FechaRegistro,
 
-                   
+
+
                     NumeroFaltas = _context.asistencia
                         .Count(a => a.PacienteId == p.PacienteId && a.Asistio == false),
 
@@ -110,6 +112,9 @@ namespace Equinoterapia.Infrastructure.Repositories
 
                     FaltanArchivos = (_context.archivo
                         .Count(ar => ar.PacienteId == p.PacienteId) < numeroArchivosRequeridos)
+
+                    
+
                 })
                 .ToListAsync();
 
@@ -124,7 +129,9 @@ namespace Equinoterapia.Infrastructure.Repositories
 
                 NumeroFaltas = item.NumeroFaltas,
                 FormularioHecho = item.FormularioHecho,
-                FaltanArchivos = item.FaltanArchivos
+                FaltanArchivos = item.FaltanArchivos,
+                FechaRegistro = item.FechaRegistro
+
             }).ToList();
 
             return resultadoFinal;
@@ -134,7 +141,7 @@ namespace Equinoterapia.Infrastructure.Repositories
         }
 
 
-        // Método privado dentro de PacienteRepository.cs
+
         private string ObtenerDescripcionEstado(EstadoPaciente estado)
         {
             return estado switch
