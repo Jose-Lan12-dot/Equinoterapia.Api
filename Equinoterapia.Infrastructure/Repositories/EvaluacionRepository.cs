@@ -1,5 +1,5 @@
 ﻿using Equinoterapia.Application.DTOs.Evaluaciones;
-using Equinoterapia.Application.DTOs.Shared;
+using Equinoterapia.Application.DTOs.Evaluaciones;
 using Equinoterapia.Application.Interfaces;
 using Equinoterapia.Domain.Entities;
 using Equinoterapia.Domain.Interfaces;
@@ -23,16 +23,21 @@ namespace Equinoterapia.Infrastructure.Repositories
             return await _context.paciente.AnyAsync(p => p.PacienteId == pacienteId);
         }
 
-        public async Task<Evaluacion?> GetEvaluacionByPacienteIdAsync(int pacienteId)
+        public async Task<Evaluacion?> GetEvaluacionByIdAsync(int evaluacionId)
         {
-            return await _context.evaluacion
-                .FirstOrDefaultAsync(e => e.PacienteId == pacienteId);
+            return await _context.evaluacion.FindAsync(evaluacionId);
         }
 
-        public async Task<List<Evaluacion>> GetEvaluacionesByPacienteIdAsync(int pacienteId)
+        public async Task<List<GetAllEvaluacionesAsyncDto>> GetEvaluacionesByPacienteIdAsync(int pacienteId)
         {
             return await _context.evaluacion
+                .AsNoTracking()
                 .Where(p => p.PacienteId == pacienteId)
+                .Select(e => new GetAllEvaluacionesAsyncDto
+                {
+                    EvaluacionId = e.EvaluacionId,
+                    Fecha = e.Fecha,
+                })
                 .ToListAsync();
         }
 

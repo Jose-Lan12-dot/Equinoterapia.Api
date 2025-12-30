@@ -1,8 +1,9 @@
 ﻿
 namespace Equinoterapia.Application.DTOs.Evaluaciones
 {
-    internal class GetAllEvaluacionesAsyncDto
+    public class GetAllEvaluacionesAsyncDto
     {
-        List<GetEvaluacionDto> Evaluaciones { get; set; } = new List<GetEvaluacionDto>();
+        public int EvaluacionId { get; set; }
+        public DateOnly Fecha { get; set; }
     }
 }

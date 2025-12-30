@@ -191,7 +191,7 @@ namespace Equinoterapia.Application.Services
                     _archivoRepository.RemoveRange(archivos);
                 }
 
-                var evaluacion = await _evaluacionRepository.GetEvaluacionByPacienteIdAsync(pacienteId);
+                var evaluacion = await _evaluacionRepository.GetEvaluacionByIdAsync(pacienteId);
                 if (evaluacion != null)
                 {
                     var respuestas = await _respuestaRepository.GetRespuestasByEvaluacionIdAsync(evaluacion.EvaluacionId);

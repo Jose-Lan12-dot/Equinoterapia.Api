@@ -21,46 +21,26 @@ namespace Equinoterapia.Application.Services
         }
 
 
-        //public async Task<(GetAllEvaluacionesAsyncDto, string)> GetAllAsync(int pacienteId)
-        //{
-        //    var evaluacion = await _evaluacionRepository.GetEvaluacionByPacienteIdAsync(pacienteId);
-        //    if (evaluacion == null)
-        //    {
-        //        return (null, "Evaluacion no encontrada");
-        //    }
+        public async Task<(List<GetAllEvaluacionesAsyncDto>, string)> GetAllAsync(int pacienteId)
+        {
+            var evaluaciones = await _evaluacionQueryRepository.GetEvaluacionesByPacienteIdAsync(pacienteId);
+            if (evaluaciones.Count() == 0)
+            {
+                return (evaluaciones, "No se encontro ninguna evaluaciom");
+            }
 
-        //    var nombrePaciente = await _evaluacionRepository.GetPacienteNombreAsync(pacienteId);
+            return (evaluaciones, "Evaluaciones Encontradas");
+        }
 
-        //    var (preguntas, msgPreg) = await GetPreguntasAsync();
-        //    if (!preguntas.Any())
-        //    {
-        //        return (null, msgPreg);
-        //    }
-
-        //    var (respuestas, msgResp) = await _respuestasService.Get(evaluacion.EvaluacionId);
-        //    if (!respuestas.Any())
-        //    {
-        //        return (null, msgResp);
-        //    }
-
-        //    return (new GetEvaluacionDto
-        //    {
-        //        Fecha = evaluacion.Fecha,
-        //        Preguntas = preguntas,
-        //        Respuestas = respuestas,
-        //        nombrePaciente = nombrePaciente ?? string.Empty
-        //    }, "Evaluacion Encontrada");
-        //}
-
-        public async Task<(GetEvaluacionDto?, string)> GetAsync(int pacienteId)
+        public async Task<(GetEvaluacionDto?, string)> GetAsync(int evaluacionId)
         {   
-            var evaluacion = await _evaluacionRepository.GetEvaluacionByPacienteIdAsync(pacienteId);
+            var evaluacion = await _evaluacionRepository.GetEvaluacionByIdAsync(evaluacionId);
             if (evaluacion == null)
             {
                 return (null, "Evaluacion no encontrada");
             }
 
-            var nombrePaciente = await _evaluacionRepository.GetPacienteNombreAsync(pacienteId);
+            var nombrePaciente = await _evaluacionRepository.GetPacienteNombreAsync(evaluacion.PacienteId);
 
             var (preguntas, msgPreg) = await GetPreguntasAsync();
             if (!preguntas.Any())
@@ -68,7 +48,7 @@ namespace Equinoterapia.Application.Services
                 return (null, msgPreg);
             }
 
-            var (respuestas, msgResp) = await _respuestasService.Get(evaluacion.EvaluacionId);
+            var (respuestas, msgResp) = await _respuestasService.Get(evaluacionId);
             if (!respuestas.Any())
             {
                 return (null, msgResp);
@@ -102,12 +82,6 @@ namespace Equinoterapia.Application.Services
                 return (false, "El número de respuestas no coincide con el número de preguntas");
             }
 
-            if (await _evaluacionRepository.EvaluacionExistsAsync(pacienteId))
-            {
-                return (false, "Ya existe un evaluacion para este paciente");
-            }
-
-
             var nuevaEvaluacion = new Evaluacion
             {
                 PacienteId = pacienteId,
@@ -131,16 +105,16 @@ namespace Equinoterapia.Application.Services
             }
             catch (Exception ex)
             {
-                return (false, "Error al guardar la evaluacion: " + ex.Message);
+                return (false, "Error al guardar la evaluaciones: " + ex.Message);
             }
         }
 
-        public async Task<(bool, string)> UpdateAsync(UpdateEvaluacionDto evaluacionDto, int pacienteId)
+        public async Task<(bool, string)> UpdateAsync(UpdateEvaluacionDto evaluacionDto, int evalucionId)
         {
             var fecha = evaluacionDto.Fecha;
             var respuestas = evaluacionDto.Respuestas;
 
-            var evaluacion = await _evaluacionRepository.GetEvaluacionByPacienteIdAsync(pacienteId);
+            var evaluacion = await _evaluacionRepository.GetEvaluacionByIdAsync(evalucionId);
             if (evaluacion == null)
             {
                 return (false, "La evaluación no existe");
@@ -157,7 +131,7 @@ namespace Equinoterapia.Application.Services
                 await _evaluacionRepository.SaveChangesAsync();
                 if (respuestas != null && respuestas.Count > 0)
                 {
-                    var (exito, mensaje) = await _respuestasService.Update(respuestas, evaluacion.EvaluacionId);
+                    var (exito, mensaje) = await _respuestasService.Update(respuestas, evalucionId);
                     if (!exito)
                     {
                         return (true, "Se actualizo la fecha pero hubo problemas con las respuestas");
@@ -168,22 +142,22 @@ namespace Equinoterapia.Application.Services
             }
             catch (Exception ex)
             {
-                return (false, "Error al actualizar la evaluacion: " + ex.Message);
+                return (false, "Error al actualizar la evaluaciones: " + ex.Message);
             }
         }
 
-        public async Task<(bool, string)> DeleteAsync(int pacienteId)
+        public async Task<(bool, string)> DeleteAsync(int evaluacionId)
         {
 
-            var evaluacion = await _evaluacionRepository.GetEvaluacionByPacienteIdAsync(pacienteId);
+            var evaluacion = await _evaluacionRepository.GetEvaluacionByIdAsync(evaluacionId);
             if (evaluacion == null)
             {
-                return (false, "La evaluacion no exite");
+                return (false, "La evaluaciones no exite");
             }
 
             try
             {
-                var (exito, mensaje) = await _respuestasService.Delete(evaluacion.EvaluacionId);
+                var (exito, mensaje) = await _respuestasService.Delete(evaluacionId);
                 if (!exito)
                 {
                     return (false, mensaje);
@@ -196,7 +170,7 @@ namespace Equinoterapia.Application.Services
             }
             catch (Exception ex)
             {
-                return (false, "Error al eliminar la evaluacion: " + ex.Message);
+                return (false, "Error al eliminar la evaluaciones: " + ex.Message);
             }
         }
 

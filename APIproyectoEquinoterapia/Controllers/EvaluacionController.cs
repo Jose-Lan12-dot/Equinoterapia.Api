@@ -18,9 +18,23 @@ namespace Equinoterapia.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetEvaluacion(int pacienteId)
+        public async Task<IActionResult> GetAllEvaluaciones(int pacienteId)
         {
-            var (evaluacion, mensaje) = await _evaluacionService.GetAsync(pacienteId);
+            var (evaluaciones, mensaje) = await _evaluacionService.GetAllAsync(pacienteId);
+
+            if (evaluaciones.Count() == 0)
+            {
+                return NotFound(mensaje);
+            }
+
+
+            return Ok(evaluaciones);
+        }
+
+        [HttpGet("{evaluacionId}")]
+        public async Task<IActionResult> GetEvaluacion(int evaluacionId)
+        {
+            var (evaluacion, mensaje) = await _evaluacionService.GetAsync(evaluacionId);
 
             if (evaluacion == null)
             {
@@ -52,10 +66,10 @@ namespace Equinoterapia.Api.Controllers
             return Ok(mensaje); 
         }
 
-        [HttpPatch]
-        public async Task<IActionResult> UpdateEvaluacion([FromBody] UpdateEvaluacionDto evaluacionDto, int pacienteId)
+        [HttpPatch("{evaluacionId}")]
+        public async Task<IActionResult> UpdateEvaluacion([FromBody] UpdateEvaluacionDto evaluacionDto, int evaluacionId)
         {
-            var (exito, mensaje) = await _evaluacionService.UpdateAsync(evaluacionDto, pacienteId);
+            var (exito, mensaje) = await _evaluacionService.UpdateAsync(evaluacionDto, evaluacionId);
 
             if (!exito)
             {
@@ -66,10 +80,10 @@ namespace Equinoterapia.Api.Controllers
             return NoContent(); 
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteEvaluacion(int pacienteId)
+        [HttpDelete("{evaluacionId}")]
+        public async Task<IActionResult> DeleteEvaluacion(int evaluacionId)
         {
-            var (exito, mensaje) = await _evaluacionService.DeleteAsync(pacienteId);
+            var (exito, mensaje) = await _evaluacionService.DeleteAsync(evaluacionId);
 
             if (!exito)
             {
