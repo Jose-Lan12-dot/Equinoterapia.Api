@@ -1,4 +1,5 @@
 ﻿@page "/instructores"
+@attribute [Authorize]
 @using FRONTproyectoEquinoterapia.Services
 @inject InstructorService InstructorService
 @using FRONTproyectoEquinoterapia.Models
@@ -45,7 +46,7 @@
 
     <!-- Grid -->
     <RadzenDataGrid Data="@filteredInstructores" TItem="InstructorDto" ColumnWidth="200px"
-                    AllowFiltering="true" AllowPaging="true" AllowSorting="true" PageSize="5"
+                    AllowFiltering="true" AllowPaging="true" AllowSorting="true" PageSize="10"
                     class="shadow-sm rounded">
         <Columns>
             <RadzenDataGridColumn TItem="InstructorDto" Property="InstructorId" Title="ID" />

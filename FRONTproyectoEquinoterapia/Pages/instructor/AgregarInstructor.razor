@@ -1,4 +1,5 @@
 ﻿@page "/agregar-instructor"
+@attribute [Authorize]
 @using FRONTproyectoEquinoterapia.Models
 @inject FRONTproyectoEquinoterapia.Services.InstructorService InstructorService
 @inject NavigationManager Navigation
@@ -48,21 +49,45 @@
         Telefono = ""
     };
 
+    //se cambio la logica de guardar instructor. REPORTAR AL BACKEN 
     private async Task GuardarInstructor()
     {
+        List<string> errores = new();
+
+        // Nombre
         if (string.IsNullOrWhiteSpace(NuevoInstructor.Nombre))
         {
-            await JS.InvokeVoidAsync("alert", "El nombre es obligatorio.");
-            return;
+            errores.Add("Nombre");
         }
 
+        // Teléfono
         if (string.IsNullOrWhiteSpace(NuevoInstructor.Telefono))
         {
-            await JS.InvokeVoidAsync("alert", "El teléfono es obligatorio.");
+            errores.Add("Teléfono del instructor");
+        }
+        else
+        {
+            var telefono = NuevoInstructor.Telefono.Trim();
+
+            if (telefono.Length != 10 || !telefono.All(char.IsDigit))
+            {
+                errores.Add("El teléfono del instructor debe tener exactamente 10 dígitos numéricos");
+            }
+        }
+
+        //  VALIDACIÓN FINAL
+        if (errores.Any())
+        {
+            string mensaje = "Faltan o son incorrectos los siguientes datos:\n - "
+                             + string.Join("\n - ", errores);
+
+            await JS.InvokeVoidAsync("alert", mensaje);
             return;
         }
 
+        // Guardar
         var exito = await InstructorService.AddAsync(NuevoInstructor);
+
         if (exito)
         {
             await JS.InvokeVoidAsync("alert", "Instructor agregado correctamente.");

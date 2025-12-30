@@ -11,10 +11,9 @@ namespace FRONTproyectoEquinoterapia.Models
             _httpClient = httpClientFactory.CreateClient("API");
         }
 
-        public async Task<(bool exito, string mensaje, LoginDataDto? data)>
+        public async Task<(bool exito, string mensaje, RespuestaLoginDto? data)>
     AccesoAsync(InicioSesionModel credenciales)
         {
-
             var response = await _httpClient.PostAsJsonAsync(
                 "api/Auth/login", credenciales);
 
@@ -24,13 +23,12 @@ namespace FRONTproyectoEquinoterapia.Models
             var result =
                 await response.Content.ReadFromJsonAsync<RespuestaLoginDto>();
 
-           
-
-            if (result == null || result.Data == null)
+            if (result == null || string.IsNullOrEmpty(result.Token))
                 return (false, "Respuesta inválida del servidor", null);
 
-            return (true, result.Mensaje, result.Data);
+            return (true, result.Mensaje, result);
         }
+
 
 
 

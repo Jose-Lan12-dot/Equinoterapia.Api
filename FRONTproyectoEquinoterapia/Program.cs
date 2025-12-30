@@ -1,14 +1,15 @@
-﻿using FRONTproyectoEquinoterapia;
+﻿using BlazorDownloadFile;
+using Blazored.LocalStorage;
+using FRONTproyectoEquinoterapia;
 using FRONTproyectoEquinoterapia.Models;
+
 using FRONTproyectoEquinoterapia.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
 using Radzen;
 using System.Globalization;
-using Blazored.LocalStorage;
-using BlazorDownloadFile;
-using Microsoft.AspNetCore.Components.Authorization;
 
 
 
@@ -32,8 +33,13 @@ CultureInfo.CurrentUICulture = cultura;
 
 
 //Radzen services registrados
-builder.Services.AddScoped<InicioSesionService>();
+
 builder.Services.AddScoped<UsuarioSesionService>();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+builder.Services.AddAuthorizationCore();
+
+//registro nuevo de servicio AuthenticationStateProvider, CustomAuthStateProvider>
+builder.Services.AddScoped<InicioSesionService>();
 builder.Services.AddScoped<InformeService>();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<ITokenProvider, TokenProvider>();
@@ -44,7 +50,7 @@ builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<ContextMenuService>();
 builder.Services.AddScoped<PacienteService>();//registro de paciente
 builder.Services.AddScoped<InstructorService>();//regisro de instructor
-builder.Services.AddScoped<ArchivoService>(); // <--- obligatorio para poder inyectarlo
+builder.Services.AddScoped<ArchivoService>(); 
 builder.Services.AddScoped<CaballoService>();
 builder.Services.AddScoped<SesionesService>();
 builder.Services.AddScoped<AsistenciasService>();
@@ -52,8 +58,6 @@ builder.Services.AddBlazorDownloadFile();
 builder.Services.AddScoped<IExportService, ExportService>();
 
 builder.Services.AddBlazoredLocalStorage();
-
-builder.Services.AddAuthorizationCore();
 
 builder.Services.AddScoped<CustomAuthStateProvider>();
 
@@ -66,12 +70,11 @@ builder.Services.AddScoped<AuthMessageHandler>();
 
 builder.Services.AddHttpClient("API", client =>
 {
-    //client.BaseAddress = new Uri("https://localhost:7280/");
+    client.BaseAddress = new Uri("https://localhost:7280/");
     //client.BaseAddress = new Uri("https://aplicaciones.utsistemas.gob.mx/apiequinoterapia/api/");
     //client.BaseAddress = new Uri("https://aplicaciones.utsistemas.gob.mx/apiequinoterapia/");
 })
 .AddHttpMessageHandler<AuthMessageHandler>();
-
 
 
 

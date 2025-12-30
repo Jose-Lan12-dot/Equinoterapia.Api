@@ -1,8 +1,9 @@
-﻿@using FRONTproyectoEquinoterapia.Models
+﻿@attribute [Authorize]
+@using FRONTproyectoEquinoterapia.Models
 @using FRONTproyectoEquinoterapia.Services
 @inject Radzen.DialogService DialogService
 @inject FRONTproyectoEquinoterapia.Services.SesionesService SesionesService
-@inject FRONTproyectoEquinoterapia.Services.AsistenciasService AsistenciasService
+@inject FRONTproyectoEquinoterapia.Services.AsistenciasService AsistenciaService
 @inject PacienteService pacienteService
 @inject FRONTproyectoEquinoterapia.Services.InstructorService InstructorService
 @inject FRONTproyectoEquinoterapia.Services.CaballoService CaballoService
@@ -83,6 +84,7 @@
     [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
     [Parameter] public EventCallback OnPacientesAgregados { get; set; }
 
+    //se cambio sesionId = sesionId el nombre REPORTAR AL SERVIDOR 
     public async Task Abrir(int sesionId, int pacientesExistentes)
     {
         SesionId = sesionId;
@@ -92,12 +94,12 @@
         var todosPacientes = await pacienteService.ObtenerTodosAsync();
 
         // 2️⃣ Obtener los pacientes que ya están en la sesión
-        var pacientesEnSesion = await AsistenciasService.GetAsistenciasPorSesion(SesionId);
+        var pacientesEnSesion = await AsistenciaService.GetAsistenciasPorSesion(SesionId);
         var pacientesEnSesionIds = pacientesEnSesion.Select(p => p.PacienteId).ToList();
 
         // 3️⃣ Filtrar los pacientes que NO están en la sesión
         PacientesDisponibles = todosPacientes
-            .Where(p => !pacientesEnSesionIds.Contains(p.PacienteId))
+            .Where(p => !pacientesEnSesionIds.Contains(p.PacienteId) && !p.Estado.Equals("Baja"))
             .ToList();
 
         // 4️⃣ Limpiar selección previa
@@ -108,7 +110,7 @@
         await VisibleChanged.InvokeAsync(Visible);
 
         // 6️⃣ Logs de diagnóstico opcionales
-        Console.WriteLine($"Sesión {sesionId} - Pacientes en sesión: {string.Join(",", pacientesEnSesionIds)}");
+        Console.WriteLine($"Sesión {SesionId} - Pacientes en sesión: {string.Join(",", pacientesEnSesionIds)}");
         Console.WriteLine($"Pacientes disponibles: {string.Join(",", PacientesDisponibles.Select(p => p.PacienteId))}");
 
         StateHasChanged();
@@ -149,7 +151,7 @@
             PacientesId = PacienteIdsSeleccionados
         };
 
-        var (ok, mensaje) = await AsistenciasService.CreateAsistencias(dto);
+        var (ok, mensaje) = await AsistenciaService.CreateAsistencias(dto);
 
         if (ok)
         {

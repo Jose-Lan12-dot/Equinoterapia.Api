@@ -1,4 +1,5 @@
 ﻿@page "/detalle-instructor/{InstructorId:int}"
+@attribute [Authorize]
 @inject FRONTproyectoEquinoterapia.Services.InstructorService InstructorService
 @inject NavigationManager Navigation
 @inject IJSRuntime JS

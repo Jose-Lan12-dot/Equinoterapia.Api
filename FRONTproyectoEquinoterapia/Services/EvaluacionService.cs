@@ -20,14 +20,17 @@ namespace FRONTproyectoEquinoterapia.Services
                 if (!response.IsSuccessStatusCode) return null;
 
                 var content = await response.Content.ReadFromJsonAsync<JsonElement>();
-                // dataEvaluacion está dentro del objeto
-                if (content.TryGetProperty("dataEvaluacion", out var data))
-                {
-                    return JsonSerializer.Deserialize<GetEvaluacionDto>(data.GetRawText(),
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                }
+            // dataEvaluacion está dentro del objeto
+            if (content.TryGetProperty("data", out var data)|| content.TryGetProperty("Data", out data))
+            {
+                return JsonSerializer.Deserialize<GetEvaluacionDto>(
+                    data.GetRawText(),
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
+            }
 
-                return null;
+
+            return null;
             }
 
             // Obtener preguntas

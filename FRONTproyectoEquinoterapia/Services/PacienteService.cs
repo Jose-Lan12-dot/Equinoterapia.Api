@@ -30,7 +30,7 @@ namespace FRONTproyectoEquinoterapia.Services
         {
             var response =
                 await _http.GetFromJsonAsync<ResponseWrapper<List<AllPacienteDto>>>(
-                    "/api/Pacientes"
+                    "api/Pacientes"
                 );
 
             return response?.Data ?? new List<AllPacienteDto>();
@@ -42,7 +42,7 @@ namespace FRONTproyectoEquinoterapia.Services
         {
             var response =
                 await _http.GetFromJsonAsync<ResponseWrapper<PacienteDetailsDto>>(
-                    $"/api/Pacientes/{pacienteId}"
+                    $"api/Pacientes/{pacienteId}"
                 );
 
             return response?.Data;
@@ -53,7 +53,7 @@ namespace FRONTproyectoEquinoterapia.Services
         // Crear paciente solo con datos
         public async Task<(bool exito, string mensaje, int pacienteId)> AgregarPacienteSoloDatosAsync(AddPacienteDto paciente)
         {
-            var response = await _http.PostAsJsonAsync("https://localhost:7280/api/Pacientes", paciente);
+            var response = await _http.PostAsJsonAsync("api/Pacientes", paciente);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -71,7 +71,7 @@ namespace FRONTproyectoEquinoterapia.Services
             try
             {
                 var response = await _http.PostAsJsonAsync(
-                 "/api/Pacientes",
+                 "api/Pacientes",
                     pacienteConArchivos
                  );
 
@@ -97,7 +97,7 @@ namespace FRONTproyectoEquinoterapia.Services
         public async Task<(bool exito, string mensaje)> ActualizarPacienteAsync(UpdatePacienteDto paciente)
         {
             var response = await _http.PatchAsJsonAsync(
-            $"/api/Pacientes/{paciente.PacienteId}",
+            $"api/Pacientes/{paciente.PacienteId}",
             paciente
             );
 
@@ -114,7 +114,7 @@ namespace FRONTproyectoEquinoterapia.Services
         public async Task<(bool exito, string mensaje)> ActualizarParcialAsync(UpdatePacienteDto paciente)
         {
             var response = await _http.PatchAsJsonAsync(
-                $"https://localhost:7280/api/Pacientes/{paciente.PacienteId}",
+                $"api/Pacientes/{paciente.PacienteId}",
                 paciente);
 
             if (response.IsSuccessStatusCode)
@@ -130,7 +130,7 @@ namespace FRONTproyectoEquinoterapia.Services
         public async Task<(bool exito, string mensaje)> EliminarPacienteAsync(int pacienteId)
         {
             var response = await _http.DeleteAsync(
-            $"/api/Pacientes/{pacienteId}"
+            $"api/Pacientes/{pacienteId}"
             );
 
             if (response.IsSuccessStatusCode)

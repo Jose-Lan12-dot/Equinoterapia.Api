@@ -11,13 +11,5 @@
         public string Nombre { get; set; } = "";
         public string? FotoBase64 { get; set; }
     }
-    public class UsuarioSesionService
-    {
-        public UsuarioSesionDto? Usuario { get; set; }
-        public event Action? OnChange;
-
-        public void NotifyStateChanged() => OnChange?.Invoke();
-    }
-
 
 }

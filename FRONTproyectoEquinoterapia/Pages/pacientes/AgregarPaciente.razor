@@ -1,4 +1,5 @@
 ﻿@page "/agregar-paciente"
+@attribute [Authorize]
 @using FRONTproyectoEquinoterapia.Models
 @using FRONTproyectoEquinoterapia.Services
 @using Radzen
@@ -152,9 +153,22 @@
 
         if (string.IsNullOrWhiteSpace(nuevoPaciente.Tutor))
             errores.Add("Tutor");
-
+        
+            //esta validacion del telefono del tutor de cambio REPORTAR AL BAKEN
         if (string.IsNullOrWhiteSpace(nuevoPaciente.TelefonoTutor))
+        {
             errores.Add("Teléfono del tutor");
+        }
+        else
+        {
+            var telefono = nuevoPaciente.TelefonoTutor.Trim();
+
+            if (telefono.Length != 10 || !telefono.All(char.IsDigit))
+            {
+                errores.Add("El teléfono del tutor debe tener exactamente 10 dígitos numéricos");
+            }
+        }
+
 
         if (string.IsNullOrWhiteSpace(nuevoPaciente.Genero))
             errores.Add("Género");
