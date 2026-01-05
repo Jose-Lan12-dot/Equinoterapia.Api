@@ -9,5 +9,6 @@ namespace Equinoterapia.Application.Interfaces
         Task<(bool, string)> AddAsync(AddCaballoDto addCaballoDto);
         Task<(bool, string)> UpdatelAsync(UpdateCaballoDto caballoDto, int caballoId);
         Task<(bool, string)> DeleteAsync(int caballoId);
+        Task<List<PadecimientosDto>> GetPadecimientosAsync();
     }
 }

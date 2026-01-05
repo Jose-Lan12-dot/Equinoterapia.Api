@@ -24,7 +24,7 @@
 
 //    public required DateOnly FechaHerraje { get; set; }
 
-//    public required string Padecimiento { get; set; }
+//    public required string Padecimientos { get; set; }
 
 //    public virtual ICollection<Sesion> Sesions { get; set; } = new List<Sesion>();
 

@@ -12,7 +12,7 @@
 //        [Required]
 //        public DateOnly? FechaHerraje { get; set; }
 //        [Required]
-//        public string Padecimiento { get; set; } = string.Empty;
+//        public string Padecimientos { get; set; } = string.Empty;
 //    }
 
 
@@ -26,7 +26,7 @@
 //        [MaxLength(15)]
 //        public string? Estado { get; set; }
 //        public DateOnly? FechaHerraje { get; set; }
-//        public string? Padecimiento { get; set; }
+//        public string? Padecimientos { get; set; }
 //    }
 
 

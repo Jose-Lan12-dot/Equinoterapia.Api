@@ -191,15 +191,21 @@ namespace Equinoterapia.Application.Services
                     _archivoRepository.RemoveRange(archivos);
                 }
 
-                var evaluacion = await _evaluacionRepository.GetEvaluacionByIdAsync(pacienteId);
-                if (evaluacion != null)
+                var evaluaciones = await _evaluacionRepository.GetEvaluacionesByPacienteId(pacienteId);
+                if (evaluaciones.Any())
                 {
-                    var respuestas = await _respuestaRepository.GetRespuestasByEvaluacionIdAsync(evaluacion.EvaluacionId);
-                    if (respuestas.Any())
+                    foreach (var eval in evaluaciones)
                     {
-                        _respuestaRepository.RemoveRange(respuestas);
+                        // 3. Buscamos las respuestas DE ESTA evaluación específica (usando eval.EvaluacionId)
+                        var respuestas = await _respuestaRepository.GetRespuestasByEvaluacionIdAsync(eval.EvaluacionId);
+
+                        // 4. Si tiene respuestas, las marcamos para borrar
+                        if (respuestas.Any())
+                        {
+                            _respuestaRepository.RemoveRange(respuestas);
+                        }
                     }
-                    _evaluacionRepository.Delete(evaluacion);
+                    _evaluacionRepository.RemoveRange(evaluaciones);
                 }
                 _pacienteRepository.Delete(paciente);
 

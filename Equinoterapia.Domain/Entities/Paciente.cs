@@ -38,7 +38,7 @@ namespace Equinoterapia.Domain.Entities
 
         public virtual ICollection<Asistencia> Asistencia { get; set; } = new List<Asistencia>();
         public virtual ICollection<Archivos> Archivos { get; set; } = new List<Archivos>();
-        public virtual Evaluacion? Evaluacion { get; set; }
+        public virtual ICollection<Evaluacion>? Evaluacion { get; set; }
 
     }
 

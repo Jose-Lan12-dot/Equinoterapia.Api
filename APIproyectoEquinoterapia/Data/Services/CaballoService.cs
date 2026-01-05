@@ -82,7 +82,7 @@
 //                Nombre = addCaballoDto.Nombre,
 //                Estado = EstadoCaballo.Disponible,
 //                FechaHerraje = addCaballoDto.FechaHerraje!.Value,
-//                Padecimiento = addCaballoDto.Padecimiento,
+//                Padecimientos = addCaballoDto.Padecimientos,
 //            };
 
 //            try
@@ -126,7 +126,7 @@
 //        //    caballo.Nombre = caballoDto.Nombre!;
 //        //    caballo.Estado = GetEstado(caballoDto.Estado!, caballo!.Estado);
 //        //    caballo.FechaHerraje = caballoDto.FechaHerraje!.Value;
-//        //    caballo.Padecimiento = caballoDto.Padecimiento!;
+//        //    caballo.Padecimientos = caballoDto.Padecimientos!;
 
 //        //    try
 //        //    {
@@ -182,9 +182,9 @@
 //                caballo!.FechaHerraje = caballoDto.FechaHerraje!.Value;
 //            }
 
-//            if (!IsEmpty(caballoDto.Padecimiento))
+//            if (!IsEmpty(caballoDto.Padecimientos))
 //            {
-//                caballo!.Padecimiento = caballoDto.Padecimiento!;
+//                caballo!.Padecimientos = caballoDto.Padecimientos!;
 //            }
 
 //            try
@@ -245,7 +245,7 @@
 //                        Nombre = c.Nombre,
 //                        Estado = c.Estado.ToString(),
 //                        FechaHerraje = c.FechaHerraje,
-//                        Padecimiento = c.Padecimiento,
+//                        Padecimientos = c.Padecimientos,
 //                    })
 //                    .ToListAsync();
 //        }
@@ -288,7 +288,7 @@
 //                Nombre = caballo.Nombre,
 //                Estado = caballo.Estado.ToString(),
 //                FechaHerraje = caballo.FechaHerraje,
-//                Padecimiento = caballo.Padecimiento,
+//                Padecimientos = caballo.Padecimientos,
 //            };
 //        }
 

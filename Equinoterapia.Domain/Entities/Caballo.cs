@@ -20,9 +20,9 @@
 
         public required DateOnly FechaHerraje { get; set; }
 
-        public required string Padecimiento { get; set; }
 
         public virtual ICollection<Sesion> Sesions { get; set; } = new List<Sesion>();
+        public List<HistorialMedico> HistorialMedico { get; set; } = new();
 
     }
 }

@@ -56,7 +56,7 @@
 //                .HasMaxLength(20)
 //                .IsUnicode(false)
 //                .HasColumnName("Nombre");
-//            entity.Property(e => e.Padecimiento)
+//            entity.Property(e => e.Padecimientos)
 //                .HasMaxLength(255)
 //                .IsUnicode(false)
 //                .HasColumnName("padecimientos");

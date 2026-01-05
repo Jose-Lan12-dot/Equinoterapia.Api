@@ -8,6 +8,7 @@ namespace Equinoterapia.Application.Validators.Caballos
         public AddCaballoValidator()
         {
             RuleFor(x => x.Placa)
+                .NotEmpty().WithMessage("La placa es requerido.")
                 .Length(10).WithMessage("La placa debe tener 10 caracteres.")
                 .NotEmpty().WithMessage("La placa es requerida.");
 
@@ -16,6 +17,9 @@ namespace Equinoterapia.Application.Validators.Caballos
 
             RuleFor(x => x.FechaHerraje)
                 .NotEmpty().WithMessage("La fecha de herraje es requerida.");
+
+            RuleForEach(x => x.Padecimientos)
+            .SetValidator(new HistorialMedicoValidator());
         }
     }
 }

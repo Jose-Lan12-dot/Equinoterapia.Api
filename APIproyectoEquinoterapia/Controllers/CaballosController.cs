@@ -29,6 +29,18 @@ namespace Equinoterapia.Api.Controllers
 
             return Ok(caballos);
         }
+        [HttpGet("padecimientos")]
+        public async Task<IActionResult> GetPadecimientos()
+        {
+            var padecimientos = await _caballoService.GetPadecimientosAsync();
+
+            if (!padecimientos.Any())
+            {
+                return NotFound(); 
+            }
+
+            return Ok(padecimientos);
+        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)

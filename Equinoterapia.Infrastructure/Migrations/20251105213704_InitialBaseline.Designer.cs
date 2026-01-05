@@ -111,7 +111,7 @@ namespace Equinoterapia.Infrastructure.Migrations
                         .HasColumnType("varchar(20)")
                         .HasColumnName("Nombre");
 
-                    b.Property<string>("Padecimiento")
+                    b.Property<string>("Padecimientos")
                         .IsRequired()
                         .HasMaxLength(255)
                         .IsUnicode(false)

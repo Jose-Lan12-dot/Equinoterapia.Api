@@ -7,5 +7,6 @@ namespace Equinoterapia.Application.Interfaces
     {
         Task<List<GetAllCaballoDto>> GetAllDtosAsync();
         Task<List<DropdownItemDto>> GetDisponiblesAsync();
+        Task<List<PadecimientosDto>> GetPadecimientosAsync();
     }
 }

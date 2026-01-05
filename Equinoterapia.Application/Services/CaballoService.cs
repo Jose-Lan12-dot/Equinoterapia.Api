@@ -64,7 +64,7 @@ namespace Equinoterapia.Application.Services
                 return (null, "Caballo no encontrado");
             }
 
-            return (MapToCaballoDto(caballo), "Caballo encontrado");
+            return (MapToCaballoDto(caballo!), "Caballo encontrado");
         }
 
         public async Task<(bool, string)> AddAsync(AddCaballoDto addCaballoDto)
@@ -76,7 +76,11 @@ namespace Equinoterapia.Application.Services
                 Nombre = addCaballoDto.Nombre,
                 Estado = EstadoCaballo.Disponible,
                 FechaHerraje = addCaballoDto.FechaHerraje!,
-                Padecimiento = addCaballoDto.Padecimiento,
+                HistorialMedico = addCaballoDto.Padecimientos.Select(p => new HistorialMedico
+                {
+                    PadecimientoId = p.PadecimientoId,
+                    Observaciones = p.Observaciones,
+                }).ToList()
             };
 
             try
@@ -116,9 +120,9 @@ namespace Equinoterapia.Application.Services
             {
                 caballo.FechaHerraje = caballoDto.FechaHerraje!.Value;
             }
-            if (!IsEmpty(caballoDto.Padecimiento))
+            if (caballoDto.Padecimientos != null)
             {
-                caballo.Padecimiento = caballoDto.Padecimiento!;
+                SincronizarHistorialMedico(caballo, caballoDto.Padecimientos);
             }
 
             try
@@ -175,7 +179,10 @@ namespace Equinoterapia.Application.Services
             }
         }
 
-
+        public async Task<List<PadecimientosDto>> GetPadecimientosAsync()
+        {
+            return await _caballoQueryRepository.GetPadecimientosAsync();
+        }
 
 
 
@@ -192,7 +199,13 @@ namespace Equinoterapia.Application.Services
                 Nombre = caballo.Nombre,
                 Estado = caballo.Estado.ToString(),
                 FechaHerraje = caballo.FechaHerraje,
-                Padecimiento = caballo.Padecimiento,
+                Padecimientos = caballo.HistorialMedico.Select(h => new HistorialMedicoDto
+                {
+                    HistorialId = h.Id,
+                    PadecimientoId = h.PadecimientoId,
+                    NombrePadecimiento = h.Padecimiento.PadecimientoNombre,
+                    Observaciones = h.Observaciones
+                }).ToList()
             };
         }
 
@@ -203,6 +216,55 @@ namespace Equinoterapia.Application.Services
             if (Enum.TryParse<EstadoCaballo>(estado, out var estadoNuevo))
                 return estadoNuevo;
             return estadoActual;
+        }
+
+
+        private void SincronizarHistorialMedico(Caballo caballo, List<HistorialMedicoDto> padecimientosDto)
+        {
+            // ---------------------------------------------------------
+            // PASO 1: ELIMINAR 
+            // ---------------------------------------------------------
+
+            // Obtenemos los IDs que vienen del Front
+            var idsEntrantes = padecimientosDto
+                .Where(x => x.HistorialId != 0) 
+                .Select(x => x.HistorialId)
+                .ToList();
+
+            var registrosParaBorrar = caballo.HistorialMedico
+                .Where(h => !idsEntrantes.Contains(h.Id))
+                .ToList();
+
+            foreach (var registro in registrosParaBorrar)
+            {
+                caballo.HistorialMedico.Remove(registro);
+            }
+
+            // ---------------------------------------------------------
+            // PASO 2: AGREGAR O ACTUALIZAR (Lo que viene en el DTO)
+            // ---------------------------------------------------------
+            foreach (var itemDto in padecimientosDto)
+            {
+                var historialExistente = caballo.HistorialMedico
+                    .FirstOrDefault(h => h.Id == itemDto.HistorialId);
+
+                if (historialExistente != null)
+                {
+                    // --- EDITAR ---
+                    historialExistente.Observaciones = itemDto.Observaciones;
+                    historialExistente.PadecimientoId = itemDto.PadecimientoId; 
+                }
+                else
+                {
+                    // --- AGREGAR ---
+                    // Si no tiene ID o el ID no coincide con nada existente, es nuevo
+                    caballo.HistorialMedico.Add(new HistorialMedico
+                    {
+                        PadecimientoId = itemDto.PadecimientoId,
+                        Observaciones = itemDto.Observaciones
+                    });
+                }
+            }
         }
     }
 }

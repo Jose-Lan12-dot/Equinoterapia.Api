@@ -9,8 +9,7 @@ public partial class AppDbContext : DbContext
     {
     }
 
-    public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options)
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
 
@@ -25,9 +24,10 @@ public partial class AppDbContext : DbContext
     public DbSet<Archivos> archivo { get; set; }
     public DbSet<TipoArchivo> tipoArchivo { get; set; }
     public DbSet<InicioSesion> inicioSesion { get; set; }
-
     public DbSet<InformeMensual> informeMensual { get; set; }
     public DbSet<DetalleInforme> DetalleInforme { get; set; }
+    public DbSet<Padecimiento> padecimineto { get; set; }
+    public DbSet<HistorialMedico> caballoPadecimiento { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -36,13 +36,10 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("caballo");
             entity.HasKey(c => c.CaballoId);
-
             entity.Property(c => c.CaballoId)
                 .HasColumnName("caballo_id");
             entity.Property(e => e.Placa)
-                .HasMaxLength(10)
                 .IsUnicode(false)
-                .IsFixedLength()
                 .HasColumnName("placa");
             entity.Property(e => e.Estado)
                 .HasColumnName("estado")
@@ -50,13 +47,8 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.FechaHerraje)
                 .HasColumnName("fecha_herraje");
             entity.Property(e => e.Nombre)
-                .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("Nombre");
-            entity.Property(e => e.Padecimiento)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("padecimientos");
         });
 
         modelBuilder.Entity<Asistencia>(entity =>
@@ -162,7 +154,7 @@ public partial class AppDbContext : DbContext
                 .WithMany(instructor => instructor.Sesions)
                 .HasForeignKey(sesion => sesion.InstructorId);
 
-            // Contrato #2: Relación entre Sesion y Caballo
+            // Contrato #2: Relación entre Sesion y caballo
             entity.HasOne(sesion => sesion.Caballo)
             .WithMany(caballo => caballo.Sesions)
             .HasForeignKey(sesion => sesion.CaballoId);
@@ -185,8 +177,8 @@ public partial class AppDbContext : DbContext
 
             // --- Relación 1:1 desde la entidad dependiente ---
             entity.HasOne(evaluacion => evaluacion.Paciente) 
-                  .WithOne(paciente => paciente.Evaluacion)   
-                  .HasForeignKey<Evaluacion>(evaluacion => evaluacion.PacienteId); 
+                  .WithMany(paciente => paciente.Evaluacion)   
+                  .HasForeignKey(evaluacion => evaluacion.PacienteId); 
         });
 
         modelBuilder.Entity<Respuestas>(entity =>
@@ -335,6 +327,49 @@ public partial class AppDbContext : DbContext
 
         });
 
+        modelBuilder.Entity<Padecimiento>(entity =>
+        {
+            entity.ToTable("padecimiento");
+            entity.HasKey(p => p.PadecimientoId);
+
+            entity.Property(p => p.PadecimientoId)
+                .HasColumnName("padecimiento_id");
+            entity.Property(p => p.PadecimientoNombre)
+                .HasColumnName("padecimiento_nombre");
+        });
+
+        modelBuilder.Entity<HistorialMedico>(entity =>
+        {
+            entity.ToTable("historial_medico");
+            entity.HasKey(p => p.Id);
+            entity.Property(p => p.Id)
+                .HasColumnName("id");
+            entity.Property(p => p.PadecimientoId)
+                .HasColumnName("padecimiento_id");
+            entity.Property(p => p.CaballoId)
+                .HasColumnName("caballo_id");
+            entity.Property(p => p.Observaciones)
+                .HasColumnName("observaciones");
+
+            entity.HasOne(hm => hm.Caballo)
+            .WithMany(caballo => caballo.HistorialMedico)
+            .HasForeignKey(hm => hm.CaballoId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(hm => hm.Padecimiento)
+            .WithMany() 
+            .HasForeignKey(hm => hm.PadecimientoId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+
+
+
+        ///INTRODUCIR DATOS A LA BASE DE DATOS
+        modelBuilder.Entity<Padecimiento>().HasData(
+        new Padecimiento { PadecimientoId = 3, PadecimientoNombre = "Artritis" },
+        new Padecimiento { PadecimientoId = 4, PadecimientoNombre = "Infección Respiratoria" }
+        );
 
         modelBuilder.Entity<Preguntas>().HasData(
         new Preguntas { PreguntaId = 1, Pregunta = "CONTACTO VISUAL" },
@@ -362,7 +397,6 @@ public partial class AppDbContext : DbContext
         new Preguntas { PreguntaId = 20, Pregunta = "NIVEL DE IMPULSIVIDAD"}
         );
 
-        
         modelBuilder.Entity<TipoArchivo>().HasData(
             new TipoArchivo { TipoId = 1, Nombre = "DiagnosticoMedico", Extension = ".pdf" },
             new TipoArchivo { TipoId = 2, Nombre = "CertificadoMedico", Extension = ".pdf" },

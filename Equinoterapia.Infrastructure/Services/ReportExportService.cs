@@ -61,7 +61,7 @@ namespace Equinoterapia.Infrastructure.Services
 
                                 // Derecha: Coordinación (Rojo)
                                 row.RelativeItem().AlignRight().AlignMiddle()
-                                   .Text("CENTRO DE EQUINOTERRARIA ")
+                                   .Text("CENTRO DE EQUINOTERRARIA")
                                    .FontSize(11).Bold().FontColor("#D9534F"); 
                             });
 
@@ -192,7 +192,7 @@ namespace Equinoterapia.Infrastructure.Services
             worksheet.Cell("C2").Style.Font.FontColor = XLColor.Gray;
 
             // Coordinación (Derecha)
-            worksheet.Cell("F2").Value = "COORDINACIÓN TÉCNICA";
+            worksheet.Cell("F2").Value = "CENTRO DE EQUINOTERRARIA";
             worksheet.Cell("F2").Style.Font.FontColor = XLColor.Red; 
             worksheet.Cell("F2").Style.Font.Bold = true;
             worksheet.Cell("F2").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;

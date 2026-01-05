@@ -31,13 +31,20 @@ namespace Equinoterapia.Infrastructure.Repositories
         public async Task<List<GetAllEvaluacionesAsyncDto>> GetEvaluacionesByPacienteIdAsync(int pacienteId)
         {
             return await _context.evaluacion
-                .AsNoTracking()
                 .Where(p => p.PacienteId == pacienteId)
+                .AsNoTracking()
                 .Select(e => new GetAllEvaluacionesAsyncDto
                 {
                     EvaluacionId = e.EvaluacionId,
                     Fecha = e.Fecha,
                 })
+                .ToListAsync();
+        }
+
+        public async Task<List<Evaluacion>> GetEvaluacionesByPacienteId(int pacienteId)
+        {
+            return await _context.evaluacion
+                .Where(p => p.PacienteId == pacienteId)
                 .ToListAsync();
         }
 
@@ -82,9 +89,16 @@ namespace Equinoterapia.Infrastructure.Repositories
             _context.evaluacion.Remove(evaluacion);
         }
 
+
+
         public async Task<bool> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public void RemoveRange(List<Evaluacion> evaluacions)
+        {
+            _context.evaluacion.RemoveRange(evaluacions);
         }
     }
 }

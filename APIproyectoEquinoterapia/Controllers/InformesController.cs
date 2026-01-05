@@ -9,7 +9,6 @@ namespace Equinoterapia.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    //[Authorize]
     public class InformesController : ControllerBase
     {
         private readonly IInformeService _informeService;

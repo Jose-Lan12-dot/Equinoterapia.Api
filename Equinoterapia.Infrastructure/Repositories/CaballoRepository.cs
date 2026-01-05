@@ -19,7 +19,10 @@ namespace Equinoterapia.Infrastructure.Repositories
 
         public async Task<Caballo?> GetByIdAsync(int caballoId)
         {
-            return await _context.caballo.FindAsync(caballoId);
+            return await _context.caballo
+            .Include(c => c.HistorialMedico)           // 1. Carga el historial
+            .ThenInclude(hm => hm.Padecimiento)    // 2. Entra al historial y carga el padecimiento
+            .FirstOrDefaultAsync(c => c.CaballoId == caballoId);
         }
 
         public void Add(Caballo caballo)
@@ -58,6 +61,17 @@ namespace Equinoterapia.Infrastructure.Repositories
                 {
                     Id = c.CaballoId,
                     Nombre = c.Nombre 
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<PadecimientosDto>> GetPadecimientosAsync()
+        {
+            return await _context.padecimineto
+                .Select(p => new PadecimientosDto
+                {
+                    PadecimientoId = p.PadecimientoId,
+                    Nombre = p.PadecimientoNombre
                 })
                 .ToListAsync();
         }

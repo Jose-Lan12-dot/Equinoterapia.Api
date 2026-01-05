@@ -23,6 +23,11 @@ namespace Equinoterapia.Application.Validators.Caballos
                 .Must(BeValidEstado).WithMessage("El estado debe ser 'Disponible', 'En Tratamiento', 'En Descanso' o 'Retirado'.")
                 .When(x => x.Estado is not null);
 
+            // NUEVA REGLA PARA LA LISTA (Solo si la lista no es nula)
+            RuleForEach(x => x.Padecimientos)
+                .SetValidator(new HistorialMedicoValidator())
+                .When(x => x.Padecimientos != null && x.Padecimientos.Any());
+
         }
 
         private bool BeValidEstado(string? estado)

@@ -7,6 +7,6 @@
         public string Nombre { get; set; } = string.Empty;
         public string Estado { get; set; } = string.Empty;
         public DateOnly FechaHerraje { get; set; }
-        public string Padecimiento { get; set; } = string.Empty;
+        public List<HistorialMedicoDto> Padecimientos { get; set; } = null!;
     }
 }

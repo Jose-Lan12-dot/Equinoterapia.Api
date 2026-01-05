@@ -103,25 +103,15 @@ namespace Equinoterapia.Infrastructure.Migrations
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasMaxLength(20)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
+                        .HasColumnType("varchar(max)")
                         .HasColumnName("Nombre");
-
-                    b.Property<string>("Padecimiento")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("padecimientos");
 
                     b.Property<string>("Placa")
                         .IsRequired()
-                        .HasMaxLength(10)
                         .IsUnicode(false)
-                        .HasColumnType("char(10)")
-                        .HasColumnName("placa")
-                        .IsFixedLength();
+                        .HasColumnType("varchar(max)")
+                        .HasColumnName("placa");
 
                     b.HasKey("CaballoId");
 
@@ -195,10 +185,39 @@ namespace Equinoterapia.Infrastructure.Migrations
 
                     b.HasKey("EvaluacionId");
 
-                    b.HasIndex("PacienteId")
-                        .IsUnique();
+                    b.HasIndex("PacienteId");
 
                     b.ToTable("evaluacion", (string)null);
+                });
+
+            modelBuilder.Entity("Equinoterapia.Domain.Entities.HistorialMedico", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CaballoId")
+                        .HasColumnType("int")
+                        .HasColumnName("caballo_id");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("observaciones");
+
+                    b.Property<int>("PadecimientoId")
+                        .HasColumnType("int")
+                        .HasColumnName("padecimiento_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaballoId");
+
+                    b.HasIndex("PadecimientoId");
+
+                    b.ToTable("historial_medico", (string)null);
                 });
 
             modelBuilder.Entity("Equinoterapia.Domain.Entities.InformeMensual", b =>
@@ -354,6 +373,37 @@ namespace Equinoterapia.Infrastructure.Migrations
                         .HasName("PK__Paciente__46FEF656E35EEE7A");
 
                     b.ToTable("paciente", (string)null);
+                });
+
+            modelBuilder.Entity("Equinoterapia.Domain.Entities.Padecimiento", b =>
+                {
+                    b.Property<int>("PadecimientoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("padecimiento_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PadecimientoId"));
+
+                    b.Property<string>("PadecimientoNombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("padecimiento_nombre");
+
+                    b.HasKey("PadecimientoId");
+
+                    b.ToTable("padecimiento", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            PadecimientoId = 3,
+                            PadecimientoNombre = "Artritis"
+                        },
+                        new
+                        {
+                            PadecimientoId = 4,
+                            PadecimientoNombre = "Infección Respiratoria"
+                        });
                 });
 
             modelBuilder.Entity("Equinoterapia.Domain.Entities.Preguntas", b =>
@@ -661,12 +711,31 @@ namespace Equinoterapia.Infrastructure.Migrations
             modelBuilder.Entity("Equinoterapia.Domain.Entities.Evaluacion", b =>
                 {
                     b.HasOne("Equinoterapia.Domain.Entities.Paciente", "Paciente")
-                        .WithOne("Evaluacion")
-                        .HasForeignKey("Equinoterapia.Domain.Entities.Evaluacion", "PacienteId")
+                        .WithMany("Evaluacion")
+                        .HasForeignKey("PacienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Paciente");
+                });
+
+            modelBuilder.Entity("Equinoterapia.Domain.Entities.HistorialMedico", b =>
+                {
+                    b.HasOne("Equinoterapia.Domain.Entities.Caballo", "Caballo")
+                        .WithMany("HistorialMedico")
+                        .HasForeignKey("CaballoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Equinoterapia.Domain.Entities.Padecimiento", "Padecimiento")
+                        .WithMany()
+                        .HasForeignKey("PadecimientoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Caballo");
+
+                    b.Navigation("Padecimiento");
                 });
 
             modelBuilder.Entity("Equinoterapia.Domain.Entities.Respuestas", b =>
@@ -709,6 +778,8 @@ namespace Equinoterapia.Infrastructure.Migrations
 
             modelBuilder.Entity("Equinoterapia.Domain.Entities.Caballo", b =>
                 {
+                    b.Navigation("HistorialMedico");
+
                     b.Navigation("Sesions");
                 });
 

@@ -7,6 +7,7 @@ namespace Equinoterapia.Domain.Interfaces
         // --- Métodos de Lectura ---
         Task<bool> PacienteExistsAsync(int pacienteId);
         Task<Evaluacion?> GetEvaluacionByIdAsync(int EvaluacionId);
+        Task<List<Evaluacion>> GetEvaluacionesByPacienteId(int pacienteId);
         Task<string?> GetPacienteNombreAsync(int pacienteId);
         Task<int> GetPreguntasCountAsync();
         Task<bool> EvaluacionExistsAsync(int pacienteId);
@@ -15,6 +16,8 @@ namespace Equinoterapia.Domain.Interfaces
         // --- Métodos de Escritura ---
         void Add(Evaluacion evaluacion);
         void Delete(Evaluacion evaluacion);
+        void RemoveRange(List<Evaluacion> evaluacions);
         Task<bool> SaveChangesAsync();
+
     }
 }
