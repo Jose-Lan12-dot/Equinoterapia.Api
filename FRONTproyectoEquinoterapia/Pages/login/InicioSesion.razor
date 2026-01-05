@@ -89,6 +89,7 @@
                       onmouseover="this.style.filter='brightness(1.1)'; this.style.boxShadow='0 6px 18px rgba(184,17,49,0.35)';"
                       onmouseout="this.style.filter='brightness(1)'; this.style.boxShadow='0 4px 14px rgba(184,17,49,0.25)';"
                       Click="@IniciarSesion" />
+
         </div>
         <!-- Link de recuperación con efecto hover -->
         <div style="display:flex; align-items:center; justify-content:center; margin-top:20px; cursor:pointer;"
@@ -119,18 +120,6 @@
     private string contrasena = string.Empty;
     private string mensaje = string.Empty;
 
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthProvider.GetAuthenticationStateAsync();
-
-        if (authState.User.Identity?.IsAuthenticated == true)
-        {
-            // Ya está logueado → fuera del login
-            NavigationManager.NavigateTo("/inicio", true);
-        }
-    }
-
-
     private async Task IniciarSesion()
     {
         var datos = new InicioSesionModel
@@ -144,23 +133,26 @@
 
         if (exito && data != null)
         {
-            // Guardar token
             await localStorage.SetItemAsync("token", data.Token);
 
-            // Notificar autenticación
-            var customAuth = (CustomAuthStateProvider)AuthProvider;
-            await customAuth.MarkUserAsAuthenticated(data.Token);
+            await localStorage.SetItemAsync("usuarioNombre", data.NombreUsuario);
+            await localStorage.SetItemAsync("usuarioFoto",
+                data.FotoPerfil != null
+                    ? Convert.ToBase64String(data.FotoPerfil)
+                    : null
+            );
 
-            // Datos para UI
-            UsuarioSesionService.Usuario = new UsuarioSesionDto
+            UsuarioSesionService.SetUsuario(new UsuarioSesionDto
             {
                 Nombre = data.NombreUsuario,
                 FotoBase64 = data.FotoPerfil != null
                     ? Convert.ToBase64String(data.FotoPerfil)
                     : null
-            };
+            });
 
-            UsuarioSesionService.NotifyStateChanged();
+            var customAuth = (CustomAuthStateProvider)AuthProvider;
+            await customAuth.MarkUserAsAuthenticated(data.Token);
+
 
             NavigationManager.NavigateTo("/inicio");
         }
@@ -169,8 +161,6 @@
             mensaje = mensajeServidor;
         }
     }
-
-
 
     private void RecuperarContrasena()
     {

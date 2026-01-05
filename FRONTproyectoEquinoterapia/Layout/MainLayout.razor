@@ -1,9 +1,9 @@
-﻿@using FRONTproyectoEquinoterapia.Services
+﻿@inherits LayoutComponentBase
+
 @inject AuthenticationStateProvider AuthProvider
 @inject UsuarioSesionService UsuarioSesionService
-@inject NavigationManager NavigationManager
-
-@inherits LayoutComponentBase
+@using Blazored.LocalStorage
+@inject ILocalStorageService localStorage
 
 <div class="app @(usuarioAutenticado ? "page-layout" : "")">
     @if (usuarioAutenticado)
@@ -24,21 +24,14 @@
         var auth = await AuthProvider.GetAuthenticationStateAsync();
         usuarioAutenticado = auth.User.Identity?.IsAuthenticated == true;
 
+        // PERSISTENCIA SIN BACKEND 
         if (usuarioAutenticado && UsuarioSesionService.Usuario == null)
         {
-            try
-            {
-                await UsuarioSesionService.CargarPerfilAsync();
-            }
-            catch (UnauthorizedAccessException)
-            {
-                // Token expirado o inválido
-                UsuarioSesionService.Usuario = null;
-                NavigationManager.NavigateTo("/", true);
-            }
+            await UsuarioSesionService.CargarDesdeLocalStorageAsync(localStorage);
         }
     }
 }
+
 
 <style>
     .page-layout {

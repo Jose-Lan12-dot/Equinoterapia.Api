@@ -13,6 +13,11 @@
     {
         public string Mensaje { get; set; } = string.Empty;
     }
+    public class PerfilResponseDto
+    {
+        public string? NombreUsuario { get; set; }
+        public string? Foto { get; set; }
+    }
 
 
 }
